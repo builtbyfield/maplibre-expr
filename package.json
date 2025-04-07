@@ -1,0 +1,42 @@
+{
+  "name": "@builtbyfield/maplibre-expression-helpers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@maplibre/maplibre-gl-style-spec": "^22.0.1",
+    "@types/geojson": "^7946.0.15",
+    "@vitest/coverage-v8": "2.1.8",
+    "eslint": "^9.16.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.13.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^2.1.8"
+  },
+  "keywords": [
+    "maplibre",
+    "mapbox",
+    "expressions"
+  ],
+  "author": {
+    "name": "Jesse McLean",
+    "email": "jesse@builtbyfield.com",
+    "url": "https://builtbyfield.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/builtbyfield/maplibre-expression-helpers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/builtbyfield/maplibre-expression-helpers/issues"
+  },
+  "homepage": "https://github.com/builtbyfield/maplibre-expression-helpers"
+}
