@@ -454,16 +454,26 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       name: "within",
       description: "Check if feature is within a boundary",
       detailedDescription: "Returns true if the evaluated feature is fully contained inside a boundary of the input geometry, false otherwise. The input value can be a valid GeoJSON Polygon, MultiPolygon, Feature, or FeatureCollection.",
-      expression: expr.decision.spatial.within({
-        type: "Polygon",
-        coordinates: [[
-          [-122.48, 37.85],
-          [-122.48, 37.75],
-          [-122.38, 37.75],
-          [-122.38, 37.85],
-          [-122.48, 37.85]
-        ]]
-      }),
+      expression: 
+      expr.decision.match(
+        expr.types.conversion.toString(
+          expr.decision.spatial.within({
+            type: "Polygon",
+            coordinates: [[
+              [-122.48, 37.85],
+              [-122.48, 37.75],
+              [-122.38, 37.75],
+              [-122.38, 37.85],
+              [-122.48, 37.85]
+            ]]
+          })
+        ),
+        [
+          ["true", "#0000ff"],
+          ["false", "#ff0000"],
+        ],
+        "#cccccc",
+      ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
@@ -830,14 +840,117 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
   ],
   "Custom - Datetime": [
     {
-      name: "date-format",
-      description: "Format a date",
-      detailedDescription: "Formats a date using the specified format string.",
-      expression: expr.datetime.isSameDay(expr.lookup.get("date"), expr.types.assertion.literal("2025-01-01")),
+      name: "is within time range",
+      description: "Check if current time is within event duration",
+      detailedDescription: "Determines if the current time falls between an event's start and end times. Perfect for highlighting active events or time-sensitive data.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.datetime.isWithinTimeRange(
+          Date.now(),
+          "eventStart",
+          "eventEnd"
+        ), "#00ff00"]],
+        "#cccccc"
+      ),
       layerType: "circle",
       paintProperty: "circle-color",
-      defaultValue: "#00ff00",
-      useCase: "Date comparison, filtering"
+      defaultValue: "#cccccc",
+      useCase: "Active event highlighting, time-based filtering, real-time status"
+    },
+    {
+      name: "is today",
+      description: "Highlight events happening today",
+      detailedDescription: "Returns true if the timestamp represents today's date. Useful for emphasizing current day events or recently updated data.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.datetime.isToday(expr.lookup.get("lastUpdate")), "#ffff00"]],
+        "#cccccc"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#cccccc",
+      useCase: "Daily highlights, fresh data emphasis, today's agenda"
+    },
+    {
+      name: "is within next duration",
+      description: "Show upcoming events in next 7 days",
+      detailedDescription: "Checks if an event date is within the next 7 days from now. Great for showing upcoming deadlines or scheduled events.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.datetime.isWithinNextDuration(
+          expr.lookup.get("scheduledDate"),
+          7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+        ), "#ff9900"]],
+        "#cccccc"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#cccccc",
+      useCase: "Upcoming events, deadline warnings, planning visualization"
+    },
+    {
+      name: "is within past duration",
+      description: "Show recent activity in last 24 hours",
+      detailedDescription: "Highlights data points that were active or updated within the last 24 hours. Creates a visual decay effect for recent activity.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.datetime.isWithinPastDuration(
+          expr.lookup.get("lastActivity"),
+          24 * 60 * 60 * 1000 // 24 hours in milliseconds
+        ), 1.0]],
+        0.3
+      ),
+      layerType: "circle",
+      paintProperty: "circle-opacity",
+      defaultValue: 0.3,
+      useCase: "Recent activity emphasis, data freshness, temporal decay effects"
+    },
+    {
+      name: "is same day comparison",
+      description: "Check if start and end are same day",
+      detailedDescription: "Compares two timestamps to determine if they fall on the same calendar day. Useful for distinguishing single-day vs multi-day events.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.datetime.isSameDay(
+          expr.lookup.get("eventStart"),
+          expr.lookup.get("eventEnd")
+        ), "#00ff00"]],
+        "#ff6600"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#ff6600",
+      useCase: "Event duration visualization, single vs multi-day classification"
+    },
+    {
+      name: "temporal priority scaling",
+      description: "Scale size based on time urgency",
+      detailedDescription: "Complex expression combining multiple datetime checks to create urgency-based sizing. Larger circles for more urgent timeframes.",
+      expression: expr.decision.controlFlow.case(
+        [
+          [expr.datetime.isWithinNextDuration(expr.lookup.get("deadline"), 24 * 60 * 60 * 1000), 20],
+          [expr.datetime.isWithinNextDuration(expr.lookup.get("deadline"), 3 * 24 * 60 * 60 * 1000), 15],
+          [expr.datetime.isWithinNextDuration(expr.lookup.get("deadline"), 7 * 24 * 60 * 60 * 1000), 10],
+        ],
+        5
+      ),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Urgency visualization, priority scaling, deadline management"
+    },
+    {
+      name: "activity heatmap by recency",
+      description: "Color based on how recently data was updated",
+      detailedDescription: "Creates a temporal heatmap effect where recently updated items are 'hot' (red) and older items are 'cool' (blue).",
+      expression: expr.decision.controlFlow.case(
+        [
+          [expr.datetime.isWithinPastDuration(expr.lookup.get("lastUpdate"), 1 * 60 * 60 * 1000), "#ff0000"], // 1 hour - red hot
+          [expr.datetime.isWithinPastDuration(expr.lookup.get("lastUpdate"), 6 * 60 * 60 * 1000), "#ff9900"], // 6 hours - orange
+          [expr.datetime.isWithinPastDuration(expr.lookup.get("lastUpdate"), 24 * 60 * 60 * 1000), "#ffff00"], // 1 day - yellow
+          [expr.datetime.isWithinPastDuration(expr.lookup.get("lastUpdate"), 7 * 24 * 60 * 60 * 1000), "#00ff00"], // 1 week - green
+        ],
+        "#0000ff" // older than 1 week - blue cold
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#0000ff",
+      useCase: "Data freshness visualization, activity monitoring, temporal analytics"
     },
   ],
 }
