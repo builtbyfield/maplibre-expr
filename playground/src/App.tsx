@@ -17,11 +17,13 @@ function App() {
     map.addSource("points", {
       type: "geojson",
       data: pointData,
+      promoteId: "id"
     })
 
     map.addSource("polygons", {
       type: "geojson",
       data: polygonData,
+      promoteId: "id",
     })
 
     // Add default layers
