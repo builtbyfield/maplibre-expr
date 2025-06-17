@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpression } from "../../utils/test-utils"
+import { testExpression, testExpressionValue, testExpressionCompilation } from "../../utils/test-utils"
 import { assertion } from "./assertion"
 
 describe("types", () => {
@@ -170,19 +170,14 @@ describe("types", () => {
       describe("literal", () => {
         it("should evaluate literal array", () => {
           const expression = assertion.literal(["a", "b"])
-          const equals = [
-            "==",
-            expression,
-            ["literal", ["a", "b"]],
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          testExpressionValue(expression, feature, ["a", "b"])
         })
       })
 
       describe("array", () => {
         it("should evaluate array type assertion", () => {
-          const expression = assertion.array("string", 2, ["a", "b"])
-          testExpression(expression, feature, true)
+          const expression = assertion.array("string", 2, assertion.literal(["a", "b"]))
+          testExpressionValue(expression, feature, ["a", "b"])
         })
       })
 
@@ -243,12 +238,8 @@ describe("types", () => {
         })
         it("should evaluate typeof undefined", () => {
           const expression = assertion.typeof(["get", "nonexistentValue"])
-          const equals = [
-            "==",
-            expression,
-            "undefined",
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          // Note: MapLibre returns "null" for missing properties, not "undefined"
+          testExpressionValue(expression, feature, "null")
         })
       })
 
@@ -291,12 +282,7 @@ describe("types", () => {
       describe("object", () => {
         it("should evaluate object assertion", () => {
           const expression = assertion.object(["get", "metadata"])
-          const equals = [
-            "==",
-            expression,
-            ["literal", { key: "point" }],
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          testExpressionValue(expression, feature, { key: "point" })
         })
       })
     })

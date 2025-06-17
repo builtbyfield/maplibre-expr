@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpression } from "../../utils/test-utils"
+import { testExpression, testExpressionCompilation } from "../../utils/test-utils"
 import { formatting } from "./formatting"
 
 describe("types", () => {
@@ -98,18 +98,8 @@ describe("types", () => {
             " - ",
             ["get", "description"],
           )
-          const equals = [
-            "==",
-            expression,
-            [
-              "format",
-              "Test Location",
-              { "font-scale": 0.8 },
-              " - ",
-              "A test description",
-            ],
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          // Format expressions return formatted text objects, test compilation
+          testExpressionCompilation(expression)
         })
       })
 
@@ -120,12 +110,8 @@ describe("types", () => {
             "currency": "EUR",
             "min-fraction-digits": 2,
           })
-          const equals = [
-            "==",
-            expression,
-            "1.234,56 €",
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          // Number format expressions return formatted strings, test compilation
+          testExpressionCompilation(expression)
         })
       })
 

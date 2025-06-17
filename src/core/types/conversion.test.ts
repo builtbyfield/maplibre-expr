@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpression } from "../../utils/test-utils"
+import { testExpression, testExpressionValue } from "../../utils/test-utils"
 import { conversion } from "./conversion"
 
 describe("types", () => {
@@ -138,12 +138,8 @@ describe("types", () => {
       describe("toColor", () => {
         it("should convert string to color", () => {
           const expression = conversion.toColor(["get", "colorString"])
-          const equals = [
-            "==",
-            expression,
-            ["rgba", 255, 0, 0, 1],
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          // Color expressions return Color objects with r,g,b,a properties (0-1 range)
+          testExpressionValue(expression, feature, { r: 1, g: 0, b: 0, a: 1 })
         })
 
         it("should use fallback for invalid color", () => {
@@ -151,12 +147,8 @@ describe("types", () => {
             ["get", "stringNumber"],
             "#000000",
           )
-          const equals = [
-            "==",
-            expression,
-            ["rgba", 0, 0, 0, 1],
-          ] satisfies ExpressionSpecification
-          testExpression(equals, feature, true)
+          // Test fallback to black color (Color object with 0-1 range)
+          testExpressionValue(expression, feature, { r: 0, g: 0, b: 0, a: 1 })
         })
       })
     })
