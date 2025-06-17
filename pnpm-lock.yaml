@@ -38,10 +38,6 @@ catalogs:
     '@types/geojson':
       specifier: ^7946.0.15
       version: 7946.0.15
-  utils:
-    '@maplibre/maplibre-gl-style-spec':
-      specifier: ^22.0.1
-      version: 22.0.1
 
 importers:
 
@@ -54,8 +50,8 @@ importers:
         specifier: catalog:cli
         version: 9.16.0
       '@maplibre/maplibre-gl-style-spec':
-        specifier: catalog:utils
-        version: 22.0.1
+        specifier: ^23.3.0
+        version: 23.3.0
       '@types/geojson':
         specifier: catalog:types
         version: 7946.0.15
@@ -861,8 +857,8 @@ packages:
   '@mapbox/unitbezier@0.0.1':
     resolution: {integrity: sha512-nMkuDXFv60aBr9soUG5q+GvZYL+2KZHVvsqFCzqnkGEf46U2fvmytHaEVc1/YZbiLn8X+eR3QzX1+dwDO1lxlw==}
 
-  '@maplibre/maplibre-gl-style-spec@22.0.1':
-    resolution: {integrity: sha512-V7bSw7Ui6+NhpeeuYqGoqamvKuy+3+uCvQ/t4ZJkwN8cx527CAlQQQ2kp+w5R9q+Tw6bUAH+fsq+mPEkicgT8g==}
+  '@maplibre/maplibre-gl-style-spec@23.3.0':
+    resolution: {integrity: sha512-IGJtuBbaGzOUgODdBRg66p8stnwj9iDXkgbYKoYcNiiQmaez5WVRfXm4b03MCDwmZyX93csbfHFWEJJYHnn5oA==}
     hasBin: true
 
   '@nodelib/fs.scandir@2.1.5':
@@ -3442,7 +3438,7 @@ snapshots:
 
   '@mapbox/unitbezier@0.0.1': {}
 
-  '@maplibre/maplibre-gl-style-spec@22.0.1':
+  '@maplibre/maplibre-gl-style-spec@23.3.0':
     dependencies:
       '@mapbox/jsonlint-lines-primitives': 2.0.2
       '@mapbox/unitbezier': 0.0.1

@@ -32,7 +32,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "catalog:cli",
     "@eslint/js": "catalog:cli",
-    "@maplibre/maplibre-gl-style-spec": "catalog:utils",
+    "@maplibre/maplibre-gl-style-spec": "^23.3.0",
     "@types/geojson": "catalog:types",
     "@vitest/coverage-v8": "catalog:testing",
     "eslint": "catalog:cli",

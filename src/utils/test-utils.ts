@@ -20,6 +20,7 @@ export const mockCanonical = {
   isChildOf: () => false,
   getTilePoint: () => ({ x: 0, y: 0 }),
   equals: () => false,
+  toString: () => "0/0/0",
 } satisfies ICanonicalTileID
 
 /**
@@ -43,7 +44,7 @@ export function testExpression(
   feature: Feature,
   expected: boolean,
   globalProperties: GlobalProperties = { zoom: 0 },
-) {
+): void {
   const filteredResult = featureFilter(expression).filter(
     globalProperties,
     feature,

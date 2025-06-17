@@ -1,6 +1,6 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import { expressions as expr } from "./index"
+import { expr } from "../index"
 
 /**
  * Check if a time is within a range defined by two time properties. Both

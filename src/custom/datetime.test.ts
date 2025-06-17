@@ -5,7 +5,7 @@ import type {
 import { featureFilter } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { expressions as expr } from "./index"
+import { expr } from "../index"
 
 describe("datetime", () => {
   describe("compilation", () => {
