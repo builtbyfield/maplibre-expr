@@ -405,4 +405,439 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       defaultValue: "",
     },
   ],
+  "Decision - Logical": [
+    {
+      name: "all (and)",
+      description: "Logical AND - all conditions must be true",
+      detailedDescription: "Returns true if all the inputs are true, false otherwise. The inputs are evaluated in order, and evaluation is short-circuiting: once an input expression evaluates to false, the result is false and no further input expressions are evaluated.",
+      expression: expr.decision.logical.all(
+        expr.decision.comparison.gt(expr.lookup.get("temperature"), 20),
+        expr.decision.comparison.lt(expr.lookup.get("humidity"), 80)
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#cccccc",
+      useCase: "Multiple condition checks, complex filters"
+    },
+    {
+      name: "any (or)",
+      description: "Logical OR - at least one condition must be true",
+      detailedDescription: "Returns true if any of the inputs are true, false otherwise. The inputs are evaluated in order, and evaluation is short-circuiting: once an input expression evaluates to true, the result is true and no further input expressions are evaluated.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.decision.logical.any(
+          expr.decision.comparison.equal(expr.lookup.get("type"), "emergency"),
+          expr.decision.comparison.gt(expr.lookup.get("priority"), 9)
+        ), "#ff0000"]],
+        "#0000ff"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#0000ff",
+      useCase: "Alternative conditions, flexible filtering"
+    },
+    {
+      name: "not",
+      description: "Logical NOT - inverts boolean value",
+      detailedDescription: "Returns true if the input is false, and false if the input is true.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.decision.logical.not(expr.lookup.has("restricted")), "#00ff00"]],
+        "#ff0000"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#ff0000",
+      useCase: "Inverting conditions, showing absence of properties"
+    },
+  ],
+  "Decision - Spatial": [
+    {
+      name: "within",
+      description: "Check if feature is within a boundary",
+      detailedDescription: "Returns true if the evaluated feature is fully contained inside a boundary of the input geometry, false otherwise. The input value can be a valid GeoJSON Polygon, MultiPolygon, Feature, or FeatureCollection.",
+      expression: expr.decision.spatial.within({
+        type: "Polygon",
+        coordinates: [[
+          [-122.48, 37.85],
+          [-122.48, 37.75],
+          [-122.38, 37.75],
+          [-122.38, 37.85],
+          [-122.48, 37.85]
+        ]]
+      }),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#cccccc",
+      useCase: "Geofencing, spatial filtering, boundary detection"
+    },
+  ],
+  "Feature Data": [
+    {
+      name: "geometry type",
+      description: "Get the type of geometry",
+      detailedDescription: "Returns the feature's geometry type: Point, LineString, or Polygon. MultiPoint, MultiLineString, and MultiPolygon return as their singular equivalents.",
+      expression: expr.decision.controlFlow.case(
+        [
+          [expr.decision.comparison.equal(expr.featureData.geometryType(), "Point"), "#ff0000"],
+          [expr.decision.comparison.equal(expr.featureData.geometryType(), "LineString"), "#00ff00"],
+        ],
+        "#0000ff"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#cccccc",
+      useCase: "Style based on geometry type, type-specific rendering"
+    },
+    {
+      name: "feature id",
+      description: "Access feature's unique identifier",
+      detailedDescription: "Gets the feature's id, if it has one. Useful for relating features to external data or tracking specific features.",
+      expression: expr.strings.concat("Feature #", expr.types.conversion.toString(expr.featureData.id())),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "",
+      useCase: "Feature labeling, data joining, unique identification"
+    },
+    {
+      name: "properties object",
+      description: "Access all feature properties",
+      detailedDescription: "Returns the feature's properties object. Useful when property names are dynamic or when accessing nested properties.",
+      expression: expr.lookup.get("category", expr.featureData.properties()),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "",
+      useCase: "Dynamic property access, complex data structures"
+    },
+    {
+      name: "feature state",
+      description: "Access dynamic feature state",
+      detailedDescription: "Retrieves a property value from the current feature's state. Feature state is not part of the GeoJSON or vector tile data, and must be set programmatically on each feature.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.featureData.featureState("hover"), "#ffff00"]],
+        "#0099ff"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#0099ff",
+      useCase: "Interactive states, hover effects, selection visualization"
+    },
+  ],
+  "Math - Rounding": [
+    {
+      name: "round",
+      description: "Round to nearest integer",
+      detailedDescription: "Rounds the input to the nearest integer. Halfway values are rounded away from zero. For example, round(1.5) evaluates to 2.",
+      expression: expr.math.rounding.round(expr.math.arithmetic.divide(expr.lookup.get("population"), 1000)),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "0",
+      useCase: "Display formatting, data discretization"
+    },
+    {
+      name: "ceil",
+      description: "Round up to integer",
+      detailedDescription: "Returns the smallest integer that is greater than or equal to the input.",
+      expression: expr.math.rounding.ceil(expr.math.arithmetic.divide(expr.lookup.get("value"), 10)),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 1,
+      useCase: "Ensuring minimum values, bucket calculations"
+    },
+    {
+      name: "floor",
+      description: "Round down to integer",
+      detailedDescription: "Returns the largest integer that is less than or equal to the input.",
+      expression: expr.math.rounding.floor(expr.math.arithmetic.divide(expr.lookup.get("density"), 20)),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 1,
+      useCase: "Creating discrete levels, grouping values"
+    },
+  ],
+  "Math - Distance": [
+    {
+      name: "distance from point",
+      description: "Calculate distance to a reference point",
+      detailedDescription: "Returns the shortest distance in meters between the evaluated feature and the input geometry. Distance values may vary in precision due to encoding, particularly below zoom level 13.",
+      expression: expr.math.arithmetic.divide(
+        expr.math.distance({ 
+          type: "Point", 
+          coordinates: [-122.4, 37.8] 
+        }),
+        1000
+      ),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Proximity analysis, distance-based styling"
+    },
+  ],
+  "Math - More Trigonometry": [
+    {
+      name: "asin",
+      description: "Arcsine (inverse sine)",
+      detailedDescription: "Returns the arcsine of the input. Output is in radians.",
+      expression: expr.math.trigonometry.asin(expr.math.arithmetic.divide(expr.lookup.get("value"), 100)),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Inverse trigonometric calculations"
+    },
+    {
+      name: "acos",
+      description: "Arccosine (inverse cosine)",
+      detailedDescription: "Returns the arccosine of the input. Output is in radians.",
+      expression: expr.math.trigonometry.acos(expr.math.arithmetic.divide(expr.lookup.get("value"), 100)),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Angle calculations, circular patterns"
+    },
+    {
+      name: "atan",
+      description: "Arctangent (inverse tangent)",
+      detailedDescription: "Returns the arctangent of the input. Output is in radians.",
+      expression: expr.math.trigonometry.atan(expr.lookup.get("slope")),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Slope to angle conversion, directional calculations"
+    },
+  ],
+  "String - Advanced": [
+    {
+      name: "is-supported-script",
+      description: "Check if script is supported",
+      detailedDescription: "Returns true if the input string is expected to render legibly. Returns false if the input string contains sections that cannot be rendered without potential loss of meaning.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.strings.isSupportedScript(expr.lookup.get("name")), "#00ff00"]],
+        "#ff0000"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#00ff00",
+      useCase: "International text support, font fallback logic"
+    },
+    {
+      name: "resolved-locale",
+      description: "Get resolved locale",
+      detailedDescription: "Returns the IETF language tag of the locale being used by the provided collator.",
+      expression: expr.strings.resolvedLocale(expr.types.formatting.collator({ "case-sensitive": false })),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "en-US",
+      useCase: "Internationalization, locale detection"
+    },
+  ],
+  "Types - Advanced": [
+    {
+      name: "literal",
+      description: "Create literal array or object",
+      detailedDescription: "Provides a literal array or object value. Useful for passing arrays or objects as arguments to expressions that expect literal values.",
+      expression: expr.lookup.at(1, expr.types.assertion.literal(["first", "second", "third"])),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "second",
+      useCase: "Passing complex values, array/object literals"
+    },
+    {
+      name: "typeof",
+      description: "Get the type of a value",
+      detailedDescription: "Returns a string describing the type of the given value.",
+      expression: expr.strings.concat("Type: ", expr.types.assertion.typeof(expr.lookup.get("value"))),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "Type: unknown",
+      useCase: "Type checking, debugging, conditional logic"
+    },
+    {
+      name: "to-boolean",
+      description: "Convert to boolean",
+      detailedDescription: "Converts the input value to a boolean. The result is false for empty strings, 0, false, null, and NaN; true otherwise.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.types.conversion.toBoolean(expr.lookup.get("active")), "#00ff00"]],
+        "#ff0000"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#ff0000",
+      useCase: "Truthy/falsy conversion, flag handling"
+    },
+    {
+      name: "to-string",
+      description: "Convert to string",
+      detailedDescription: "Converts the input value to a string. If the input is null, the result is an empty string.",
+      expression: expr.strings.concat("Value: ", expr.types.conversion.toString(expr.lookup.get("count"))),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "Value: ",
+      useCase: "String concatenation, display formatting"
+    },
+  ],
+  "Variables": [
+    {
+      name: "let binding",
+      description: "Create local variable bindings",
+      detailedDescription: "Binds expressions to named variables, which can then be referenced in the result expression using ['var', 'name'].",
+      expression: expr.variables.let_(
+        [
+          { name: "scaledValue", value: expr.math.arithmetic.multiply(expr.lookup.get("value"), 2) },
+          { name: "minRadius", value: 5 },
+        ],
+        expr.math.arithmetic.add(expr.variables.var_("minRadius"), expr.variables.var_("scaledValue"))
+      ),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Complex calculations, code reuse, readability"
+    },
+  ],
+  "Heatmap": [
+    {
+      name: "heatmap-density",
+      description: "Access heatmap density value",
+      detailedDescription: "Gets the kernel density estimation of a pixel in a heatmap layer, which is a relative measure of how many data points are crowded around a particular pixel. Can only be used in the heatmap-color property.",
+      expression: expr.interpolation.interpolate(
+        { type: "linear" },
+        expr.heatmap.heatmapDensity(),
+        { input: 0, output: "rgba(0,0,255,0)" },
+        { input: 0.1, output: "royalblue" },
+        { input: 0.3, output: "cyan" },
+        { input: 0.5, output: "lime" },
+        { input: 0.7, output: "yellow" },
+        { input: 1, output: "red" }
+      ),
+      layerType: "fill",
+      paintProperty: "fill-color",
+      defaultValue: "rgba(0,0,0,0)",
+      useCase: "Heatmap visualization, density-based coloring"
+    },
+  ],
+  "Lookup - Advanced": [
+    {
+      name: "in array/string",
+      description: "Check if item exists in array or substring in string",
+      detailedDescription: "Determines whether an item exists in an array or a substring exists in a string.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.lookup.in_("emergency", expr.lookup.get("tags")), "#ff0000"]],
+        "#0000ff"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#0000ff",
+      useCase: "Tag filtering, substring search"
+    },
+    {
+      name: "index-of",
+      description: "Find position of item in array",
+      detailedDescription: "Returns the first position at which an item can be found in an array or a substring can be found in a string, or -1 if not found.",
+      expression: expr.lookup.indexOf("primary", expr.lookup.get("types")),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Array searching, position-based logic"
+    },
+    {
+      name: "slice",
+      description: "Extract portion of array or string",
+      detailedDescription: "Returns an item from an array or a substring from a string from a specified start index, or between a start index and an end index if set.",
+      expression: expr.lookup.slice(expr.lookup.get("name"), 0, 10),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "",
+      useCase: "Text truncation, array subsetting"
+    },
+  ],
+  "Control Flow - Advanced": [
+    {
+      name: "match",
+      description: "Switch-case style matching",
+      detailedDescription: "Selects the output whose label value matches the input value, or the fallback value if no match is found. The input can be any expression. Each label can be a single literal value or an array of values.",
+      expression: expr.decision.controlFlow.match(
+        expr.lookup.get("type"),
+        [
+          ["residential", "#ffffcc"],
+          ["commercial", "#a1dab4"],
+          ["industrial", "#41b6c4"],
+          [["park", "forest"], "#2c7fb8"],
+        ],
+        "#cccccc"
+      ),
+      layerType: "fill",
+      paintProperty: "fill-color",
+      defaultValue: "#cccccc",
+      useCase: "Multi-way branching, category mapping"
+    },
+    {
+      name: "coalesce",
+      description: "First non-null value",
+      detailedDescription: "Evaluates each expression in turn until the first non-null value is obtained, and returns that value.",
+      expression: expr.decision.controlFlow.coalesce(
+        expr.lookup.get("primaryName"),
+        expr.lookup.get("secondaryName"),
+        expr.lookup.get("defaultName"),
+        expr.types.assertion.literal("Unknown")
+      ),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "Unknown",
+      useCase: "Fallback values, null handling"
+    },
+  ],
+  "Real-world Patterns": [
+    {
+      name: "zoom-dependent labeling",
+      description: "Progressive label detail with zoom",
+      detailedDescription: "Show more detailed information as users zoom in, using coalesce for fallback values.",
+      expression: expr.interpolation.step(
+        expr.zoom.zoom(),
+        "",
+        { input: 10, output: expr.lookup.get("name") },
+        { input: 14, output: expr.strings.concat(
+          expr.lookup.get("name"),
+          "\n",
+          expr.decision.controlFlow.coalesce(expr.lookup.get("type"), expr.types.assertion.literal(""))
+        )},
+        { input: 16, output: expr.strings.concat(
+          expr.lookup.get("name"),
+          "\n",
+          expr.decision.controlFlow.coalesce(expr.lookup.get("type"), expr.types.assertion.literal("")),
+          "\n",
+          expr.types.conversion.toString(expr.lookup.get("population"))
+        )}
+      ),
+      layerType: "symbol",
+      paintProperty: "text-field",
+      defaultValue: "",
+      useCase: "Progressive disclosure, multi-scale labeling"
+    },
+    {
+      name: "data validation styling",
+      description: "Highlight invalid or suspicious data",
+      detailedDescription: "Use multiple type checks and logical operators to identify and style features with data quality issues.",
+      expression: expr.decision.controlFlow.case(
+        [[expr.decision.logical.any(
+          expr.decision.logical.not(expr.lookup.has("required_field")),
+          expr.decision.comparison.equal(expr.types.assertion.typeof(expr.lookup.get("numeric_field")), "string"),
+          expr.decision.comparison.lt(expr.lookup.get("value"), 0)
+        ), "#ff0000"]],
+        "#00ff00"
+      ),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#00ff00",
+      useCase: "Data quality visualization, validation feedback"
+    },
+  ],
+  "Custom - Datetime": [
+    {
+      name: "date-format",
+      description: "Format a date",
+      detailedDescription: "Formats a date using the specified format string.",
+      expression: expr.datetime.isSameDay(expr.lookup.get("date"), expr.types.assertion.literal("2025-01-01")),
+      layerType: "circle",
+      paintProperty: "circle-color",
+      defaultValue: "#00ff00",
+      useCase: "Date comparison, filtering"
+    },
+  ],
 }

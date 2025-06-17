@@ -77,7 +77,7 @@ export function subtract(a: NumericExpression, b?: NumericExpression): ["-", Num
  * expr.multiply(1, 2, 3, 4); // ["*", 1, 2, 3, 4] -> 24
  * ```
  */
-export function multiply(...values: [NumericExpression, NumericExpression, ...NumericExpression[]]): ["*", ...NumericExpression[]] {
+export function multiply(...values: [NumericExpression, NumericExpression, ...NumericExpression[]]): ["*", NumericExpression, NumericExpression, ...NumericExpression[]] {
   return ["*", ...values] satisfies ExpressionSpecification
 }
 
