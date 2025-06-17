@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpressionValue, testExpressionCompilation } from "../../utils/test-utils"
+import { testExpressionValue } from "../../utils/test-utils"
 import { variables } from "./index"
 
 describe("variables", () => {
@@ -24,7 +24,7 @@ describe("variables", () => {
       it("should compile with single variable binding", () => {
         const expression = variables.let(
           [{ name: "x", value: 10 }],
-          variables.var("x")
+          variables.var("x"),
         )
         const compiled = [
           "let",
@@ -41,7 +41,7 @@ describe("variables", () => {
             { name: "x", value: 10 },
             { name: "y", value: 20 },
           ],
-          ["+", variables.var("x"), variables.var("y")]
+          ["+", variables.var("x"), variables.var("y")],
         )
         const compiled = [
           "let",
@@ -57,7 +57,7 @@ describe("variables", () => {
       it("should compile with expression values", () => {
         const expression = variables.let(
           [{ name: "population", value: ["get", "pop"] }],
-          ["/", variables.var("population"), 1000]
+          ["/", variables.var("population"), 1000],
         )
         const compiled = [
           "let",
@@ -73,8 +73,8 @@ describe("variables", () => {
           [{ name: "x", value: 5 }],
           variables.let(
             [{ name: "y", value: variables.var("x") }],
-            ["*", variables.var("x"), variables.var("y")]
-          )
+            ["*", variables.var("x"), variables.var("y")],
+          ),
         )
         const compiled = [
           "let",
@@ -110,7 +110,7 @@ describe("variables", () => {
       it("should bind and return a literal value", () => {
         const expression = variables.let(
           [{ name: "answer", value: 42 }],
-          variables.var("answer")
+          variables.var("answer"),
         )
         testExpressionValue(expression, feature, 42)
       })
@@ -118,7 +118,7 @@ describe("variables", () => {
       it("should bind and return a string value", () => {
         const expression = variables.let(
           [{ name: "greeting", value: "Hello" }],
-          variables.var("greeting")
+          variables.var("greeting"),
         )
         testExpressionValue(expression, feature, "Hello")
       })
@@ -131,7 +131,7 @@ describe("variables", () => {
             { name: "a", value: 10 },
             { name: "b", value: 20 },
           ],
-          ["+", variables.var("a"), variables.var("b")]
+          ["+", variables.var("a"), variables.var("b")],
         )
         testExpressionValue(expression, feature, 30)
       })
@@ -142,7 +142,7 @@ describe("variables", () => {
             { name: "base", value: 5 },
             { name: "multiplier", value: 4 },
           ],
-          ["*", variables.var("base"), variables.var("multiplier")]
+          ["*", variables.var("base"), variables.var("multiplier")],
         )
         testExpressionValue(expression, feature, 20)
       })
@@ -154,7 +154,7 @@ describe("variables", () => {
             { name: "y", value: 3 },
             { name: "z", value: 4 },
           ],
-          ["+", ["*", variables.var("x"), variables.var("y")], variables.var("z")]
+          ["+", ["*", variables.var("x"), variables.var("y")], variables.var("z")],
         )
         // (2 * 3) + 4 = 10
         testExpressionValue(expression, feature, 10)
@@ -165,7 +165,7 @@ describe("variables", () => {
       it("should bind feature properties to variables", () => {
         const expression = variables.let(
           [{ name: "pop", value: ["get", "population"] }],
-          variables.var("pop")
+          variables.var("pop"),
         )
         testExpressionValue(expression, feature, 50000)
       })
@@ -176,7 +176,7 @@ describe("variables", () => {
             { name: "pop", value: ["get", "population"] },
             { name: "area", value: ["get", "area"] },
           ],
-          ["/", variables.var("pop"), variables.var("area")]
+          ["/", variables.var("pop"), variables.var("area")],
         )
         // 50000 / 1000 = 50
         testExpressionValue(expression, feature, 50)
@@ -187,10 +187,12 @@ describe("variables", () => {
           [{ name: "temp", value: ["get", "temperature"] }],
           [
             "case",
-            [">", variables.var("temp"), 30], "hot",
-            [">", variables.var("temp"), 15], "warm",
-            "cool"
-          ]
+            [">", variables.var("temp"), 30],
+            "hot",
+            [">", variables.var("temp"), 15],
+            "warm",
+            "cool",
+          ],
         )
         testExpressionValue(expression, feature, "warm")
       })
@@ -200,7 +202,7 @@ describe("variables", () => {
       it("should allow variable reuse in calculation", () => {
         const expression = variables.let(
           [{ name: "value", value: 6 }],
-          ["*", variables.var("value"), variables.var("value")]
+          ["*", variables.var("value"), variables.var("value")],
         )
         // 6 * 6 = 36
         testExpressionValue(expression, feature, 36)
@@ -211,8 +213,8 @@ describe("variables", () => {
           [{ name: "base", value: ["get", "population"] }],
           variables.let(
             [{ name: "scaled", value: ["/", variables.var("base"), 1000] }],
-            variables.var("scaled")
-          )
+            variables.var("scaled"),
+          ),
         )
         // 50000 / 1000 = 50
         testExpressionValue(expression, feature, 50)
@@ -229,13 +231,15 @@ describe("variables", () => {
             variables.let(
               [{ name: "category", value: [
                 "case",
-                [">", variables.var("density"), 100], "dense",
-                [">", variables.var("density"), 50], "medium", 
-                "sparse"
-              ]}],
-              variables.var("category")
-            )
-          )
+                [">", variables.var("density"), 100],
+                "dense",
+                [">", variables.var("density"), 50],
+                "medium",
+                "sparse",
+              ] }],
+              variables.var("category"),
+            ),
+          ),
         )
         testExpressionValue(expression, feature, "sparse")
       })
@@ -247,8 +251,8 @@ describe("variables", () => {
           [{ name: "outer", value: 10 }],
           variables.let(
             [{ name: "inner", value: 5 }],
-            ["+", variables.var("outer"), variables.var("inner")]
-          )
+            ["+", variables.var("outer"), variables.var("inner")],
+          ),
         )
         testExpressionValue(expression, feature, 15)
       })
@@ -258,8 +262,8 @@ describe("variables", () => {
           [{ name: "base", value: 100 }],
           variables.let(
             [{ name: "doubled", value: ["*", variables.var("base"), 2] }],
-            variables.var("doubled")
-          )
+            variables.var("doubled"),
+          ),
         )
         testExpressionValue(expression, feature, 200)
       })
@@ -269,7 +273,7 @@ describe("variables", () => {
       it("should handle zero values", () => {
         const expression = variables.let(
           [{ name: "zero", value: 0 }],
-          variables.var("zero")
+          variables.var("zero"),
         )
         testExpressionValue(expression, feature, 0)
       })
@@ -277,7 +281,7 @@ describe("variables", () => {
       it("should handle negative values", () => {
         const expression = variables.let(
           [{ name: "negative", value: -42 }],
-          variables.var("negative")
+          variables.var("negative"),
         )
         testExpressionValue(expression, feature, -42)
       })
@@ -285,7 +289,7 @@ describe("variables", () => {
       it("should handle boolean values", () => {
         const expression = variables.let(
           [{ name: "flag", value: true }],
-          variables.var("flag")
+          variables.var("flag"),
         )
         testExpressionValue(expression, feature, true)
       })
@@ -313,9 +317,9 @@ describe("variables", () => {
           [{ name: "profit", value: ["-", variables.var("revenue"), variables.var("expenses")] }],
           variables.let(
             [{ name: "margin", value: ["/", variables.var("profit"), variables.var("revenue")] }],
-            ["*", variables.var("margin"), 100] // Convert to percentage
-          )
-        )
+            ["*", variables.var("margin"), 100], // Convert to percentage
+          ),
+        ),
       )
       // (100000 - 75000) / 100000 * 100 = 25
       testExpressionValue(expression, feature, 25)
@@ -333,20 +337,24 @@ describe("variables", () => {
             [
               { name: "size", value: [
                 "case",
-                [">", variables.var("employees"), 100], "large",
-                [">", variables.var("employees"), 20], "medium",
-                "small"
-              ]},
+                [">", variables.var("employees"), 100],
+                "large",
+                [">", variables.var("employees"), 20],
+                "medium",
+                "small",
+              ] },
               { name: "efficiency", value: [
-                "case", 
-                [">", variables.var("revenuePerEmployee"), 5000], "high",
-                [">", variables.var("revenuePerEmployee"), 2000], "medium",
-                "low"
-              ]},
+                "case",
+                [">", variables.var("revenuePerEmployee"), 5000],
+                "high",
+                [">", variables.var("revenuePerEmployee"), 2000],
+                "medium",
+                "low",
+              ] },
             ],
-            ["concat", variables.var("size"), "-", variables.var("efficiency")]
-          )
-        )
+            ["concat", variables.var("size"), "-", variables.var("efficiency")],
+          ),
+        ),
       )
       // 100000 / 50 = 2000, which is NOT > 2000 (so "low" efficiency), 50 employees (medium size)
       testExpressionValue(expression, feature, "medium-low")

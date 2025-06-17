@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpressionValue, testExpressionCompilation } from "../../utils/test-utils"
+import { testExpressionValue } from "../../utils/test-utils"
 import { valueComparison } from "./comparison"
 
 describe("math", () => {
@@ -133,9 +133,9 @@ describe("math", () => {
 
         it("should work with expressions", () => {
           const expression = valueComparison.min([
-            ["*", 2, 3],        // 6
-            ["+", 4, 1],        // 5
-            ["-", 10, 2],       // 8
+            ["*", 2, 3], // 6
+            ["+", 4, 1], // 5
+            ["-", 10, 2], // 8
           ])
           // min(6, 5, 8) = 5
           testExpressionValue(expression, feature, 5)
@@ -190,9 +190,9 @@ describe("math", () => {
 
         it("should work with expressions", () => {
           const expression = valueComparison.max([
-            ["*", 2, 3],        // 6
-            ["+", 4, 1],        // 5
-            ["-", 10, 2],       // 8
+            ["*", 2, 3], // 6
+            ["+", 4, 1], // 5
+            ["-", 10, 2], // 8
           ])
           // max(6, 5, 8) = 8
           testExpressionValue(expression, feature, 8)
@@ -238,7 +238,7 @@ describe("math", () => {
         it("should handle floating point numbers", () => {
           const minExpr = valueComparison.min([3.14, 2.71, 1.41])
           const maxExpr = valueComparison.max([3.14, 2.71, 1.41])
-          
+
           testExpressionValue(minExpr, feature, 1.41)
           testExpressionValue(maxExpr, feature, 3.14)
         })
@@ -274,9 +274,9 @@ describe("math", () => {
 
       it("should find the most extreme weather condition", () => {
         const expression = valueComparison.max([
-          ["/", ["get", "temperature"], 40],     // Temperature factor (25/40 = 0.625)
-          ["/", ["get", "humidity"], 100],       // Humidity factor (80/100 = 0.8)
-          ["/", ["get", "windSpeed"], 50],       // Wind factor (15/50 = 0.3)
+          ["/", ["get", "temperature"], 40], // Temperature factor (25/40 = 0.625)
+          ["/", ["get", "humidity"], 100], // Humidity factor (80/100 = 0.8)
+          ["/", ["get", "windSpeed"], 50], // Wind factor (15/50 = 0.3)
         ])
         // max(0.625, 0.8, 0.3) = 0.8
         testExpressionValue(expression, feature, 0.8)
@@ -289,13 +289,11 @@ describe("math", () => {
             100,
             [
               "*",
-              ["*", 
-                ["-", 100, ["get", "humidity"]], // Inverse humidity weight
-                ["/", ["get", "temperature"], 30]  // Temperature factor
-              ],
-              2
-            ]
-          ])
+              ["*", ["-", 100, ["get", "humidity"]], // Inverse humidity weight
+                ["/", ["get", "temperature"], 30],  // Temperature factor              ],
+              2,
+            ],
+          ]),
         ])
         // (100 - 80) * (25/30) * 2 = 20 * 0.833 * 2 ≈ 33.33
         // max(0, min(100, 33.33)) = 33.33
@@ -310,18 +308,18 @@ describe("math", () => {
             ["get", "threshold"],
           ]), 30],
           "hot",
-          "normal"
+          "normal",
         ] satisfies ExpressionSpecification
-        
+
         // max(25, 20) = 25, 25 > 30 is false
         testExpressionValue(expression, feature, "normal")
       })
 
       it("should normalize multiple sensors", () => {
         const expression = valueComparison.min([
-          ["/", ["get", "temperature"], 50],  // Normalize to 0-1
-          ["/", ["get", "humidity"], 100],    // Normalize to 0-1  
-          1.0  // Maximum allowed value
+          ["/", ["get", "temperature"], 50], // Normalize to 0-1
+          ["/", ["get", "humidity"], 100], // Normalize to 0-1
+          1.0, // Maximum allowed value
         ])
         // min(25/50, 80/100, 1.0) = min(0.5, 0.8, 1.0) = 0.5
         testExpressionValue(expression, feature, 0.5)

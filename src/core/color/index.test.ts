@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpressionValue, testExpressionCompilation } from "../../utils/test-utils"
+import { testExpressionCompilation, testExpressionValue } from "../../utils/test-utils"
 import { color } from "./index"
 
 describe("color", () => {
@@ -24,8 +24,8 @@ describe("color", () => {
       it("should compile with expressions as arguments", () => {
         const expression = color.rgb(
           ["get", "red"],
-          ["get", "green"], 
-          ["get", "blue"]
+          ["get", "green"],
+          ["get", "blue"],
         )
         const compiled = [
           "rgb",
@@ -55,7 +55,7 @@ describe("color", () => {
           ["get", "red"],
           ["get", "green"],
           ["get", "blue"],
-          ["get", "alpha"]
+          ["get", "alpha"],
         )
         const compiled = [
           "rgba",
@@ -105,25 +105,25 @@ describe("color", () => {
         const expression = color.rgb(
           ["get", "red"],
           ["get", "green"],
-          ["get", "blue"]
+          ["get", "blue"],
         )
         // Convert 255/128/64 to 0-1 range: 1, 0.502, 0.251
-        testExpressionValue(expression, feature, { 
-          r: 1, 
-          g: 128/255, // approximately 0.502
-          b: 64/255,  // approximately 0.251
-          a: 1 
+        testExpressionValue(expression, feature, {
+          r: 1,
+          g: 128 / 255, // approximately 0.502
+          b: 64 / 255, // approximately 0.251
+          a: 1,
         })
       })
 
       it("should handle grayscale colors", () => {
         const expression = color.rgb(128, 128, 128)
-        const grayValue = 128/255 // approximately 0.502
-        testExpressionValue(expression, feature, { 
-          r: grayValue, 
-          g: grayValue, 
-          b: grayValue, 
-          a: 1 
+        const grayValue = 128 / 255 // approximately 0.502
+        testExpressionValue(expression, feature, {
+          r: grayValue,
+          g: grayValue,
+          b: grayValue,
+          a: 1,
         })
       })
     })
@@ -137,7 +137,7 @@ describe("color", () => {
 
       it("should create a fully transparent color", () => {
         const expression = color.rgba(255, 255, 255, 0)
-        // Transparent colors seem to get r,g,b set to 0 regardless of input  
+        // Transparent colors seem to get r,g,b set to 0 regardless of input
         testExpressionValue(expression, feature, { r: 0, g: 0, b: 0, a: 0 })
       })
 
@@ -146,13 +146,13 @@ describe("color", () => {
           ["get", "red"],
           ["get", "green"],
           ["get", "blue"],
-          ["get", "alpha"]
+          ["get", "alpha"],
         )
-        testExpressionValue(expression, feature, { 
-          r: 0.8, 
-          g: 0.40156862745098043, 
-          b: 0.20078431372549022, 
-          a: 0.8 
+        testExpressionValue(expression, feature, {
+          r: 0.8,
+          g: 0.40156862745098043,
+          b: 0.20078431372549022,
+          a: 0.8,
         })
       })
 
@@ -175,10 +175,10 @@ describe("color", () => {
 
       it("should compile expressions with complex nested operations", () => {
         const expression = color.rgba(
-          ["+", 128, 127],  // 255
-          ["-", 255, 127],  // 128  
-          ["*", 32, 2],     // 64
-          ["/", 4, 5]       // 0.8
+          ["+", 128, 127], // 255
+          ["-", 255, 127], // 128
+          ["*", 32, 2], // 64
+          ["/", 4, 5], // 0.8
         )
         testExpressionCompilation(expression)
       })

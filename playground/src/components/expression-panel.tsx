@@ -65,24 +65,38 @@ export function ExpressionPanel({ onExpressionSelect }: ExpressionPanelProps) {
             return (
               <>
                 <div className="expression-info">
-                  <strong>Description:</strong> {expr?.description}
+                  <strong>Description:</strong>
+                  {" "}
+                  {expr?.description}
                 </div>
                 {expr?.detailedDescription && (
                   <div className="expression-detailed">
-                    <strong>Details:</strong> {expr.detailedDescription}
+                    <strong>Details:</strong>
+                    {" "}
+                    {expr.detailedDescription}
                   </div>
                 )}
                 {expr?.useCase && (
                   <div className="expression-usecase">
-                    <strong>Use Cases:</strong> {expr.useCase}
+                    <strong>Use Cases:</strong>
+                    {" "}
+                    {expr.useCase}
                   </div>
                 )}
                 <div className="expression-layer">
-                  <strong>Layer Type:</strong> {expr?.layerType} | <strong>Property:</strong> {expr?.paintProperty}
+                  <strong>Layer Type:</strong>
+                  {" "}
+                  {expr?.layerType}
+                  {" "}
+                  |
+                  {" "}
+                  <strong>Property:</strong>
+                  {" "}
+                  {expr?.paintProperty}
                 </div>
               </>
             )
-          })()} 
+          })()}
         </div>
       )}
     </div>

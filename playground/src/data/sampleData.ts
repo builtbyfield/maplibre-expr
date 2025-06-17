@@ -12,9 +12,9 @@ const randomInRange = (min: number, max: number) => Math.random() * (max - min) 
 const randomChoice = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 
 // Location and facility types for realistic naming
-const locationTypes = ['Hospital', 'School', 'Park', 'Library', 'Station', 'Center', 'Plaza', 'Tower', 'Mall', 'Port']
-const facilityTypes = ['primary', 'secondary', 'tertiary', 'emergency', 'public', 'private', 'municipal', 'federal']
-const statusTypes = ['active', 'inactive', 'maintenance', 'planned', 'emergency', 'closed']
+const locationTypes = ["Hospital", "School", "Park", "Library", "Station", "Center", "Plaza", "Tower", "Mall", "Port"]
+const facilityTypes = ["primary", "secondary", "tertiary", "emergency", "public", "private", "municipal", "federal"]
+const statusTypes = ["active", "inactive", "maintenance", "planned", "emergency", "closed"]
 
 // Sample point data for testing expressions
 export const pointData: FeatureCollection<Point> = {
@@ -145,7 +145,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-005",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -157,8 +157,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties
         lastUpdate: now - randomInRange(0, 7 * oneDay),
         lastActivity: now - randomInRange(0, 3 * oneDay),
@@ -177,7 +177,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-006",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -189,8 +189,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - emergency scenario
         lastUpdate: now - (5 * 60 * 1000), // 5 minutes ago
         lastActivity: now - (2 * 60 * 1000), // 2 minutes ago (very active)
@@ -209,7 +209,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-007",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -221,8 +221,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - future event
         lastUpdate: now - (3 * oneDay),
         lastActivity: now - (2 * oneWeek),
@@ -241,7 +241,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-008",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -253,8 +253,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - overdue scenario
         lastUpdate: now - (14 * oneDay), // 2 weeks old data
         lastActivity: now - (21 * oneDay), // 3 weeks inactive
@@ -273,7 +273,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-009",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -285,8 +285,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - recurring event pattern
         lastUpdate: now - (12 * oneHour),
         lastActivity: now - (6 * oneHour),
@@ -305,7 +305,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-010",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -317,8 +317,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - maintenance window
         lastUpdate: now,
         lastActivity: now - (8 * oneHour),
@@ -337,7 +337,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-011",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -349,8 +349,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - multi-day event
         lastUpdate: now - (1 * oneDay),
         lastActivity: now - (4 * oneHour),
@@ -369,7 +369,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-012",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -381,8 +381,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - just updated
         lastUpdate: now,
         lastActivity: now - (15 * 60 * 1000), // 15 minutes ago
@@ -401,7 +401,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-013",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -413,8 +413,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - weekend event
         lastUpdate: now - (2 * oneDay),
         lastActivity: now - (18 * oneHour),
@@ -433,7 +433,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-014",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -445,8 +445,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - long-term project
         lastUpdate: now - (5 * oneDay),
         lastActivity: now - (10 * oneDay),
@@ -465,7 +465,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-015",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -477,8 +477,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - daily recurring
         lastUpdate: now - (1 * oneHour),
         lastActivity: now - (30 * 60 * 1000),
@@ -497,7 +497,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-016",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -509,8 +509,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - historical data
         lastUpdate: now - (30 * oneDay),
         lastActivity: now - (45 * oneDay),
@@ -529,7 +529,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-017",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -541,8 +541,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - short-term event
         lastUpdate: now - (2 * oneHour),
         lastActivity: now - (45 * 60 * 1000),
@@ -561,7 +561,7 @@ export const pointData: FeatureCollection<Point> = {
       },
       properties: {
         id: "point-018",
-        name: randomChoice(locationTypes) + " " + randomChoice(facilityTypes),
+        name: `${randomChoice(locationTypes)} ${randomChoice(facilityTypes)}`,
         type: randomChoice(facilityTypes),
         temperature: randomInRange(10, 40),
         population: Math.floor(randomInRange(5000, 100000)),
@@ -573,8 +573,8 @@ export const pointData: FeatureCollection<Point> = {
         b: randomInRange(0.1, 1.0),
         coordinates: [randomInRange(0, 50), randomInRange(0, 50), randomInRange(0, 50)],
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high', 'critical']),
-        category: randomChoice(['medical', 'education', 'transport', 'recreation', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high", "critical"]),
+        category: randomChoice(["medical", "education", "transport", "recreation", "commercial"]),
         // DateTime properties - seasonal event
         lastUpdate: now - (7 * oneDay),
         lastActivity: now - (14 * oneDay),
@@ -694,8 +694,8 @@ export const polygonData: FeatureCollection<Polygon> = {
         population: Math.floor(randomInRange(10000, 50000)),
         value: Math.floor(randomInRange(50, 200)),
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium', 'high']),
-        category: randomChoice(['development', 'residential', 'commercial']),
+        urgency: randomChoice(["low", "medium", "high"]),
+        category: randomChoice(["development", "residential", "commercial"]),
         // DateTime properties
         lastUpdate: now - (6 * oneHour),
         lastActivity: now - (2 * oneDay),
@@ -726,8 +726,8 @@ export const polygonData: FeatureCollection<Polygon> = {
         population: Math.floor(randomInRange(0, 5000)), // Visitors count
         value: Math.floor(randomInRange(20, 100)),
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['low', 'medium']),
-        category: 'recreation',
+        urgency: randomChoice(["low", "medium"]),
+        category: "recreation",
         // DateTime properties - park maintenance
         lastUpdate: now - (3 * oneDay),
         lastActivity: now - (12 * oneHour),
@@ -758,8 +758,8 @@ export const polygonData: FeatureCollection<Polygon> = {
         population: Math.floor(randomInRange(5000, 25000)),
         value: Math.floor(randomInRange(150, 400)),
         status: randomChoice(statusTypes),
-        urgency: randomChoice(['medium', 'high']),
-        category: 'commercial',
+        urgency: randomChoice(["medium", "high"]),
+        category: "commercial",
         // DateTime properties - active tech campus
         lastUpdate: now - (30 * 60 * 1000), // 30 minutes ago
         lastActivity: now - (10 * 60 * 1000), // 10 minutes ago
@@ -789,9 +789,9 @@ export const polygonData: FeatureCollection<Polygon> = {
         density: randomInRange(30, 60),
         population: Math.floor(randomInRange(2000, 15000)),
         value: Math.floor(randomInRange(80, 250)),
-        status: randomChoice(['active', 'maintenance']),
-        urgency: randomChoice(['low', 'medium']),
-        category: 'cultural',
+        status: randomChoice(["active", "maintenance"]),
+        urgency: randomChoice(["low", "medium"]),
+        category: "cultural",
         // DateTime properties - preservation project
         lastUpdate: now - (1 * oneWeek),
         lastActivity: now - (3 * oneDay),
@@ -821,9 +821,9 @@ export const polygonData: FeatureCollection<Polygon> = {
         density: randomInRange(25, 50),
         population: Math.floor(randomInRange(3000, 12000)),
         value: Math.floor(randomInRange(200, 500)),
-        status: randomChoice(['planned', 'active']),
-        urgency: randomChoice(['medium', 'high']),
-        category: 'development',
+        status: randomChoice(["planned", "active"]),
+        urgency: randomChoice(["medium", "high"]),
+        category: "development",
         // DateTime properties - future development
         lastUpdate: now - (2 * oneDay),
         lastActivity: now - (5 * oneDay),
@@ -853,9 +853,9 @@ export const polygonData: FeatureCollection<Polygon> = {
         density: randomInRange(15, 40),
         population: Math.floor(randomInRange(500, 8000)),
         value: Math.floor(randomInRange(300, 800)),
-        status: randomChoice(['active', 'emergency']),
-        urgency: 'critical',
-        category: 'emergency',
+        status: randomChoice(["active", "emergency"]),
+        urgency: "critical",
+        category: "emergency",
         // DateTime properties - emergency response
         lastUpdate: now - (15 * 60 * 1000), // 15 minutes ago
         lastActivity: now - (5 * 60 * 1000), // 5 minutes ago

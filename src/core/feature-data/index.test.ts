@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpressionValue, testExpressionCompilation } from "../../utils/test-utils"
+import { testExpressionCompilation, testExpressionValue } from "../../utils/test-utils"
 import { featureData } from "./index"
 
 describe("feature-data", () => {
@@ -106,7 +106,7 @@ describe("feature-data", () => {
         const expression = featureData.properties()
         testExpressionValue(expression, pointFeature, {
           name: "Test Point",
-          type: "landmark", 
+          type: "landmark",
           population: 1000,
         })
       })
@@ -189,8 +189,8 @@ describe("feature-data", () => {
           featureData.featureState("active"),
           featureData.featureState("highlighted"),
         ]
-        
-        expressions.forEach(expression => {
+
+        expressions.forEach((expression) => {
           testExpressionCompilation(expression)
         })
       })
@@ -219,11 +219,11 @@ describe("feature-data", () => {
         "case",
         ["==", featureData.geometryType(), "Point"],
         "circle",
-        ["==", featureData.geometryType(), "LineString"], 
+        ["==", featureData.geometryType(), "LineString"],
         "line",
-        "fill"
+        "fill",
       ] satisfies ExpressionSpecification
-      
+
       testExpressionCompilation(expression)
     })
 
@@ -231,9 +231,9 @@ describe("feature-data", () => {
       const expression = [
         "get",
         "name",
-        featureData.properties()
+        featureData.properties(),
       ] satisfies ExpressionSpecification
-      
+
       testExpressionCompilation(expression)
     })
 
@@ -241,9 +241,9 @@ describe("feature-data", () => {
       const expression = [
         "all",
         ["==", featureData.geometryType(), "Point"],
-        ["!=", featureData.id(), null]
+        ["!=", featureData.id(), null],
       ] satisfies ExpressionSpecification
-      
+
       testExpressionCompilation(expression)
     })
   })

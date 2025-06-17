@@ -4,7 +4,7 @@ import type {
 } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { testExpression, testExpressionCompilation } from "../../utils/test-utils"
+import { testExpressionCompilation } from "../../utils/test-utils"
 import { formatting } from "./formatting"
 
 describe("types", () => {

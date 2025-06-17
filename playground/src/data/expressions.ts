@@ -22,7 +22,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Ensuring minimum circle size, combining metrics"
+      useCase: "Ensuring minimum circle size, combining metrics",
     },
     {
       name: "multiply",
@@ -32,7 +32,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Scaling data to visual ranges, emphasizing differences"
+      useCase: "Scaling data to visual ranges, emphasizing differences",
     },
     {
       name: "divide",
@@ -42,7 +42,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.5,
-      useCase: "Converting percentages to opacity, normalizing data ranges"
+      useCase: "Converting percentages to opacity, normalizing data ranges",
     },
     {
       name: "subtract",
@@ -52,7 +52,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Inverse relationships, calculating differences"
+      useCase: "Inverse relationships, calculating differences",
     },
     {
       name: "modulo",
@@ -62,7 +62,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.5,
-      useCase: "Creating repeating visual patterns, categorizing continuous data"
+      useCase: "Creating repeating visual patterns, categorizing continuous data",
     },
     {
       name: "pow",
@@ -72,7 +72,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Non-linear scaling, emphasizing outliers, area-based sizing"
+      useCase: "Non-linear scaling, emphasizing outliers, area-based sizing",
     },
   ],
   "Math - Trigonometry": [
@@ -92,7 +92,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 10,
-      useCase: "Creating wave-like visual patterns, temporal data visualization"
+      useCase: "Creating wave-like visual patterns, temporal data visualization",
     },
     {
       name: "cos wave pattern",
@@ -110,7 +110,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.5,
-      useCase: "Phase-shifted patterns, complementary wave effects"
+      useCase: "Phase-shifted patterns, complementary wave effects",
     },
     {
       name: "tan gradient",
@@ -121,14 +121,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
         expr.math.trigonometry.tan(
           expr.math.arithmetic.multiply(
             expr.lookup.get("temperature"),
-            0.05
-          )
-        )
+            0.05,
+          ),
+        ),
       ),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Sharp transitions, threshold highlighting"
+      useCase: "Sharp transitions, threshold highlighting",
     },
   ],
   "Math - Advanced": [
@@ -412,12 +412,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Returns true if all the inputs are true, false otherwise. The inputs are evaluated in order, and evaluation is short-circuiting: once an input expression evaluates to false, the result is false and no further input expressions are evaluated.",
       expression: expr.decision.logical.all(
         expr.decision.comparison.gt(expr.lookup.get("temperature"), 20),
-        expr.decision.comparison.lt(expr.lookup.get("humidity"), 80)
+        expr.decision.comparison.lt(expr.lookup.get("humidity"), 80),
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
-      useCase: "Multiple condition checks, complex filters"
+      useCase: "Multiple condition checks, complex filters",
     },
     {
       name: "any (or)",
@@ -426,14 +426,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       expression: expr.decision.controlFlow.case(
         [[expr.decision.logical.any(
           expr.decision.comparison.equal(expr.lookup.get("type"), "emergency"),
-          expr.decision.comparison.gt(expr.lookup.get("priority"), 9)
+          expr.decision.comparison.gt(expr.lookup.get("priority"), 9),
         ), "#ff0000"]],
-        "#0000ff"
+        "#0000ff",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#0000ff",
-      useCase: "Alternative conditions, flexible filtering"
+      useCase: "Alternative conditions, flexible filtering",
     },
     {
       name: "not",
@@ -441,12 +441,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Returns true if the input is false, and false if the input is true.",
       expression: expr.decision.controlFlow.case(
         [[expr.decision.logical.not(expr.lookup.has("restricted")), "#00ff00"]],
-        "#ff0000"
+        "#ff0000",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#ff0000",
-      useCase: "Inverting conditions, showing absence of properties"
+      useCase: "Inverting conditions, showing absence of properties",
     },
   ],
   "Decision - Spatial": [
@@ -454,7 +454,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       name: "within",
       description: "Check if feature is within a boundary",
       detailedDescription: "Returns true if the evaluated feature is fully contained inside a boundary of the input geometry, false otherwise. The input value can be a valid GeoJSON Polygon, MultiPolygon, Feature, or FeatureCollection.",
-      expression: 
+      expression:
       expr.decision.match(
         expr.types.conversion.toString(
           expr.decision.spatial.within({
@@ -464,9 +464,9 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
               [-122.48, 37.75],
               [-122.38, 37.75],
               [-122.38, 37.85],
-              [-122.48, 37.85]
-            ]]
-          })
+              [-122.48, 37.85],
+            ]],
+          }),
         ),
         [
           ["true", "#0000ff"],
@@ -477,7 +477,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
-      useCase: "Geofencing, spatial filtering, boundary detection"
+      useCase: "Geofencing, spatial filtering, boundary detection",
     },
   ],
   "Feature Data": [
@@ -490,12 +490,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
           [expr.decision.comparison.equal(expr.featureData.geometryType(), "Point"), "#ff0000"],
           [expr.decision.comparison.equal(expr.featureData.geometryType(), "LineString"), "#00ff00"],
         ],
-        "#0000ff"
+        "#0000ff",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
-      useCase: "Style based on geometry type, type-specific rendering"
+      useCase: "Style based on geometry type, type-specific rendering",
     },
     {
       name: "feature id",
@@ -505,7 +505,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "",
-      useCase: "Feature labeling, data joining, unique identification"
+      useCase: "Feature labeling, data joining, unique identification",
     },
     {
       name: "properties object",
@@ -515,7 +515,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "",
-      useCase: "Dynamic property access, complex data structures"
+      useCase: "Dynamic property access, complex data structures",
     },
     {
       name: "feature state",
@@ -523,12 +523,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Retrieves a property value from the current feature's state. Feature state is not part of the GeoJSON or vector tile data, and must be set programmatically on each feature.",
       expression: expr.decision.controlFlow.case(
         [[expr.featureData.featureState("hover"), "#ffff00"]],
-        "#0099ff"
+        "#0099ff",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#0099ff",
-      useCase: "Interactive states, hover effects, selection visualization"
+      useCase: "Interactive states, hover effects, selection visualization",
     },
   ],
   "Math - Rounding": [
@@ -540,7 +540,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "0",
-      useCase: "Display formatting, data discretization"
+      useCase: "Display formatting, data discretization",
     },
     {
       name: "ceil",
@@ -550,7 +550,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 1,
-      useCase: "Ensuring minimum values, bucket calculations"
+      useCase: "Ensuring minimum values, bucket calculations",
     },
     {
       name: "floor",
@@ -560,7 +560,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 1,
-      useCase: "Creating discrete levels, grouping values"
+      useCase: "Creating discrete levels, grouping values",
     },
   ],
   "Math - Distance": [
@@ -569,16 +569,16 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       description: "Calculate distance to a reference point",
       detailedDescription: "Returns the shortest distance in meters between the evaluated feature and the input geometry. Distance values may vary in precision due to encoding, particularly below zoom level 13.",
       expression: expr.math.arithmetic.divide(
-        expr.math.distance({ 
-          type: "Point", 
-          coordinates: [-122.4, 37.8] 
+        expr.math.distance({
+          type: "Point",
+          coordinates: [-122.4, 37.8],
         }),
-        1000
+        1000,
       ),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Proximity analysis, distance-based styling"
+      useCase: "Proximity analysis, distance-based styling",
     },
   ],
   "Math - More Trigonometry": [
@@ -590,7 +590,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Inverse trigonometric calculations"
+      useCase: "Inverse trigonometric calculations",
     },
     {
       name: "acos",
@@ -600,7 +600,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Angle calculations, circular patterns"
+      useCase: "Angle calculations, circular patterns",
     },
     {
       name: "atan",
@@ -610,7 +610,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Slope to angle conversion, directional calculations"
+      useCase: "Slope to angle conversion, directional calculations",
     },
   ],
   "String - Advanced": [
@@ -620,12 +620,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Returns true if the input string is expected to render legibly. Returns false if the input string contains sections that cannot be rendered without potential loss of meaning.",
       expression: expr.decision.controlFlow.case(
         [[expr.strings.isSupportedScript(expr.lookup.get("name")), "#00ff00"]],
-        "#ff0000"
+        "#ff0000",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#00ff00",
-      useCase: "International text support, font fallback logic"
+      useCase: "International text support, font fallback logic",
     },
     {
       name: "resolved-locale",
@@ -635,7 +635,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "en-US",
-      useCase: "Internationalization, locale detection"
+      useCase: "Internationalization, locale detection",
     },
   ],
   "Types - Advanced": [
@@ -647,7 +647,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "second",
-      useCase: "Passing complex values, array/object literals"
+      useCase: "Passing complex values, array/object literals",
     },
     {
       name: "typeof",
@@ -657,7 +657,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "Type: unknown",
-      useCase: "Type checking, debugging, conditional logic"
+      useCase: "Type checking, debugging, conditional logic",
     },
     {
       name: "to-boolean",
@@ -665,12 +665,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Converts the input value to a boolean. The result is false for empty strings, 0, false, null, and NaN; true otherwise.",
       expression: expr.decision.controlFlow.case(
         [[expr.types.conversion.toBoolean(expr.lookup.get("active")), "#00ff00"]],
-        "#ff0000"
+        "#ff0000",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#ff0000",
-      useCase: "Truthy/falsy conversion, flag handling"
+      useCase: "Truthy/falsy conversion, flag handling",
     },
     {
       name: "to-string",
@@ -680,7 +680,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "Value: ",
-      useCase: "String concatenation, display formatting"
+      useCase: "String concatenation, display formatting",
     },
   ],
   "Variables": [
@@ -693,12 +693,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
           { name: "scaledValue", value: expr.math.arithmetic.multiply(expr.lookup.get("value"), 2) },
           { name: "minRadius", value: 5 },
         ],
-        expr.math.arithmetic.add(expr.variables.var_("minRadius"), expr.variables.var_("scaledValue"))
+        expr.math.arithmetic.add(expr.variables.var_("minRadius"), expr.variables.var_("scaledValue")),
       ),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Complex calculations, code reuse, readability"
+      useCase: "Complex calculations, code reuse, readability",
     },
   ],
   "Heatmap": [
@@ -714,12 +714,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
         { input: 0.3, output: "cyan" },
         { input: 0.5, output: "lime" },
         { input: 0.7, output: "yellow" },
-        { input: 1, output: "red" }
+        { input: 1, output: "red" },
       ),
       layerType: "fill",
       paintProperty: "fill-color",
       defaultValue: "rgba(0,0,0,0)",
-      useCase: "Heatmap visualization, density-based coloring"
+      useCase: "Heatmap visualization, density-based coloring",
     },
   ],
   "Lookup - Advanced": [
@@ -729,12 +729,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Determines whether an item exists in an array or a substring exists in a string.",
       expression: expr.decision.controlFlow.case(
         [[expr.lookup.in_("emergency", expr.lookup.get("tags")), "#ff0000"]],
-        "#0000ff"
+        "#0000ff",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#0000ff",
-      useCase: "Tag filtering, substring search"
+      useCase: "Tag filtering, substring search",
     },
     {
       name: "index-of",
@@ -744,7 +744,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Array searching, position-based logic"
+      useCase: "Array searching, position-based logic",
     },
     {
       name: "slice",
@@ -754,7 +754,7 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "",
-      useCase: "Text truncation, array subsetting"
+      useCase: "Text truncation, array subsetting",
     },
   ],
   "Control Flow - Advanced": [
@@ -770,12 +770,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
           ["industrial", "#41b6c4"],
           [["park", "forest"], "#2c7fb8"],
         ],
-        "#cccccc"
+        "#cccccc",
       ),
       layerType: "fill",
       paintProperty: "fill-color",
       defaultValue: "#cccccc",
-      useCase: "Multi-way branching, category mapping"
+      useCase: "Multi-way branching, category mapping",
     },
     {
       name: "coalesce",
@@ -785,12 +785,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
         expr.lookup.get("primaryName"),
         expr.lookup.get("secondaryName"),
         expr.lookup.get("defaultName"),
-        expr.types.assertion.literal("Unknown")
+        expr.types.assertion.literal("Unknown"),
       ),
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "Unknown",
-      useCase: "Fallback values, null handling"
+      useCase: "Fallback values, null handling",
     },
   ],
   "Real-world Patterns": [
@@ -805,20 +805,20 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
         { input: 14, output: expr.strings.concat(
           expr.lookup.get("name"),
           "\n",
-          expr.decision.controlFlow.coalesce(expr.lookup.get("type"), expr.types.assertion.literal(""))
-        )},
+          expr.decision.controlFlow.coalesce(expr.lookup.get("type"), expr.types.assertion.literal("")),
+        ) },
         { input: 16, output: expr.strings.concat(
           expr.lookup.get("name"),
           "\n",
           expr.decision.controlFlow.coalesce(expr.lookup.get("type"), expr.types.assertion.literal("")),
           "\n",
-          expr.types.conversion.toString(expr.lookup.get("population"))
-        )}
+          expr.types.conversion.toString(expr.lookup.get("population")),
+        ) },
       ),
       layerType: "symbol",
       paintProperty: "text-field",
       defaultValue: "",
-      useCase: "Progressive disclosure, multi-scale labeling"
+      useCase: "Progressive disclosure, multi-scale labeling",
     },
     {
       name: "data validation styling",
@@ -828,14 +828,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
         [[expr.decision.logical.any(
           expr.decision.logical.not(expr.lookup.has("required_field")),
           expr.decision.comparison.equal(expr.types.assertion.typeof(expr.lookup.get("numeric_field")), "string"),
-          expr.decision.comparison.lt(expr.lookup.get("value"), 0)
+          expr.decision.comparison.lt(expr.lookup.get("value"), 0),
         ), "#ff0000"]],
-        "#00ff00"
+        "#00ff00",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#00ff00",
-      useCase: "Data quality visualization, validation feedback"
+      useCase: "Data quality visualization, validation feedback",
     },
   ],
   "Custom - Datetime": [
@@ -847,14 +847,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
         [[expr.datetime.isWithinTimeRange(
           Date.now(),
           "eventStart",
-          "eventEnd"
+          "eventEnd",
         ), "#00ff00"]],
-        "#cccccc"
+        "#cccccc",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
-      useCase: "Active event highlighting, time-based filtering, real-time status"
+      useCase: "Active event highlighting, time-based filtering, real-time status",
     },
     {
       name: "is today",
@@ -862,12 +862,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       detailedDescription: "Returns true if the timestamp represents today's date. Useful for emphasizing current day events or recently updated data.",
       expression: expr.decision.controlFlow.case(
         [[expr.datetime.isToday(expr.lookup.get("lastUpdate")), "#ffff00"]],
-        "#cccccc"
+        "#cccccc",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
-      useCase: "Daily highlights, fresh data emphasis, today's agenda"
+      useCase: "Daily highlights, fresh data emphasis, today's agenda",
     },
     {
       name: "is within next duration",
@@ -876,14 +876,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       expression: expr.decision.controlFlow.case(
         [[expr.datetime.isWithinNextDuration(
           expr.lookup.get("scheduledDate"),
-          7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+          7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
         ), "#ff9900"]],
-        "#cccccc"
+        "#cccccc",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#cccccc",
-      useCase: "Upcoming events, deadline warnings, planning visualization"
+      useCase: "Upcoming events, deadline warnings, planning visualization",
     },
     {
       name: "is within past duration",
@@ -892,14 +892,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       expression: expr.decision.controlFlow.case(
         [[expr.datetime.isWithinPastDuration(
           expr.lookup.get("lastActivity"),
-          24 * 60 * 60 * 1000 // 24 hours in milliseconds
+          24 * 60 * 60 * 1000, // 24 hours in milliseconds
         ), 1.0]],
-        0.3
+        0.3,
       ),
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.3,
-      useCase: "Recent activity emphasis, data freshness, temporal decay effects"
+      useCase: "Recent activity emphasis, data freshness, temporal decay effects",
     },
     {
       name: "is same day comparison",
@@ -908,14 +908,14 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       expression: expr.decision.controlFlow.case(
         [[expr.datetime.isSameDay(
           expr.lookup.get("eventStart"),
-          expr.lookup.get("eventEnd")
+          expr.lookup.get("eventEnd"),
         ), "#00ff00"]],
-        "#ff6600"
+        "#ff6600",
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#ff6600",
-      useCase: "Event duration visualization, single vs multi-day classification"
+      useCase: "Event duration visualization, single vs multi-day classification",
     },
     {
       name: "temporal priority scaling",
@@ -927,12 +927,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
           [expr.datetime.isWithinNextDuration(expr.lookup.get("deadline"), 3 * 24 * 60 * 60 * 1000), 15],
           [expr.datetime.isWithinNextDuration(expr.lookup.get("deadline"), 7 * 24 * 60 * 60 * 1000), 10],
         ],
-        5
+        5,
       ),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
-      useCase: "Urgency visualization, priority scaling, deadline management"
+      useCase: "Urgency visualization, priority scaling, deadline management",
     },
     {
       name: "activity heatmap by recency",
@@ -945,12 +945,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
           [expr.datetime.isWithinPastDuration(expr.lookup.get("lastUpdate"), 24 * 60 * 60 * 1000), "#ffff00"], // 1 day - yellow
           [expr.datetime.isWithinPastDuration(expr.lookup.get("lastUpdate"), 7 * 24 * 60 * 60 * 1000), "#00ff00"], // 1 week - green
         ],
-        "#0000ff" // older than 1 week - blue cold
+        "#0000ff", // older than 1 week - blue cold
       ),
       layerType: "circle",
       paintProperty: "circle-color",
       defaultValue: "#0000ff",
-      useCase: "Data freshness visualization, activity monitoring, temporal analytics"
+      useCase: "Data freshness visualization, activity monitoring, temporal analytics",
     },
   ],
 }

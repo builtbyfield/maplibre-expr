@@ -78,10 +78,10 @@ export function testExpressionValue<T>(
   globalProperties: GlobalProperties = { zoom: 0 },
 ): void {
   const parsed = createExpression(expression)
-  if (parsed.result === 'error') {
-    throw new Error(`Expression parsing failed: ${parsed.value.map(e => e.message).join(', ')}`)
+  if (parsed.result === "error") {
+    throw new Error(`Expression parsing failed: ${parsed.value.map(e => e.message).join(", ")}`)
   }
-  
+
   const result = parsed.value.evaluate(globalProperties, feature)
   expect(result).toEqual(expected)
 }
@@ -101,5 +101,5 @@ export function testExpressionCompilation(
   expression: ExpressionSpecification,
 ): void {
   const parsed = createExpression(expression)
-  expect(parsed.result).toBe('success')
+  expect(parsed.result).toBe("success")
 }

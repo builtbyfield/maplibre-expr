@@ -17,7 +17,7 @@ function App() {
     map.addSource("points", {
       type: "geojson",
       data: pointData,
-      promoteId: "id"
+      promoteId: "id",
     })
 
     map.addSource("polygons", {
