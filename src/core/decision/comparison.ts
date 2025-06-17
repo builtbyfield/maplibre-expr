@@ -23,9 +23,9 @@ function createComparisonExpression(
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
 ) {
-  return collator
-    ? ([operator, a, b, collator] satisfies ExpressionSpecification)
-    : ([operator, a, b] satisfies ExpressionSpecification)
+  return (collator !== undefined
+    ? [operator, a, b, collator]
+    : [operator, a, b]) satisfies ExpressionSpecification
 }
 
 /**
