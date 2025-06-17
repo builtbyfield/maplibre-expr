@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types";
+import type { NumericExpression } from "../../utils/types"
 
 /**
  * Add two or more numbers or expressions
@@ -24,9 +24,9 @@ import type { NumericExpression } from "../../utils/types";
  */
 export function add(...values: NumericExpression[]) {
   if (values.length < 1) {
-    throw new Error("add operation requires at least one argument");
+    throw new Error("add operation requires at least one argument")
   }
-  return ["+", ...values] satisfies ExpressionSpecification;
+  return ["+", ...values] satisfies ExpressionSpecification
 }
 
 /**
@@ -52,9 +52,9 @@ export function add(...values: NumericExpression[]) {
  */
 export function subtract(a: NumericExpression, b?: NumericExpression) {
   if (b === undefined) {
-    return ["-", a] satisfies ExpressionSpecification;
+    return ["-", a] satisfies ExpressionSpecification
   }
-  return ["-", a, b] satisfies ExpressionSpecification;
+  return ["-", a, b] satisfies ExpressionSpecification
 }
 
 /**
@@ -79,10 +79,10 @@ export function subtract(a: NumericExpression, b?: NumericExpression) {
  */
 export function multiply(...values: NumericExpression[]) {
   if (values.length < 2) {
-    throw new Error("multiply operation requires at least two arguments");
+    throw new Error("multiply operation requires at least two arguments")
   }
-  const [first, second, ...rest] = values;
-  return ["*", first, second, ...rest] satisfies ExpressionSpecification;
+  const [first, second, ...rest] = values
+  return ["*", first, second, ...rest] satisfies ExpressionSpecification
 }
 
 /**
@@ -105,9 +105,9 @@ export function multiply(...values: NumericExpression[]) {
  */
 export function divide(
   numerator: NumericExpression,
-  denominator: NumericExpression
+  denominator: NumericExpression,
 ) {
-  return ["/", numerator, denominator] satisfies ExpressionSpecification;
+  return ["/", numerator, denominator] satisfies ExpressionSpecification
 }
 
 /**
@@ -129,7 +129,7 @@ export function divide(
  * ```
  */
 export function mod(a: NumericExpression, b: NumericExpression) {
-  return ["%", a, b] satisfies ExpressionSpecification;
+  return ["%", a, b] satisfies ExpressionSpecification
 }
 
 /**
@@ -151,7 +151,7 @@ export function mod(a: NumericExpression, b: NumericExpression) {
  * ```
  */
 export function pow(base: NumericExpression, exp: NumericExpression) {
-  return ["^", base, exp] satisfies ExpressionSpecification;
+  return ["^", base, exp] satisfies ExpressionSpecification
 }
 
 /**
@@ -180,4 +180,4 @@ export const arithmetic = {
   divide,
   mod,
   pow,
-} as const;
+} as const

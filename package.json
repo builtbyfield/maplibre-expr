@@ -1,36 +1,15 @@
 {
   "name": "@builtbyfield/maplibre-expression-helpers",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "vitest",
-    "coverage": "vitest run --coverage"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.16.0",
-    "@maplibre/maplibre-gl-style-spec": "^22.0.1",
-    "@types/geojson": "^7946.0.15",
-    "@vitest/coverage-v8": "2.1.8",
-    "eslint": "^9.16.0",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "globals": "^15.13.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0",
-    "vitest": "^2.1.8"
-  },
-  "keywords": [
-    "maplibre",
-    "mapbox",
-    "expressions"
-  ],
   "author": {
     "name": "Jesse McLean",
     "email": "jesse@builtbyfield.com",
     "url": "https://builtbyfield.com"
   },
   "license": "MIT",
+  "homepage": "https://github.com/builtbyfield/maplibre-expression-helpers",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/builtbyfield/maplibre-expression-helpers.git"
@@ -38,6 +17,29 @@
   "bugs": {
     "url": "https://github.com/builtbyfield/maplibre-expression-helpers/issues"
   },
-  "homepage": "https://github.com/builtbyfield/maplibre-expression-helpers",
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "keywords": [
+    "maplibre",
+    "mapbox",
+    "expressions"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint . --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "catalog:cli",
+    "@eslint/js": "catalog:cli",
+    "@maplibre/maplibre-gl-style-spec": "catalog:utils",
+    "@types/geojson": "catalog:types",
+    "@vitest/coverage-v8": "catalog:testing",
+    "eslint": "catalog:cli",
+    "eslint-plugin-format": "catalog:cli",
+    "tsup": "catalog:cli",
+    "typescript": "catalog:cli",
+    "typescript-eslint": "catalog:cli",
+    "vitest": "catalog:testing"
+  }
 }

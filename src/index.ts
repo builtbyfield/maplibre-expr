@@ -1,4 +1,4 @@
-import { core } from "./core";
+import { core } from "./core"
 
 /**
  * Core expressions for MapLibre Style Specification and custom helper functions
@@ -25,6 +25,6 @@ import { core } from "./core";
  */
 export const expr = {
   ...core,
-};
+}
 
-export default expr;
+export default expr

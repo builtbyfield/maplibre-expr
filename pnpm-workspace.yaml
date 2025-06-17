@@ -1,2 +1,23 @@
+packages:
+  - playground
+  - docs
+  - packages/*
+  - examples/*
+catalogs:
+  cli:
+    "@antfu/eslint-config": ^4.14.1
+    "@eslint/js": ^9.16.0
+    eslint: ^9.16.0
+    eslint-plugin-format: ^1.0.1
+    tsup: ^8.3.5
+    typescript: ^5.7.2
+    typescript-eslint: ^8.18.0
+  testing:
+    "@vitest/coverage-v8": 2.1.8
+    vitest: ^2.1.8
+  types:
+    "@types/geojson": ^7946.0.15
+  utils:
+    "@maplibre/maplibre-gl-style-spec": ^22.0.1
 onlyBuiltDependencies:
   - esbuild

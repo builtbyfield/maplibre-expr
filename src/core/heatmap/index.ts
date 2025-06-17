@@ -1,4 +1,4 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Gets the kernel density estimation of a pixel in a heatmap layer, which is a
@@ -17,7 +17,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
  * ```
  */
 export function heatmapDensity() {
-  return ["heatmap-density"] satisfies ExpressionSpecification;
+  return ["heatmap-density"] satisfies ExpressionSpecification
 }
 
 /**
@@ -38,4 +38,4 @@ export function heatmapDensity() {
  */
 export const heatmap = {
   heatmapDensity,
-} as const;
+} as const

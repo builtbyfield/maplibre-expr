@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types";
+import type { NumericExpression } from "../../utils/types"
 
 /**
  * Returns the absolute value of the input.
@@ -16,7 +16,7 @@ import type { NumericExpression } from "../../utils/types";
  * ```
  */
 export function abs(value: NumericExpression) {
-  return ["abs", value] satisfies ExpressionSpecification;
+  return ["abs", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -33,7 +33,7 @@ export function abs(value: NumericExpression) {
  * ```
  */
 export function sqrt(value: NumericExpression) {
-  return ["sqrt", value] satisfies ExpressionSpecification;
+  return ["sqrt", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -50,7 +50,7 @@ export function sqrt(value: NumericExpression) {
  * ```
  */
 export function log2(value: NumericExpression) {
-  return ["log2", value] satisfies ExpressionSpecification;
+  return ["log2", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -67,7 +67,7 @@ export function log2(value: NumericExpression) {
  * ```
  */
 export function ln(value: NumericExpression) {
-  return ["ln", value] satisfies ExpressionSpecification;
+  return ["ln", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -84,7 +84,7 @@ export function ln(value: NumericExpression) {
  * ```
  */
 export function log10(value: NumericExpression) {
-  return ["log10", value] satisfies ExpressionSpecification;
+  return ["log10", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -105,4 +105,4 @@ export const advanced = {
   log2,
   ln,
   log10,
-} as const;
+} as const

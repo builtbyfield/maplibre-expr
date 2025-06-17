@@ -9,4 +9,4 @@
  *
  * ```
  */
-export const color = {} as const;
+export const color = {} as const

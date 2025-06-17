@@ -75,27 +75,26 @@ The Expression Builder provides a fluent API for creating complex expressions:
 ```ts
 interface ExpressionBuilder<T> {
   // Returns the final expression
-  build(): ExpressionSpecification;
+  build: () => ExpressionSpecification
   // Chains another expression
-  pipe(expr: ExpressionSpecification): ExpressionBuilder<T>;
+  pipe: (expr: ExpressionSpecification) => ExpressionBuilder<T>
   // Type-specific operations based on generic T
   // e.g., for T = number:
-  add(value: NumericExpression): ExpressionBuilder<number>;
-  multiply(value: NumericExpression): ExpressionBuilder<number>;
+  add: (value: NumericExpression) => ExpressionBuilder<number>
+  multiply: (value: NumericExpression) => ExpressionBuilder<number>
 }
 ```
-
 
 ## Type System
 
 We use a consistent type system across the project:
 
 ```ts
-type BaseExpression = string | number | boolean;
+type BaseExpression = string | number | boolean
 
-type Expression = BaseExpression | ExpressionSpecification;
+type Expression = BaseExpression | ExpressionSpecification
 
 interface TypedExpression<T> extends ExpressionSpecification {
-  type?: T; // Phantom type for type safety
+  type?: T // Phantom type for type safety
 }
 ```

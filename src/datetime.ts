@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import { expressions as expr } from "./index";
+import { expressions as expr } from "./index"
 
 /**
  * Check if a time is within a range defined by two time properties. Both
@@ -23,55 +23,55 @@ export function isWithinTimeRange(
   endTime: number | string | ExpressionSpecification,
 ) {
   // Convert inputs to expressions if they're property names (strings) or timestamps (numbers)
-  const dateExpr =
-    typeof timeToCheck === "string"
+  const dateExpr
+    = typeof timeToCheck === "string"
       ? expr.get(timeToCheck)
       : typeof timeToCheck === "number"
         ? expr.literal(timeToCheck)
-        : timeToCheck;
+        : timeToCheck
 
-  const startExpr =
-    typeof startTime === "string"
+  const startExpr
+    = typeof startTime === "string"
       ? expr.get(startTime)
       : typeof startTime === "number"
         ? expr.literal(startTime)
-        : startTime;
+        : startTime
 
-  const endExpr =
-    typeof endTime === "string"
+  const endExpr
+    = typeof endTime === "string"
       ? expr.get(endTime)
       : typeof endTime === "number"
         ? expr.literal(endTime)
-        : endTime;
+        : endTime
 
   // Build conditions array
-  const conditions: ExpressionSpecification[] = [];
+  const conditions: ExpressionSpecification[] = []
 
   // Add property existence checks if needed
   if (typeof startTime === "string") {
-    conditions.push(expr.has(startTime));
+    conditions.push(expr.has(startTime))
   }
   if (typeof endTime === "string") {
-    conditions.push(expr.has(endTime));
+    conditions.push(expr.has(endTime))
   }
 
   // Add range check
   const rangeCheck = expr.and(
     expr.greaterOrEqual(dateExpr, startExpr),
     expr.lessOrEqual(dateExpr, endExpr),
-  );
+  )
 
   // If we have property checks, combine them with the range check
   const finalCondition = conditions.length
     ? expr.and(...conditions, rangeCheck)
-    : rangeCheck;
+    : rangeCheck
 
   return [
     "case",
     finalCondition,
     true,
     false,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 /**
@@ -88,16 +88,16 @@ export function isWithinTimeRange(
 export function isToday(
   timeToCheck: number | string | ExpressionSpecification,
 ) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
 
   return expr.isWithinTimeRange(
     timeToCheck,
     expr.literal(today.getTime()),
     expr.literal(tomorrow.getTime()),
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -118,14 +118,14 @@ export function isWithinNextDuration(
   timeToCheck: number | string | ExpressionSpecification,
   duration: number,
 ) {
-  const now = new Date();
-  const future = new Date(now.getTime() + duration);
+  const now = new Date()
+  const future = new Date(now.getTime() + duration)
 
   return expr.isWithinTimeRange(
     timeToCheck,
     expr.literal(now.getTime()),
     expr.literal(future.getTime()),
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -146,14 +146,14 @@ export function isWithinPastDuration(
   timeToCheck: string | number | ExpressionSpecification,
   duration: number,
 ) {
-  const now = new Date();
-  const past = new Date(now.getTime() - duration);
+  const now = new Date()
+  const past = new Date(now.getTime() - duration)
 
   return expr.isWithinTimeRange(
     timeToCheck,
     expr.literal(past.getTime()),
     expr.literal(now.getTime()),
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -172,48 +172,48 @@ export function isSameDay(
   time2: number | string | ExpressionSpecification,
 ) {
   // Convert inputs to expressions if they're property names (strings) or timestamps (numbers)
-  const time1Expr =
-    typeof time1 === "string"
+  const time1Expr
+    = typeof time1 === "string"
       ? expr.get(time1)
       : typeof time1 === "number"
         ? expr.literal(time1)
-        : time1;
+        : time1
 
-  const time2Expr =
-    typeof time2 === "string"
+  const time2Expr
+    = typeof time2 === "string"
       ? expr.get(time2)
       : typeof time2 === "number"
         ? expr.literal(time2)
-        : time2;
+        : time2
 
   // First check if both times exist
-  const conditions: ExpressionSpecification[] = [];
+  const conditions: ExpressionSpecification[] = []
   if (typeof time1 === "string") {
-    conditions.push(expr.has(time1));
+    conditions.push(expr.has(time1))
   }
   if (typeof time2 === "string") {
-    conditions.push(expr.has(time2));
+    conditions.push(expr.has(time2))
   }
 
   // Convert to days since epoch by dividing by milliseconds in a day
-  const msPerDay = 24 * 60 * 60 * 1000;
-  const day1 = expr.floor(expr.divide(time1Expr, msPerDay));
-  const day2 = expr.floor(expr.divide(time2Expr, msPerDay));
+  const msPerDay = 24 * 60 * 60 * 1000
+  const day1 = expr.floor(expr.divide(time1Expr, msPerDay))
+  const day2 = expr.floor(expr.divide(time2Expr, msPerDay))
 
   // Compare the days
-  const comparison = expr.eq(day1, day2);
+  const comparison = expr.eq(day1, day2)
 
   // If we have property checks, combine them with the comparison
   const finalCondition = conditions.length
     ? expr.and(...conditions, comparison)
-    : comparison;
+    : comparison
 
   return [
     "case",
     finalCondition,
     true,
     false,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 export const datetime = {
@@ -222,4 +222,4 @@ export const datetime = {
   isWithinNextDuration,
   isWithinPastDuration,
   isSameDay,
-};
+}

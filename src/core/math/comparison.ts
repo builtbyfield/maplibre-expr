@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types";
+import type { NumericExpression } from "../../utils/types"
 
 /**
  * Returns the minimum value of the inputs.
@@ -19,11 +19,11 @@ import type { NumericExpression } from "../../utils/types";
  */
 export function min(values: NumericExpression[]) {
   if (values.length < 1) {
-    throw new Error("min requires at least one argument");
+    throw new Error("min requires at least one argument")
   }
 
-  const [first, ...rest] = values;
-  return ["min", first, ...rest] satisfies ExpressionSpecification;
+  const [first, ...rest] = values
+  return ["min", first, ...rest] satisfies ExpressionSpecification
 }
 
 /**
@@ -36,11 +36,11 @@ export function min(values: NumericExpression[]) {
  */
 export function max(values: NumericExpression[]) {
   if (values.length < 1) {
-    throw new Error("max requires at least one argument");
+    throw new Error("max requires at least one argument")
   }
 
-  const [first, ...rest] = values;
-  return ["max", first, ...rest] satisfies ExpressionSpecification;
+  const [first, ...rest] = values
+  return ["max", first, ...rest] satisfies ExpressionSpecification
 }
 
 /**
@@ -59,4 +59,4 @@ export function max(values: NumericExpression[]) {
 export const valueComparison = {
   min,
   max,
-};
+}

@@ -1,9 +1,9 @@
 import type {
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
-type ExpressionValue = ExpressionInputType | ExpressionSpecification;
+type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
 /**
  * Provides a literal array or object value.
@@ -20,9 +20,9 @@ type ExpressionValue = ExpressionInputType | ExpressionSpecification;
  * ```
  */
 export function literal(
-  value: unknown | Array<unknown> | Record<string, unknown>
+  value: unknown | Array<unknown> | Record<string, unknown>,
 ) {
-  return ["literal", value] satisfies ExpressionSpecification;
+  return ["literal", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -57,14 +57,14 @@ export function literal(
 export function array(
   itemType: ExpressionInputType | ExpressionSpecification,
   N?: number | ExpressionSpecification,
-  fallback?: unknown | ExpressionSpecification
+  fallback?: unknown | ExpressionSpecification,
 ) {
   if (N !== undefined) {
     return fallback !== undefined
       ? (["array", itemType, N, fallback] satisfies ExpressionSpecification)
-      : (["array", itemType, N] satisfies ExpressionSpecification);
+      : (["array", itemType, N] satisfies ExpressionSpecification)
   }
-  return ["array", itemType] satisfies ExpressionSpecification;
+  return ["array", itemType] satisfies ExpressionSpecification
 }
 
 /**
@@ -82,7 +82,7 @@ export function array(
  */
 export function typeof_(value: ExpressionSpecification | ExpressionInputType) {
   // @ts-expect-error: MapLibre types are incomplete for typeof
-  return ["typeof", value] satisfies ExpressionSpecification;
+  return ["typeof", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -103,7 +103,7 @@ export function string(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["string", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["string", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -124,7 +124,7 @@ export function number(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["number", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["number", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -143,11 +143,11 @@ export function number(
  */
 export function boolean(
   value: ExpressionSpecification | ExpressionInputType,
-  fallback?: ExpressionSpecification | ExpressionInputType
+  fallback?: ExpressionSpecification | ExpressionInputType,
 ) {
   return fallback !== undefined
     ? (["boolean", value, fallback] satisfies ExpressionSpecification)
-    : (["boolean", value] satisfies ExpressionSpecification);
+    : (["boolean", value] satisfies ExpressionSpecification)
 }
 
 /**
@@ -168,7 +168,7 @@ export function object(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue | Record<string, ExpressionValue>>
 ) {
-  return ["object", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["object", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -191,4 +191,4 @@ export const assertion = {
   number,
   boolean,
   object,
-} as const;
+} as const

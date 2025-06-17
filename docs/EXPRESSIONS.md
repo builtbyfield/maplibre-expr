@@ -85,7 +85,7 @@ Each expression implementation should have:
 - [ ] Feature data
 - [x] Zoom
 - [ ] Heatmap
-- [x] Strings  
+- [x] Strings
 
 ### Helper functions checklist
 
@@ -153,46 +153,48 @@ Type expressions are used to assert the type of a value or to convert a value to
   - [ ] Documentation
   - [ ] Examples
 - [ ] [boolean](https://maplibre.org/maplibre-style-spec/expressions/#boolean): Asserts that the input value is a boolean. If multiple values are provided, each one is evaluated in order until a boolean is obtained. If none of the inputs are booleans, the expression is an error.
-  
+
   ```ts
   // Syntax
-  ["boolean", value, fallback: value, fallback: value, ...]: boolean 
+  ["boolean", value, fallback: value, fallback: value, ...]: boolean
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["boolean", ["feature-state", "hover"], false]
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
   - [ ] Documentation
   - [ ] Examples
+
 - [ ] [object](https://maplibre.org/maplibre-style-spec/expressions/#object): Asserts that the input value is an object. If multiple values are provided, each one is evaluated in order until an object is obtained. If none of the inputs are objects, the expression is an error.
-  
+
   ```ts
   // Syntax
   ["object", value, fallback: value, fallback: value, ...]: object
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["object", ["get", "some-property"]]
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
   - [ ] Documentation
   - [ ] Examples
+
 - [ ] [collator](https://maplibre.org/maplibre-style-spec/expressions/#collator): Returns a `collator` for use in locale-dependent comparison operations. The `case-sensitive` and `diacritic-sensitive` options default to `false`. The `locale` argument specifies the IETF language tag of the locale to use. If none is provided, the default locale is used. If the requested locale is not available, the `collator` will use a system-defined fallback locale. Use `resolved-locale` to test the results of locale fallback behavior.
-  
+
   ```ts
   // Syntax
   ["collator", collator, { "case-sensitive": boolean, "diacritic-sensitive": boolean, "locale": string }]: collator
   ```
-  
+
   ```jsonc
   // Example
   "some-property": [
@@ -204,22 +206,24 @@ Type expressions are used to assert the type of a value or to convert a value to
     }
   ]
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
   - [ ] Documentation
   - [ ] Examples
+
 - [ ] [format](https://maplibre.org/maplibre-style-spec/expressions/#format): Returns a `formatted` string for displaying mixed-format text in the `text-field` property. The input may contain a string literal or expression, including an `'image'` expression. Strings may be followed by a style override object that supports the following properties:
+
   - `"text-font"`: Overrides the font stack specified by the root layout property.
   - `"text-color"`: Overrides the color specified by the root paint property.
   - `"font-scale"`: Applies a scaling factor on `text-size` as specified by the root layout property.
-  
+
   ```ts
   // Syntax
   ["format", value, { "text-font": string, "text-color": color, "font-scale": number }, ...]: formatted
   ```
-  
+
   ```jsonc
   // Example
   "some-property": [
@@ -232,12 +236,13 @@ Type expressions are used to assert the type of a value or to convert a value to
     {"font-scale": 0.6}
   ]
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
   - [ ] Documentation
   - [ ] Examples
+
 - [ ] [image](https://maplibre.org/maplibre-style-spec/expressions/#image): Returns an image type for use in `icon-image`, `*-pattern` entries and as a section in the `format` expression. If set, the `image` argument will check that the requested image exists in the style and will return either the resolved image name or `null`, depending on whether or not the image is currently in the style. This validation process is synchronous and requires the image to have been added to the style before requesting it in the `image` argument.
   - [ ] Type definitions
   - [ ] Implementation
@@ -497,7 +502,7 @@ Expressions for performing mathematical calculations and transformations.
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
-- [x] **[* (multiply)](https://maplibre.org/maplibre-style-spec/expressions/#_9)** ([arithmetic.ts](/src/expressions/math/arithmetic.ts), [arithmetic.test.ts](/src/expressions/math/arithmetic.test.ts)): Returns the product of the inputs.
+- [x] **[\* (multiply)](https://maplibre.org/maplibre-style-spec/expressions/#_9)** ([arithmetic.ts](/src/expressions/math/arithmetic.ts), [arithmetic.test.ts](/src/expressions/math/arithmetic.test.ts)): Returns the product of the inputs.
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
@@ -525,85 +530,89 @@ Expressions for performing mathematical calculations and transformations.
 #### Advanced Math
 
 - [x] [abs (absolute value)](https://maplibre.org/maplibre-style-spec/expressions/#abs): Returns the absolute value of the input.
-  
+
   ```ts
   // Syntax
   ["abs", number]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["abs", -1.5]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] [sqrt (square root)](https://maplibre.org/maplibre-style-spec/expressions/#sqrt): Returns the square root of the input.
-  
+
   ```ts
   // Syntax
   ["sqrt", number]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["sqrt", 9]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] [log2 (base-two logarithm)](https://maplibre.org/maplibre-style-spec/expressions/#log2): Returns the base-two logarithm of the input.
-  
+
   ```ts
   // Syntax
   ["log2", number]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["log2", 8]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] [ln (natural logarithm)](https://maplibre.org/maplibre-style-spec/expressions/#ln): Returns the natural logarithm of the input.
-  
+
   ```ts
   // Syntax
   ["ln", number]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["ln", 8]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] [log10 (base-ten logarithm)](https://maplibre.org/maplibre-style-spec/expressions/#log10): Returns the base-ten logarithm of the input.
-  
+
   ```ts
   // Syntax
   ["log10", number]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["log10", 8]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
@@ -673,34 +682,35 @@ Expressions for performing mathematical calculations and transformations.
 #### Math Comparison
 
 - [ ] [min (minimum)](https://maplibre.org/maplibre-style-spec/expressions/#min): Returns the minimum value of the inputs.
-  
+
   ```ts
   // Syntax
   ["min", number, number, ...]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["min", 1, 2]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [ ] Unit tests
   - [ ] Documentation
   - [ ] Examples
+
 - [ ] [max (maximum)](https://maplibre.org/maplibre-style-spec/expressions/#max): Returns the maximum value of the inputs.
-  
+
   ```ts
   // Syntax
   ["max", number, number, ...]: number
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["max", 1, 2]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [ ] Unit tests
@@ -807,80 +817,84 @@ Heatmap expressions are used to get the kernel density estimation of a pixel in 
 Expressions for manipulating and working with text strings.
 
 - [x] **[is-supported-script](https://maplibre.org/maplibre-style-spec/expressions/#is-supported-script)**: Returns `true` if the input string is expected to render legibly. Returns `false` if the input string contains sections that cannot be rendered without potential loss of meaning (e.g. Indic scripts that require complex text shaping, or right-to-left scripts if the `mapbox-gl-rtl-text` plugin is not in use in MapLibre GL JS).
-  
+
   ```ts
   // Syntax
   ["is-supported-script", string]: boolean
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["is-supported-script", "दिल्ली"]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] **[upcase](https://maplibre.org/maplibre-style-spec/expressions/#upcase)**: Returns the input string converted to uppercase. Follows the Unicode Default Case Conversion algorithm and the locale-insensitive case mappings in the Unicode Character Database.
-  
+
   ```ts
   // Syntax
   ["upcase", string]: string
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["upcase", ["get", "name"]]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] **[downcase](https://maplibre.org/maplibre-style-spec/expressions/#downcase)**: Returns the input string converted to lowercase. Follows the Unicode Default Case Conversion algorithm and the locale-insensitive case mappings in the Unicode Character Database.
-  
+
   ```ts
   // Syntax
   ["downcase", string]: string
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["downcase", ["get", "name"]]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] **[concat](https://maplibre.org/maplibre-style-spec/expressions/#concat)**: Returns a `string` consisting of the concatenation of the inputs. Each input is converted to a string as if by `to-string`.
-  
+
   ```ts
   // Syntax
   ["concat", string, string, ...]: string
   ```
-  
+
   ```jsonc
   // Example
   "some-property": ["concat", "square-rgb-", ["get", "color"]]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
   - [x] Documentation
   - [x] Examples
+
 - [x] **[resolved-locale](https://maplibre.org/maplibre-style-spec/expressions/#resolved-locale)**: Returns the IETF language tag of the locale being used by the provided `collator`. This can be used to determine the default system locale, or to determine if a requested locale was successfully loaded.
-  
+
   ```ts
   // Syntax
   ["resolved-locale", collator]: string
   ```
-  
+
   ```jsonc
   // Example
   "some-property": [
@@ -895,7 +909,7 @@ Expressions for manipulating and working with text strings.
     ]
   ]
   ```
-  
+
   - [x] Type definitions
   - [x] Implementation
   - [x] Unit tests
@@ -909,12 +923,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 ### Property Access
 
 - [ ] `safeGet(key: string, fallback: Expression)`: Safely gets a property from a feature with a fallback value.
-  
+
   ```ts
   // Returns: ["case", ["has", "population"], ["get", "population"], 0]
   safeGet("population", 0)
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -922,12 +936,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `propertyEquals(key: string, value: any)`: Shorthand for checking equality of a property's value.
-  
+
   ```ts
   // Returns: ["==", ["get", "type"], "park"]
   propertyEquals("type", "park")
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -937,12 +951,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 ### Value Checks
 
 - [ ] `inList(key: string, values: (string|number)[])`: Checks if a property's value is in an array of allowed values.
-  
+
   ```ts
   // Returns: ["any", ["==", ["get", "type"], "park"], ["==", ["get", "type"], "museum"]]
   inList("type", ["park", "museum"])
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -950,12 +964,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `rangeCheck(key: string, min: number, max: number)`: Verifies if a numeric property is within a range.
-  
+
   ```ts
   // Returns: ["all", [">=", ["get", "height"], 10], ["<=", ["get", "height"], 100]]
   rangeCheck("height", 10, 100)
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -963,12 +977,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `stringContains(key: string, substring: string)`: Checks if a property contains a substring.
-  
+
   ```ts
   // Returns: [">", ["index-of", "Street", ["get", "name"]], -1]
   stringContains("name", "Street")
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -978,12 +992,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 ### Control Flow
 
 - [ ] `ifElse(condition: Expression, trueVal: Expression, falseVal: Expression)`: Readable wrapper for conditional logic.
-  
+
   ```ts
   // Returns: ["case", ["==", ["get", "type"], "park"], "green", "gray"]
   ifElse(["==", ["get", "type"], "park"], "green", "gray")
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -993,12 +1007,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 ### Scaling and Interpolation
 
 - [ ] `colorScale(key: string, stopsAndColors: (number|string)[])`: Linear color interpolation across defined stops.
-  
+
   ```ts
   // Returns: ["interpolate", ["linear"], ["get", "population"], 0, "blue", 1000, "red"]
   colorScale("population", [0, "blue", 1000, "red"])
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1006,12 +1020,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `numberScale(key: string, domain: [number, number], range: [number, number])`: Scales a numeric property from one domain to another.
-  
+
   ```ts
   // Returns: ["interpolate", ["linear"], ["get", "age"], 0, 0, 100, 10]
   numberScale("age", [0, 100], [0, 10])
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1023,12 +1037,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 #### Time Range and Duration
 
 - [ ] `temporalRangeCheck(key: string, startTime: number, endTime: number)`: Check if a timestamp falls between two times.
-  
+
   ```ts
   // Returns: ["all", [">=", ["get", "timestamp"], startTime], ["<=", ["get", "timestamp"], endTime]]
   temporalRangeCheck("timestamp", startTime, endTime)
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1036,12 +1050,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `timeSinceLastUpdate(key: string, currentTime: number)`: Compute duration in seconds since a feature's last update.
-  
+
   ```ts
   // Returns: ["/", ["-", currentTime, ["get", "last_updated"]], 1000]
   timeSinceLastUpdate("last_updated", currentTime)
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1049,12 +1063,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `temporalBooleanFlag(key: string, currentTime: number, thresholdMs: number)`: Check if a feature is "fresh" based on timestamp.
-  
+
   ```ts
   // Returns: ["case", ["<", ["-", currentTime, ["get", key]], thresholdMs], 1, 0]
   temporalBooleanFlag("timestamp", currentTime, 300000) // 5 minutes
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1064,12 +1078,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 #### Time-based Styling
 
 - [ ] `temporalScale(key: string, currentTime: number, startTime: number, endTime: number, startVal: number, endVal: number)`: Interpolate a value over time.
-  
+
   ```ts
   // Returns: ["interpolate", ["linear"], ["-", currentTime, ["get", key]], startTime, startVal, endTime, endVal]
   temporalScale("timestamp", currentTime, startTime, endTime, 0, 1) // Fade from 0 to 1
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1077,12 +1091,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `timeWeightedColor(key: string, currentTime: number, durationMs: number, startColor: string, endColor: string)`: Blend colors based on recency.
-  
+
   ```ts
   // Returns: ["interpolate", ["linear"], ["-", currentTime, ["get", key]], 0, startColor, durationMs, endColor]
   timeWeightedColor("timestamp", currentTime, 3600000, "green", "brown") // 1 hour transition
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1090,12 +1104,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `temporalThresholdSize(key: string, currentTime: number, thresholds: Array<{timeAgo: number; size: number}>, fallback: number)`: Size features based on timestamp thresholds.
-  
+
   ```ts
   // Returns: ["case", ...thresholdConditions, fallback]
-  temporalThresholdSize("timestamp", currentTime, [{timeAgo: 60000, size: 10}, {timeAgo: 300000, size: 6}], 2)
+  temporalThresholdSize("timestamp", currentTime, [{ timeAgo: 60000, size: 10 }, { timeAgo: 300000, size: 6 }], 2)
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1105,7 +1119,7 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 #### Time Period Styling
 
 - [ ] `dayPartStyling(hourKey: string, colors: { morning: string; afternoon: string; evening: string; night: string }, fallback: string)`: Style based on time of day.
-  
+
   ```ts
   // Returns: ["case", ...dayPartConditions, fallback]
   dayPartStyling("hour_of_day", {
@@ -1115,7 +1129,7 @@ Helper functions that combine multiple MapLibre expressions for common use cases
     night: "blue"
   }, "gray")
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1123,12 +1137,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
   - [ ] Examples
 
 - [ ] `weekendHighlight(dayKey: string, weekendColor: string, weekdayColor: string)`: Different styles for weekends vs weekdays.
-  
+
   ```ts
   // Returns: ["case", ["any", ["==", ["get", dayKey], 0], ["==", ["get", dayKey], 6]], weekendColor, weekdayColor]
   weekendHighlight("day_of_week", "red", "gray")
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests
@@ -1138,12 +1152,12 @@ Helper functions that combine multiple MapLibre expressions for common use cases
 #### Time Series
 
 - [ ] `movingWindowGradient(arrayKey: string, indexExpr: Expression, stopsAndColors: (number|string)[])`: Color based on time series value at current index.
-  
+
   ```ts
   // Returns: ["interpolate", ["linear"], ["at", indexExpr, ["get", arrayKey]], ...stopsAndColors]
   movingWindowGradient("values", currentIndex, [0, "blue", 100, "red"])
   ```
-  
+
   - [ ] Type definitions
   - [ ] Implementation
   - [ ] Unit tests

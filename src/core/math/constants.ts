@@ -1,4 +1,4 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Returns mathematical constant ln(2) (natural logarithm of 2).
@@ -12,7 +12,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
  * ```
  */
 export function ln2() {
-  return ["ln2"] satisfies ExpressionSpecification;
+  return ["ln2"] satisfies ExpressionSpecification
 }
 
 /**
@@ -28,7 +28,7 @@ export function ln2() {
  * ```
  */
 export function pi() {
-  return ["pi"] satisfies ExpressionSpecification;
+  return ["pi"] satisfies ExpressionSpecification
 }
 
 /**
@@ -46,7 +46,7 @@ export function pi() {
 export function e() {
   // TODO: Figure out why 'e' is not included in the types
   // @ts-expect-error: e isn't included in MapLibre GL Style Spec types for some reason
-  return ["e"] satisfies ExpressionSpecification;
+  return ["e"] satisfies ExpressionSpecification
 }
 
 /**
@@ -67,4 +67,4 @@ export const constants = {
   ln2,
   pi,
   e,
-} as const;
+} as const

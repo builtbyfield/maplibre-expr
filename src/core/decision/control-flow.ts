@@ -1,18 +1,18 @@
 import type {
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
-type ExpressionValue = ExpressionInputType | ExpressionSpecification;
+type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
 export type CasePair = readonly [
   condition: boolean | ExpressionSpecification,
-  result: ExpressionValue
-];
+  result: ExpressionValue,
+]
 export type CaseConditionsAndResults = [
   firstPair: CasePair,
-  ...restPairs: [...CasePair[]]
-];
+  ...restPairs: [...CasePair[]],
+]
 
 /**
  * Selects the first output whose corresponding test condition evaluates to true,
@@ -36,9 +36,9 @@ export type CaseConditionsAndResults = [
  */
 export function case_(
   conditionsAndResults: CaseConditionsAndResults,
-  fallback: ExpressionValue
+  fallback: ExpressionValue,
 ) {
-  const [firstPair, ...restPairs] = conditionsAndResults;
+  const [firstPair, ...restPairs] = conditionsAndResults
 
   return [
     "case",
@@ -46,14 +46,14 @@ export function case_(
     firstPair[1],
     ...restPairs.flat(),
     fallback,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 type MatchPair = readonly [
   label: ExpressionInputType | ExpressionInputType[],
-  output: ExpressionValue
-];
-type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]];
+  output: ExpressionValue,
+]
+type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]]
 
 /**
  * Selects the output whose label value matches the input value, or the fallback
@@ -77,13 +77,13 @@ type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]];
 export function match(
   input: ExpressionValue,
   pairs: MatchPairs,
-  fallback: ExpressionValue
+  fallback: ExpressionValue,
 ) {
   if (pairs.length === 0) {
-    throw new Error("match requires at least one pair of values");
+    throw new Error("match requires at least one pair of values")
   }
 
-  const [firstPair, ...restPairs] = pairs;
+  const [firstPair, ...restPairs] = pairs
   return [
     "match",
     input,
@@ -91,7 +91,7 @@ export function match(
     firstPair[1],
     ...restPairs.flat(),
     fallback,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 /**
@@ -109,7 +109,7 @@ export function match(
  * ); // ["coalesce", ["image", ["concat", ["get", "icon"], "_15"]], ["image", "marker_15"]]
  */
 export function coalesce(...args: Array<ExpressionSpecification>) {
-  return ["coalesce", ...args] satisfies ExpressionSpecification;
+  return ["coalesce", ...args] satisfies ExpressionSpecification
 }
 
 /**
@@ -135,4 +135,4 @@ export const controlFlow = {
   case: case_,
   match,
   coalesce,
-} as const;
+} as const

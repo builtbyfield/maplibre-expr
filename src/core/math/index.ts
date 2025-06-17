@@ -1,16 +1,16 @@
-import * as advanced from "./advanced";
-import * as arithmetic from "./arithmetic";
-import * as constants from "./constants";
-import * as distance from "./distance";
-import * as rounding from "./rounding";
-import * as trigonometry from "./trigonometry";
+import * as advanced from "./advanced"
+import * as arithmetic from "./arithmetic"
+import * as constants from "./constants"
+import * as distance from "./distance"
+import * as rounding from "./rounding"
+import * as trigonometry from "./trigonometry"
 
-export * from "./advanced";
-export * from "./arithmetic";
-export * from "./constants";
-export * from "./distance";
-export * from "./rounding";
-export * from "./trigonometry";
+export * from "./advanced"
+export * from "./arithmetic"
+export * from "./constants"
+export * from "./distance"
+export * from "./rounding"
+export * from "./trigonometry"
 
 /**
  * Math expressions for MapLibre Style Specification.
@@ -36,4 +36,4 @@ export const math = {
   ...distance,
   ...rounding,
   ...trigonometry,
-} as const;
+} as const

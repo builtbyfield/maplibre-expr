@@ -9,4 +9,4 @@
  *
  * ```
  */
-export const featureData = {} as const;
+export const featureData = {} as const

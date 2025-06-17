@@ -9,4 +9,4 @@
  *
  * ```
  */
-export const variables = {} as const;
+export const variables = {} as const

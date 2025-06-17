@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-type NumericExpression = number | ExpressionSpecification;
+type NumericExpression = number | ExpressionSpecification
 
 /**
  * Returns mathematical constant ln(2).
@@ -11,7 +11,7 @@ type NumericExpression = number | ExpressionSpecification;
  * expr.ln2(); // ["ln2"] -> 0.6931471805599453
  */
 export function ln2() {
-  return ["ln2"] satisfies ExpressionSpecification;
+  return ["ln2"] satisfies ExpressionSpecification
 }
 
 /**
@@ -23,7 +23,7 @@ export function ln2() {
  * expr.pi(); // ["pi"] -> 3.141592653589793
  */
 export function pi() {
-  return ["pi"] satisfies ExpressionSpecification;
+  return ["pi"] satisfies ExpressionSpecification
 }
 
 /**
@@ -37,7 +37,7 @@ export function pi() {
 export function e() {
   // TODO: Figure out why 'e' is not included in the types
   // @ts-expect-error: e isn't included in MapLibre GL Style Spec types for some reason
-  return ["e"] satisfies ExpressionSpecification;
+  return ["e"] satisfies ExpressionSpecification
 }
 
 /**
@@ -52,9 +52,9 @@ export function e() {
  */
 export function sum(...numbers: Array<NumericExpression>) {
   if (numbers.length < 1) {
-    throw new Error("sum (+) operation requires at least one argument");
+    throw new Error("sum (+) operation requires at least one argument")
   }
-  return ["+", ...numbers] satisfies ExpressionSpecification;
+  return ["+", ...numbers] satisfies ExpressionSpecification
 }
 
 /**
@@ -69,12 +69,12 @@ export function sum(...numbers: Array<NumericExpression>) {
  */
 export function multiply(...numbers: Array<NumericExpression>) {
   if (numbers.length < 2) {
-    throw new Error("multiply requires at least two arguments");
+    throw new Error("multiply requires at least two arguments")
   }
-  const first = numbers[0];
-  const second = numbers[1];
-  const rest = numbers.slice(2);
-  return ["*", first, second, ...rest] satisfies ExpressionSpecification;
+  const first = numbers[0]
+  const second = numbers[1]
+  const rest = numbers.slice(2)
+  return ["*", first, second, ...rest] satisfies ExpressionSpecification
 }
 
 /**
@@ -92,9 +92,9 @@ export function multiply(...numbers: Array<NumericExpression>) {
  */
 export function subtract(a: NumericExpression, b?: NumericExpression) {
   if (b === undefined) {
-    return ["-", a] satisfies ExpressionSpecification;
+    return ["-", a] satisfies ExpressionSpecification
   }
-  return ["-", a, b] satisfies ExpressionSpecification;
+  return ["-", a, b] satisfies ExpressionSpecification
 }
 
 /**
@@ -112,7 +112,7 @@ export function divide(
   numerator: NumericExpression,
   denominator: NumericExpression,
 ) {
-  return ["/", numerator, denominator] satisfies ExpressionSpecification;
+  return ["/", numerator, denominator] satisfies ExpressionSpecification
 }
 
 /**
@@ -127,7 +127,7 @@ export function divide(
  * expr.mod(expr.get("a"), expr.get("b")); // ["%", ["get", "a"], ["get", "b"]]
  */
 export function mod(dividend: NumericExpression, divisor: NumericExpression) {
-  return ["%", dividend, divisor] satisfies ExpressionSpecification;
+  return ["%", dividend, divisor] satisfies ExpressionSpecification
 }
 
 /**
@@ -142,7 +142,7 @@ export function mod(dividend: NumericExpression, divisor: NumericExpression) {
  * expr.pow(expr.get("a"), expr.get("b")); // ["^", ["get", "a"], ["get", "b"]]
  */
 export function pow(base: NumericExpression, exp: NumericExpression) {
-  return ["^", base, exp] satisfies ExpressionSpecification;
+  return ["^", base, exp] satisfies ExpressionSpecification
 }
 
 /**
@@ -156,7 +156,7 @@ export function pow(base: NumericExpression, exp: NumericExpression) {
  * expr.sqrt(expr.get("a")); // ["sqrt", ["get", "a"]]
  */
 export function sqrt(value: NumericExpression) {
-  return ["sqrt", value] satisfies ExpressionSpecification;
+  return ["sqrt", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -169,7 +169,7 @@ export function sqrt(value: NumericExpression) {
  * expr.log10(100); // ["log10", 100] -> 2
  */
 export function log10(value: NumericExpression) {
-  return ["log10", value] satisfies ExpressionSpecification;
+  return ["log10", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -182,7 +182,7 @@ export function log10(value: NumericExpression) {
  * expr.ln(Math.E); // ["ln", 2.718281828459045] -> 1
  */
 export function ln(value: NumericExpression) {
-  return ["ln", value] satisfies ExpressionSpecification;
+  return ["ln", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -195,7 +195,7 @@ export function ln(value: NumericExpression) {
  * expr.log2(8); // ["log2", 8] -> 3
  */
 export function log2(value: NumericExpression) {
-  return ["log2", value] satisfies ExpressionSpecification;
+  return ["log2", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -208,7 +208,7 @@ export function log2(value: NumericExpression) {
  * expr.sin(Math.PI / 2); // ["sin", 1.5707963267948966] -> 1
  */
 export function sin(value: NumericExpression) {
-  return ["sin", value] satisfies ExpressionSpecification;
+  return ["sin", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -221,7 +221,7 @@ export function sin(value: NumericExpression) {
  * expr.cos(0); // ["cos", 0] -> 1
  */
 export function cos(value: NumericExpression) {
-  return ["cos", value] satisfies ExpressionSpecification;
+  return ["cos", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -234,7 +234,7 @@ export function cos(value: NumericExpression) {
  * expr.tan(Math.PI / 4); // ["tan", 0.7853981633974483] -> 1
  */
 export function tan(value: NumericExpression) {
-  return ["tan", value] satisfies ExpressionSpecification;
+  return ["tan", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -247,7 +247,7 @@ export function tan(value: NumericExpression) {
  * expr.asin(1); // ["asin", 1] -> 1.5707963267948966 (π/2)
  */
 export function asin(value: NumericExpression) {
-  return ["asin", value] satisfies ExpressionSpecification;
+  return ["asin", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -260,7 +260,7 @@ export function asin(value: NumericExpression) {
  * expr.acos(1); // ["acos", 1] -> 0
  */
 export function acos(value: NumericExpression) {
-  return ["acos", value] satisfies ExpressionSpecification;
+  return ["acos", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -273,7 +273,7 @@ export function acos(value: NumericExpression) {
  * expr.atan(1); // ["atan", 1] -> 0.7853981633974483 (π/4)
  */
 export function atan(value: NumericExpression) {
-  return ["atan", value] satisfies ExpressionSpecification;
+  return ["atan", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -288,11 +288,11 @@ export function atan(value: NumericExpression) {
  */
 export function min(...numbers: Array<NumericExpression>) {
   if (numbers.length < 1) {
-    throw new Error("min requires at least one argument");
+    throw new Error("min requires at least one argument")
   }
-  const first = numbers[0];
-  const rest = numbers.slice(1);
-  return ["min", first, ...rest] satisfies ExpressionSpecification;
+  const first = numbers[0]
+  const rest = numbers.slice(1)
+  return ["min", first, ...rest] satisfies ExpressionSpecification
 }
 
 /**
@@ -306,11 +306,11 @@ export function min(...numbers: Array<NumericExpression>) {
  */
 export function max(...numbers: Array<NumericExpression>) {
   if (numbers.length < 1) {
-    throw new Error("max requires at least one argument");
+    throw new Error("max requires at least one argument")
   }
-  const first = numbers[0];
-  const rest = numbers.slice(1);
-  return ["max", first, ...rest] satisfies ExpressionSpecification;
+  const first = numbers[0]
+  const rest = numbers.slice(1)
+  return ["max", first, ...rest] satisfies ExpressionSpecification
 }
 
 /**
@@ -323,7 +323,7 @@ export function max(...numbers: Array<NumericExpression>) {
  * expr.round(1.5); // ["round", 1.5] -> 2
  */
 export function round(value: NumericExpression) {
-  return ["round", value] satisfies ExpressionSpecification;
+  return ["round", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -336,7 +336,7 @@ export function round(value: NumericExpression) {
  * expr.abs(-1.5); // ["abs", -1.5] -> 1.5
  */
 export function abs(value: NumericExpression) {
-  return ["abs", value] satisfies ExpressionSpecification;
+  return ["abs", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -349,7 +349,7 @@ export function abs(value: NumericExpression) {
  * expr.ceil(1.5); // ["ceil", 1.5] -> 2
  */
 export function ceil(value: NumericExpression) {
-  return ["ceil", value] satisfies ExpressionSpecification;
+  return ["ceil", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -362,7 +362,7 @@ export function ceil(value: NumericExpression) {
  * expr.floor(1.5); // ["floor", 1.5] -> 1
  */
 export function floor(value: NumericExpression) {
-  return ["floor", value] satisfies ExpressionSpecification;
+  return ["floor", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -395,34 +395,34 @@ export function distance(
   return [
     "distance",
     geometry as Record<string, unknown> | ExpressionSpecification,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 export const math = {
-  ln2: ln2,
-  pi: pi,
-  e: e,
-  sum: sum,
-  multiply: multiply,
-  subtract: subtract,
-  divide: divide,
-  mod: mod,
-  pow: pow,
-  sqrt: sqrt,
-  log10: log10,
-  ln: ln,
-  log2: log2,
-  sin: sin,
-  cos: cos,
-  tan: tan,
-  asin: asin,
-  acos: acos,
-  atan: atan,
-  min: min,
-  max: max,
-  round: round,
-  abs: abs,
-  ceil: ceil,
-  floor: floor,
-  distance: distance,
-};
+  ln2,
+  pi,
+  e,
+  sum,
+  multiply,
+  subtract,
+  divide,
+  mod,
+  pow,
+  sqrt,
+  log10,
+  ln,
+  log2,
+  sin,
+  cos,
+  tan,
+  asin,
+  acos,
+  atan,
+  min,
+  max,
+  round,
+  abs,
+  ceil,
+  floor,
+  distance,
+}

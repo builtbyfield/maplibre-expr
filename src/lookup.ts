@@ -1,7 +1,7 @@
 import type {
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Retrieves an item from an array at the specified index.
@@ -17,7 +17,7 @@ export function at(
   index: number | ExpressionSpecification,
   array: ExpressionSpecification,
 ) {
-  return ["at", index, array] satisfies ExpressionSpecification;
+  return ["at", index, array] satisfies ExpressionSpecification
 }
 
 /**
@@ -34,7 +34,7 @@ export function in_(
   needle: ExpressionInputType | ExpressionSpecification,
   haystack: ExpressionInputType | ExpressionSpecification,
 ) {
-  return ["in", needle, haystack] satisfies ExpressionSpecification;
+  return ["in", needle, haystack] satisfies ExpressionSpecification
 }
 
 /**
@@ -52,7 +52,7 @@ export function indexOf(
   searchElement: ExpressionInputType | ExpressionSpecification,
   array: ExpressionInputType | ExpressionSpecification,
 ) {
-  return ["index-of", searchElement, array] satisfies ExpressionSpecification;
+  return ["index-of", searchElement, array] satisfies ExpressionSpecification
 }
 
 /**
@@ -74,7 +74,7 @@ export function slice(
 ) {
   return end !== undefined
     ? (["slice", input, start, end] satisfies ExpressionSpecification)
-    : (["slice", input, start] satisfies ExpressionSpecification);
+    : (["slice", input, start] satisfies ExpressionSpecification)
 }
 
 /**
@@ -95,7 +95,7 @@ export function get(
 ) {
   return object !== undefined
     ? (["get", property, object] satisfies ExpressionSpecification)
-    : (["get", property] satisfies ExpressionSpecification);
+    : (["get", property] satisfies ExpressionSpecification)
 }
 
 /**
@@ -116,7 +116,7 @@ export function has(
 ) {
   return object !== undefined
     ? (["has", property, object] satisfies ExpressionSpecification)
-    : (["has", property] satisfies ExpressionSpecification);
+    : (["has", property] satisfies ExpressionSpecification)
 }
 
 /**
@@ -130,7 +130,7 @@ export function has(
  * expr.length("hello"); // ["length", "hello"] -> 5
  */
 export function length(input: string | ExpressionSpecification) {
-  return ["length", input] satisfies ExpressionSpecification;
+  return ["length", input] satisfies ExpressionSpecification
 }
 
 export const lookup = {
@@ -141,4 +141,4 @@ export const lookup = {
   get,
   has,
   length,
-};
+}

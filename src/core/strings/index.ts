@@ -1,7 +1,7 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
-import type { CollatorExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
+import type { CollatorExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { StringExpression } from "../../utils/types";
+import type { StringExpression } from "../../utils/types"
 
 /**
  * Returns `true` if the input string is expected to render legibly. Returns
@@ -21,7 +21,7 @@ import type { StringExpression } from "../../utils/types";
  * ```
  */
 export function isSupportedScript(value: StringExpression) {
-  return ["is-supported-script", value] satisfies ExpressionSpecification;
+  return ["is-supported-script", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -40,7 +40,7 @@ export function isSupportedScript(value: StringExpression) {
  * ```
  */
 export function upcase(value: StringExpression) {
-  return ["upcase", value] satisfies ExpressionSpecification;
+  return ["upcase", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -59,7 +59,7 @@ export function upcase(value: StringExpression) {
  * ```
  */
 export function downcase(value: StringExpression) {
-  return ["downcase", value] satisfies ExpressionSpecification;
+  return ["downcase", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -77,7 +77,7 @@ export function downcase(value: StringExpression) {
  * ```
  */
 export function concat(...values: StringExpression[]) {
-  return ["concat", ...values] satisfies ExpressionSpecification;
+  return ["concat", ...values] satisfies ExpressionSpecification
 }
 
 /**
@@ -97,7 +97,7 @@ export function concat(...values: StringExpression[]) {
  * ```
  */
 export function resolvedLocale(collator: CollatorExpressionSpecification) {
-  return ["resolved-locale", collator] satisfies ExpressionSpecification;
+  return ["resolved-locale", collator] satisfies ExpressionSpecification
 }
 
 /**
@@ -121,4 +121,4 @@ export const strings = {
   downcase,
   concat,
   resolvedLocale,
-} as const;
+} as const

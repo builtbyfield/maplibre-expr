@@ -2,18 +2,18 @@ import type {
   CollatorExpressionSpecification,
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
-type ExpressionValue = ExpressionInputType | ExpressionSpecification;
+type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
 export type CasePair = readonly [
   condition: boolean | ExpressionSpecification,
   result: ExpressionValue,
-];
+]
 export type CaseConditionsAndResults = [
   firstPair: CasePair,
   ...restPairs: [...CasePair[]],
-];
+]
 
 /**
  * Selects the first output whose corresponding test condition evaluates to true,
@@ -37,7 +37,7 @@ export function case_(
   conditionsAndResults: CaseConditionsAndResults,
   fallback: ExpressionValue,
 ) {
-  const [firstPair, ...restPairs] = conditionsAndResults;
+  const [firstPair, ...restPairs] = conditionsAndResults
 
   return [
     "case",
@@ -45,14 +45,14 @@ export function case_(
     firstPair[1],
     ...restPairs.flat(),
     fallback,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 type MatchPair = readonly [
   label: ExpressionInputType | ExpressionInputType[],
   output: ExpressionValue,
-];
-type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]];
+]
+type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]]
 
 /**
  * Selects the output whose label value matches the input value, or the fallback value if no match is found.
@@ -76,10 +76,10 @@ export function match(
   fallback: ExpressionValue,
 ) {
   if (pairs.length === 0) {
-    throw new Error("match requires at least one pair of values");
+    throw new Error("match requires at least one pair of values")
   }
 
-  const [firstPair, ...restPairs] = pairs;
+  const [firstPair, ...restPairs] = pairs
   return [
     "match",
     input,
@@ -87,7 +87,7 @@ export function match(
     firstPair[1],
     ...restPairs.flat(),
     fallback,
-  ] satisfies ExpressionSpecification;
+  ] satisfies ExpressionSpecification
 }
 
 /**
@@ -103,10 +103,10 @@ export function match(
  * ); // ["coalesce", ["image", ["concat", ["get", "icon"], "_15"]], ["image", "marker_15"]]
  */
 export function coalesce(...args: Array<ExpressionSpecification>) {
-  return ["coalesce", ...args] satisfies ExpressionSpecification;
+  return ["coalesce", ...args] satisfies ExpressionSpecification
 }
 
-type ComparisonOperator = "==" | "!=" | ">" | "<" | ">=" | "<=";
+type ComparisonOperator = "==" | "!=" | ">" | "<" | ">=" | "<="
 
 function createComparisonExpression(
   operator: ComparisonOperator,
@@ -116,7 +116,7 @@ function createComparisonExpression(
 ) {
   return collator
     ? ([operator, a, b, collator] satisfies ExpressionSpecification)
-    : ([operator, a, b] satisfies ExpressionSpecification);
+    : ([operator, a, b] satisfies ExpressionSpecification)
 }
 
 const OPERATORS = {
@@ -126,7 +126,7 @@ const OPERATORS = {
   LESS: "<" as const,
   GREATER_OR_EQUAL: ">=" as const,
   LESS_OR_EQUAL: "<=" as const,
-} as const;
+} as const
 
 /**
  * Returns true if the input values are equal, false otherwise.
@@ -149,7 +149,7 @@ export function equal(
     a,
     b,
     collator,
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -158,7 +158,7 @@ export function equal(
  * @example
  * expr.eq("$type", "Polygon"); // ["==", "$type", "Polygon"]
  */
-export const eq = equal;
+export const eq = equal
 
 /**
  * Returns true if the input values are not equal, false otherwise.
@@ -181,7 +181,7 @@ export function notEqual(
     a,
     b,
     collator,
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -190,7 +190,7 @@ export function notEqual(
  * @example
  * expr.neq("cluster", true); // ["!=", "cluster", true]
  */
-export const neq = notEqual;
+export const neq = notEqual
 
 /**
  * Returns true if the first input is strictly greater than the second.
@@ -213,7 +213,7 @@ export function greater(
     a,
     b,
     collator,
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -222,7 +222,7 @@ export function greater(
  * @example
  * expr.gt(["get", "mag"], 2); // [">", ["get", "mag"], 2]
  */
-export const gt = greater;
+export const gt = greater
 
 /**
  * Returns true if the first input is strictly less than the second.
@@ -245,7 +245,7 @@ export function less(
     a,
     b,
     collator,
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -254,7 +254,7 @@ export function less(
  * @example
  * expr.lt(["get", "mag"], 2); // ["<", ["get", "mag"], 2]
  */
-export const lt = less;
+export const lt = less
 
 /**
  * Returns true if the first input is greater than or equal to the second.
@@ -277,7 +277,7 @@ export function greaterOrEqual(
     a,
     b,
     collator,
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -286,7 +286,7 @@ export function greaterOrEqual(
  * @example
  * expr.gte(["get", "mag"], 6); // [">=", ["get", "mag"], 6]
  */
-export const gte = greaterOrEqual;
+export const gte = greaterOrEqual
 
 /**
  * Returns true if the first input is less than or equal to the second.
@@ -309,7 +309,7 @@ export function lessOrEqual(
     a,
     b,
     collator,
-  ) satisfies ExpressionSpecification;
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -318,7 +318,7 @@ export function lessOrEqual(
  * @example
  * expr.lte(["get", "mag"], 6); // ["<=", ["get", "mag"], 6]
  */
-export const lte = lessOrEqual;
+export const lte = lessOrEqual
 
 /**
  * Returns true if all the inputs are true.
@@ -333,7 +333,7 @@ export const lte = lessOrEqual;
  * ); // ["all", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  */
 export function all(...conditions: Array<ExpressionSpecification>) {
-  return ["all", ...conditions] satisfies ExpressionSpecification;
+  return ["all", ...conditions] satisfies ExpressionSpecification
 }
 
 /**
@@ -346,7 +346,7 @@ export function all(...conditions: Array<ExpressionSpecification>) {
  *   ["<", ["get", "mag"], 5]
  * ); // ["all", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  */
-export const and = all;
+export const and = all
 
 /**
  * Returns true if any of the inputs are true.
@@ -361,7 +361,7 @@ export const and = all;
  * ); // ["any", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  */
 export function any(...conditions: Array<ExpressionSpecification>) {
-  return ["any", ...conditions] satisfies ExpressionSpecification;
+  return ["any", ...conditions] satisfies ExpressionSpecification
 }
 
 /**
@@ -374,7 +374,7 @@ export function any(...conditions: Array<ExpressionSpecification>) {
  *   ["<", ["get", "mag"], 5]
  * ); // ["any", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  */
-export const or = any;
+export const or = any
 
 /**
  * Logical negation. Returns true if the input is false.
@@ -386,7 +386,7 @@ export const or = any;
  * expr.not(["has", "point_count"]); // ["!", ["has", "point_count"]]
  */
 export function not(value: ExpressionSpecification) {
-  return ["!", value] satisfies ExpressionSpecification;
+  return ["!", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -409,29 +409,29 @@ export function within(
     | GeoJSON.FeatureCollection
     | ExpressionSpecification,
 ) {
-  return ["within", geometry] satisfies ExpressionSpecification;
+  return ["within", geometry] satisfies ExpressionSpecification
 }
 
 export const decision = {
   case: case_,
-  match: match,
-  coalesce: coalesce,
-  equal: equal,
-  eq: eq,
-  notEqual: notEqual,
-  neq: neq,
-  greater: greater,
-  gt: gt,
-  less: less,
-  lt: lt,
-  greaterOrEqual: greaterOrEqual,
-  gte: gte,
-  lessOrEqual: lessOrEqual,
-  lte: lte,
-  all: all,
-  and: and,
-  any: any,
-  or: or,
-  not: not,
-  within: within,
-};
+  match,
+  coalesce,
+  equal,
+  eq,
+  notEqual,
+  neq,
+  greater,
+  gt,
+  less,
+  lt,
+  greaterOrEqual,
+  gte,
+  lessOrEqual,
+  lte,
+  all,
+  and,
+  any,
+  or,
+  not,
+  within,
+}

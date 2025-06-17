@@ -1,10 +1,10 @@
-import * as assertion from "./assertion";
-import * as conversion from "./conversion";
-import * as formatting from "./formatting";
+import * as assertion from "./assertion"
+import * as conversion from "./conversion"
+import * as formatting from "./formatting"
 
-export * from "./assertion";
-export * from "./conversion";
-export * from "./formatting";
+export * from "./assertion"
+export * from "./conversion"
+export * from "./formatting"
 
 /**
  * Type expressions for MapLibre Style Specification.
@@ -22,4 +22,4 @@ export const types = {
   ...assertion,
   ...conversion,
   ...formatting,
-} as const;
+} as const

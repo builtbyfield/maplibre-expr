@@ -1,4 +1,4 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Returns true if all the inputs are true.
@@ -17,7 +17,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
  * ```
  */
 export function all(...conditions: Array<ExpressionSpecification>) {
-  return ["all", ...conditions] satisfies ExpressionSpecification;
+  return ["all", ...conditions] satisfies ExpressionSpecification
 }
 
 /**
@@ -34,7 +34,7 @@ export function all(...conditions: Array<ExpressionSpecification>) {
  * ); // ["all", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  * ```
  */
-export const and = all;
+export const and = all
 
 /**
  * Returns true if any of the inputs are true.
@@ -53,7 +53,7 @@ export const and = all;
  * ```
  */
 export function any(...conditions: Array<ExpressionSpecification>) {
-  return ["any", ...conditions] satisfies ExpressionSpecification;
+  return ["any", ...conditions] satisfies ExpressionSpecification
 }
 
 /**
@@ -70,7 +70,7 @@ export function any(...conditions: Array<ExpressionSpecification>) {
  * ); // ["any", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  * ```
  */
-export const or = any;
+export const or = any
 
 /**
  * Logical negation. Returns true if the input is false.
@@ -86,7 +86,7 @@ export const or = any;
  * ```
  */
 export function not(value: ExpressionSpecification) {
-  return ["!", value] satisfies ExpressionSpecification;
+  return ["!", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -107,4 +107,4 @@ export const logical = {
   any,
   or,
   not,
-} as const;
+} as const

@@ -1,4 +1,4 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Returns the shortest distance in meters between the evaluated feature and the
@@ -29,7 +29,7 @@ export function distance(
     | GeoJSON.MultiPolygon
     | GeoJSON.Feature
     | GeoJSON.FeatureCollection
-    | ExpressionSpecification
+    | ExpressionSpecification,
 ) {
-  return ["distance", geometry] satisfies ExpressionSpecification;
+  return ["distance", geometry] satisfies ExpressionSpecification
 }

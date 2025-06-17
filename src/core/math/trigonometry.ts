@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types";
+import type { NumericExpression } from "../../utils/types"
 
 /**
  * Returns the sine of the input.
@@ -17,7 +17,7 @@ import type { NumericExpression } from "../../utils/types";
  * ```
  */
 export function sin<T extends NumericExpression>(value: T) {
-  return ["sin", value] satisfies ExpressionSpecification;
+  return ["sin", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -35,7 +35,7 @@ export function sin<T extends NumericExpression>(value: T) {
  * ```
  */
 export function cos<T extends NumericExpression>(value: T) {
-  return ["cos", value] satisfies ExpressionSpecification;
+  return ["cos", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -53,7 +53,7 @@ export function cos<T extends NumericExpression>(value: T) {
  * ```
  */
 export function tan<T extends NumericExpression>(value: T) {
-  return ["tan", value] satisfies ExpressionSpecification;
+  return ["tan", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -71,7 +71,7 @@ export function tan<T extends NumericExpression>(value: T) {
  * ```
  */
 export function asin<T extends NumericExpression>(value: T) {
-  return ["asin", value] satisfies ExpressionSpecification;
+  return ["asin", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -87,7 +87,7 @@ export function asin<T extends NumericExpression>(value: T) {
  * ```
  */
 export function acos<T extends NumericExpression>(value: T) {
-  return ["acos", value] satisfies ExpressionSpecification;
+  return ["acos", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -105,7 +105,7 @@ export function acos<T extends NumericExpression>(value: T) {
  * ```
  */
 export function atan<T extends NumericExpression>(value: T) {
-  return ["atan", value] satisfies ExpressionSpecification;
+  return ["atan", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -132,4 +132,4 @@ export const trigonometry = {
   asin,
   acos,
   atan,
-} as const;
+} as const

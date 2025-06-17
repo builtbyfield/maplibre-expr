@@ -9,4 +9,4 @@
  *
  * ```
  */
-export const lookup = {} as const;
+export const lookup = {} as const

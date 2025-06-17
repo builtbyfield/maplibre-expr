@@ -1,5 +1,5 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
-import type * as GeoJSON from "geojson";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
+import type * as GeoJSON from "geojson"
 
 /**
  * Returns true if the evaluated feature is fully contained inside the input
@@ -25,9 +25,9 @@ export function within(
     | GeoJSON.MultiPolygon
     | GeoJSON.Feature
     | GeoJSON.FeatureCollection
-    | ExpressionSpecification
+    | ExpressionSpecification,
 ) {
-  return ["within", geometry] satisfies ExpressionSpecification;
+  return ["within", geometry] satisfies ExpressionSpecification
 }
 
 /**
@@ -47,4 +47,4 @@ export function within(
  */
 export const spatial = {
   within,
-} as const;
+} as const

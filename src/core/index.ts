@@ -1,14 +1,14 @@
-import * as color from "./color";
-import * as decision from "./decision";
-import * as featureData from "./feature-data";
-import * as heatmap from "./heatmap";
-import * as interpolation from "./interpolation";
-import * as lookup from "./lookup";
-import * as math from "./math";
-import * as strings from "./strings";
-import * as types from "./types";
-import * as variables from "./variables";
-import * as zoom from "./zoom";
+import * as color from "./color"
+import * as decision from "./decision"
+import * as featureData from "./feature-data"
+import * as heatmap from "./heatmap"
+import * as interpolation from "./interpolation"
+import * as lookup from "./lookup"
+import * as math from "./math"
+import * as strings from "./strings"
+import * as types from "./types"
+import * as variables from "./variables"
+import * as zoom from "./zoom"
 
 /**
  * Core expressions for MapLibre Style Specification.
@@ -44,6 +44,6 @@ export const core = {
   ...types,
   ...variables,
   ...zoom,
-};
+}
 
-export default core;
+export default core

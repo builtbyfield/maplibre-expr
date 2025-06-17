@@ -26,8 +26,8 @@
   - Example
   - Link to MapLibre documentation
 - Example:
-  
-  ```ts
+
+  ````ts
   /**
    * Creates a color value from red, green, and blue components.
    *
@@ -37,13 +37,13 @@
    * @param green - Green component (0-255)
    * @param blue - Blue component (0-255)
    * @returns A color expression
-   * 
+   *
    * @example
    * ```ts
    * expr.rgb(255, 0, 0) // ["rgb", 255, 0, 0]
    * ```
    */
-  ```
+  ````
 
 ## Testing
 

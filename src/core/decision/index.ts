@@ -1,12 +1,12 @@
-import * as comparison from "./comparison";
-import * as controlFlow from "./control-flow";
-import * as logical from "./logical";
-import * as spatial from "./spatial";
+import * as comparison from "./comparison"
+import * as controlFlow from "./control-flow"
+import * as logical from "./logical"
+import * as spatial from "./spatial"
 
-export * from "./comparison";
-export * from "./control-flow";
-export * from "./logical";
-export * from "./spatial";
+export * from "./comparison"
+export * from "./control-flow"
+export * from "./logical"
+export * from "./spatial"
 
 /**
  * Decision expressions for MapLibre Style Specification.
@@ -36,4 +36,4 @@ export const decision = {
   ...controlFlow,
   ...logical,
   ...spatial,
-} as const;
+} as const

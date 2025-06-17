@@ -1,11 +1,11 @@
 import type {
   ExpressionSpecification,
   Feature,
-} from "@maplibre/maplibre-gl-style-spec";
-import { describe, expect, it } from "vitest";
+} from "@maplibre/maplibre-gl-style-spec"
+import { describe, expect, it } from "vitest"
 
-import { testExpression } from "../../utils/test-utils";
-import { formatting } from "./formatting";
+import { testExpression } from "../../utils/test-utils"
+import { formatting } from "./formatting"
 
 describe("types", () => {
   describe("formatting", () => {
@@ -15,19 +15,19 @@ describe("types", () => {
           const expression = formatting.collator({
             "case-sensitive": true,
             "diacritic-sensitive": true,
-            locale: "fr",
-          });
+            "locale": "fr",
+          })
           const compiled = [
             "collator",
             {
               "case-sensitive": true,
               "diacritic-sensitive": true,
-              locale: "fr",
+              "locale": "fr",
             },
-          ] satisfies ExpressionSpecification;
-          expect(expression).toEqual(compiled);
-        });
-      });
+          ] satisfies ExpressionSpecification
+          expect(expression).toEqual(compiled)
+        })
+      })
 
       describe("format", () => {
         it("should compile to a format expression", () => {
@@ -35,50 +35,50 @@ describe("types", () => {
             ["get", "name"],
             { "font-scale": 0.8 },
             "\n",
-            ["get", "description"]
-          );
+            ["get", "description"],
+          )
           const compiled = [
             "format",
             ["get", "name"],
             { "font-scale": 0.8 },
             "\n",
             ["get", "description"],
-          ] satisfies ExpressionSpecification;
-          expect(expression).toEqual(compiled);
-        });
-      });
+          ] satisfies ExpressionSpecification
+          expect(expression).toEqual(compiled)
+        })
+      })
 
       describe("image", () => {
         it("should compile to an image expression", () => {
-          const expression = formatting.image("marker-15");
+          const expression = formatting.image("marker-15")
           const compiled = [
             "image",
             "marker-15",
-          ] satisfies ExpressionSpecification;
-          expect(expression).toEqual(compiled);
-        });
-      });
+          ] satisfies ExpressionSpecification
+          expect(expression).toEqual(compiled)
+        })
+      })
 
       describe("numberFormat", () => {
         it("should compile to a number-format expression", () => {
           const expression = formatting.numberFormat(["get", "price"], {
-            locale: "de-DE",
-            currency: "EUR",
+            "locale": "de-DE",
+            "currency": "EUR",
             "min-fraction-digits": 2,
-          });
+          })
           const compiled = [
             "number-format",
             ["get", "price"],
             {
-              locale: "de-DE",
-              currency: "EUR",
+              "locale": "de-DE",
+              "currency": "EUR",
               "min-fraction-digits": 2,
             },
-          ] satisfies ExpressionSpecification;
-          expect(expression).toEqual(compiled);
-        });
-      });
-    });
+          ] satisfies ExpressionSpecification
+          expect(expression).toEqual(compiled)
+        })
+      })
+    })
 
     describe("evaluation", () => {
       const feature: Feature = {
@@ -88,7 +88,7 @@ describe("types", () => {
           description: "A test description",
           price: 1234.56,
         },
-      };
+      }
 
       describe("format", () => {
         it("should format text with options", () => {
@@ -96,8 +96,8 @@ describe("types", () => {
             ["get", "name"],
             { "font-scale": 0.8 },
             " - ",
-            ["get", "description"]
-          );
+            ["get", "description"],
+          )
           const equals = [
             "==",
             expression,
@@ -108,29 +108,29 @@ describe("types", () => {
               " - ",
               "A test description",
             ],
-          ] satisfies ExpressionSpecification;
-          testExpression(equals, feature, true);
-        });
-      });
+          ] satisfies ExpressionSpecification
+          testExpression(equals, feature, true)
+        })
+      })
 
       describe("numberFormat", () => {
         it("should format number according to locale", () => {
           const expression = formatting.numberFormat(["get", "price"], {
-            locale: "de-DE",
-            currency: "EUR",
+            "locale": "de-DE",
+            "currency": "EUR",
             "min-fraction-digits": 2,
-          });
+          })
           const equals = [
             "==",
             expression,
             "1.234,56 €",
-          ] satisfies ExpressionSpecification;
-          testExpression(equals, feature, true);
-        });
-      });
+          ] satisfies ExpressionSpecification
+          testExpression(equals, feature, true)
+        })
+      })
 
       // Note: collator and image tests are omitted because they require
       // specific runtime environment setup that's not available in the test environment
-    });
-  });
-});
+    })
+  })
+})

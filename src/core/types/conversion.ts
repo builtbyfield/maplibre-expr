@@ -1,9 +1,9 @@
 import type {
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
-type ExpressionValue = ExpressionInputType | ExpressionSpecification;
+type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
 /**
  * Converts the input value to a string.
@@ -19,7 +19,7 @@ type ExpressionValue = ExpressionInputType | ExpressionSpecification;
  * ```
  */
 export function toString(value: ExpressionValue) {
-  return ["to-string", value] satisfies ExpressionSpecification;
+  return ["to-string", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -40,7 +40,7 @@ export function toNumber(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["to-number", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["to-number", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -55,7 +55,7 @@ export function toNumber(
  * expr.toBoolean(""); // ["to-boolean", ""] -> false
  */
 export function toBoolean(value: ExpressionValue) {
-  return ["to-boolean", value] satisfies ExpressionSpecification;
+  return ["to-boolean", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -76,7 +76,7 @@ export function toColor(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["to-color", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["to-color", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -96,4 +96,4 @@ export const conversion = {
   toNumber,
   toBoolean,
   toColor,
-} as const;
+} as const

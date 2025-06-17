@@ -3,16 +3,16 @@ import type {
   ColorSpecification,
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
 interface NumberFormatOptions {
-  locale?: string;
-  currency?: string;
-  "min-fraction-digits"?: number;
-  "max-fraction-digits"?: number;
+  "locale"?: string
+  "currency"?: string
+  "min-fraction-digits"?: number
+  "max-fraction-digits"?: number
 }
 
-type ExpressionValue = ExpressionInputType | ExpressionSpecification;
+type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
 /**
  * Provides a literal array or object value.
@@ -27,7 +27,7 @@ type ExpressionValue = ExpressionInputType | ExpressionSpecification;
 export function literal(
   value: unknown | Array<unknown> | Record<string, unknown>,
 ) {
-  return ["literal", value] satisfies ExpressionSpecification;
+  return ["literal", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -66,9 +66,9 @@ export function array(
   if (N !== undefined) {
     return fallback !== undefined
       ? (["array", itemType, N, fallback] satisfies ExpressionSpecification)
-      : (["array", itemType, N] satisfies ExpressionSpecification);
+      : (["array", itemType, N] satisfies ExpressionSpecification)
   }
-  return ["array", itemType] satisfies ExpressionSpecification;
+  return ["array", itemType] satisfies ExpressionSpecification
 }
 
 /**
@@ -82,7 +82,7 @@ export function array(
  */
 export function typeof_(value: ExpressionSpecification | ExpressionInputType) {
   // @ts-expect-error: MapLibre types are incomplete for typeof
-  return ["typeof", value] satisfies ExpressionSpecification;
+  return ["typeof", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -99,7 +99,7 @@ export function string(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["string", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["string", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -116,7 +116,7 @@ export function number(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["number", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["number", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -136,7 +136,7 @@ export function boolean(
 ) {
   return fallback !== undefined
     ? (["boolean", value, fallback] satisfies ExpressionSpecification)
-    : (["boolean", value] satisfies ExpressionSpecification);
+    : (["boolean", value] satisfies ExpressionSpecification)
 }
 
 /**
@@ -153,7 +153,7 @@ export function object(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["object", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["object", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -170,11 +170,11 @@ export function object(
  * });
  */
 export function collator(options: {
-  "case-sensitive"?: boolean | ExpressionSpecification;
-  "diacritic-sensitive"?: boolean | ExpressionSpecification;
-  locale?: string | ExpressionSpecification;
+  "case-sensitive"?: boolean | ExpressionSpecification
+  "diacritic-sensitive"?: boolean | ExpressionSpecification
+  "locale"?: string | ExpressionSpecification
 }) {
-  return ["collator", options] satisfies CollatorExpressionSpecification;
+  return ["collator", options] satisfies CollatorExpressionSpecification
 }
 
 /**
@@ -199,13 +199,13 @@ export function format(
     | ["image", ExpressionSpecification]
     | ExpressionSpecification
     | {
-        "font-scale"?: number | ExpressionSpecification;
-        "text-font"?: string[] | ExpressionSpecification;
-        "text-color"?: ColorSpecification | ExpressionSpecification;
-      }
+      "font-scale"?: number | ExpressionSpecification
+      "text-font"?: string[] | ExpressionSpecification
+      "text-color"?: ColorSpecification | ExpressionSpecification
+    }
   )[]
 ) {
-  return ["format", ...sections] satisfies ExpressionSpecification;
+  return ["format", ...sections] satisfies ExpressionSpecification
 }
 
 /**
@@ -218,7 +218,7 @@ export function format(
  * expr.image("marker_15"); // ["image", "marker_15"]
  */
 export function image(value: string | ExpressionSpecification) {
-  return ["image", value] satisfies ExpressionSpecification;
+  return ["image", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -239,7 +239,7 @@ export function numberFormat(
   number: number | ExpressionSpecification,
   options: NumberFormatOptions,
 ) {
-  return ["number-format", number, options] satisfies ExpressionSpecification;
+  return ["number-format", number, options] satisfies ExpressionSpecification
 }
 
 /**
@@ -252,7 +252,7 @@ export function numberFormat(
  * expr.toString(["get", "population"]); // ["to-string", ["get", "population"]]
  */
 export function toString(value: ExpressionValue) {
-  return ["to-string", value] satisfies ExpressionSpecification;
+  return ["to-string", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -269,7 +269,7 @@ export function toNumber(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["to-number", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["to-number", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 /**
@@ -282,7 +282,7 @@ export function toNumber(
  * expr.toBoolean(""); // ["to-boolean", ""] -> false
  */
 export function toBoolean(value: ExpressionValue) {
-  return ["to-boolean", value] satisfies ExpressionSpecification;
+  return ["to-boolean", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -299,7 +299,7 @@ export function toColor(
   value: ExpressionValue,
   ...fallbacks: Array<ExpressionValue>
 ) {
-  return ["to-color", value, ...fallbacks] satisfies ExpressionSpecification;
+  return ["to-color", value, ...fallbacks] satisfies ExpressionSpecification
 }
 
 export const types = {
@@ -318,4 +318,4 @@ export const types = {
   toNumber,
   toBoolean,
   toColor,
-};
+}

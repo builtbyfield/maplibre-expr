@@ -3,9 +3,9 @@ import type {
   Feature,
   GlobalProperties,
   ICanonicalTileID,
-} from "@maplibre/maplibre-gl-style-spec";
-import { featureFilter } from "@maplibre/maplibre-gl-style-spec";
-import { expect } from "vitest";
+} from "@maplibre/maplibre-gl-style-spec"
+import { featureFilter } from "@maplibre/maplibre-gl-style-spec"
+import { expect } from "vitest"
 
 /**
  * Mock canonical tile ID object implementing the ICanonicalTileID interface.
@@ -20,7 +20,7 @@ export const mockCanonical = {
   isChildOf: () => false,
   getTilePoint: () => ({ x: 0, y: 0 }),
   equals: () => false,
-} satisfies ICanonicalTileID;
+} satisfies ICanonicalTileID
 
 /**
  * Tests a MapLibre expression against a feature to verify the expected filtering result.
@@ -42,12 +42,12 @@ export function testExpression(
   expression: ExpressionSpecification,
   feature: Feature,
   expected: boolean,
-  globalProperties: GlobalProperties = { zoom: 0 }
+  globalProperties: GlobalProperties = { zoom: 0 },
 ) {
   const filteredResult = featureFilter(expression).filter(
     globalProperties,
     feature,
-    mockCanonical
-  );
-  expect(filteredResult).toBe(expected);
+    mockCanonical,
+  )
+  expect(filteredResult).toBe(expected)
 }

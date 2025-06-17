@@ -9,4 +9,4 @@
  *
  * ```
  */
-export const interpolation = {} as const;
+export const interpolation = {} as const

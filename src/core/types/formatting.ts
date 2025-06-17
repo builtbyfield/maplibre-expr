@@ -2,7 +2,7 @@ import type {
   CollatorExpressionSpecification,
   ColorSpecification,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Returns a collator for locale-dependent string comparisons.
@@ -22,11 +22,11 @@ import type {
  * ```
  */
 export function collator(options: {
-  "case-sensitive"?: boolean | ExpressionSpecification;
-  "diacritic-sensitive"?: boolean | ExpressionSpecification;
-  locale?: string | ExpressionSpecification;
+  "case-sensitive"?: boolean | ExpressionSpecification
+  "diacritic-sensitive"?: boolean | ExpressionSpecification
+  "locale"?: string | ExpressionSpecification
 }) {
-  return ["collator", options] satisfies CollatorExpressionSpecification;
+  return ["collator", options] satisfies CollatorExpressionSpecification
 }
 
 /**
@@ -55,13 +55,13 @@ export function format(
     | ["image", ExpressionSpecification]
     | ExpressionSpecification
     | {
-        "font-scale"?: number | ExpressionSpecification;
-        "text-font"?: string[] | ExpressionSpecification;
-        "text-color"?: ColorSpecification | ExpressionSpecification;
-      }
+      "font-scale"?: number | ExpressionSpecification
+      "text-font"?: string[] | ExpressionSpecification
+      "text-color"?: ColorSpecification | ExpressionSpecification
+    }
   )[]
 ) {
-  return ["format", ...sections] satisfies ExpressionSpecification;
+  return ["format", ...sections] satisfies ExpressionSpecification
 }
 
 /**
@@ -83,14 +83,14 @@ export function format(
  * ```
  */
 export function image(value: string | ExpressionSpecification) {
-  return ["image", value] satisfies ExpressionSpecification;
+  return ["image", value] satisfies ExpressionSpecification
 }
 
 interface NumberFormatOptions {
-  locale?: string;
-  currency?: string;
-  "min-fraction-digits"?: number;
-  "max-fraction-digits"?: number;
+  "locale"?: string
+  "currency"?: string
+  "min-fraction-digits"?: number
+  "max-fraction-digits"?: number
 }
 
 /**
@@ -113,9 +113,9 @@ interface NumberFormatOptions {
  */
 export function numberFormat(
   number: number | ExpressionSpecification,
-  options: NumberFormatOptions
+  options: NumberFormatOptions,
 ) {
-  return ["number-format", number, options] satisfies ExpressionSpecification;
+  return ["number-format", number, options] satisfies ExpressionSpecification
 }
 
 /**
@@ -142,4 +142,4 @@ export const formatting = {
   format,
   image,
   numberFormat,
-} as const;
+} as const

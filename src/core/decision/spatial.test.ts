@@ -1,12 +1,12 @@
 import type {
   ExpressionSpecification,
   Feature,
-} from "@maplibre/maplibre-gl-style-spec";
-import { describe, expect, it } from "vitest";
+} from "@maplibre/maplibre-gl-style-spec"
+import { describe, expect, it } from "vitest"
 
-import { getGeometry } from "../../utils/geometry";
-import { mockCanonical, testExpression } from "../../utils/test-utils";
-import { spatial } from "./spatial";
+import { getGeometry } from "../../utils/geometry"
+import { mockCanonical, testExpression } from "../../utils/test-utils"
+import { spatial } from "./spatial"
 
 describe("decision", () => {
   describe("spatial", () => {
@@ -24,15 +24,15 @@ describe("decision", () => {
                 [0, 0],
               ],
             ],
-          };
+          }
           const expression = [
             "within",
             polygon,
-          ] satisfies ExpressionSpecification;
-          expect(spatial.within(polygon)).toEqual(expression);
-        });
-      });
-    });
+          ] satisfies ExpressionSpecification
+          expect(spatial.within(polygon)).toEqual(expression)
+        })
+      })
+    })
 
     describe("evaluation", () => {
       const feature: Feature = {
@@ -45,7 +45,7 @@ describe("decision", () => {
           icon: "marker",
           status: "active",
         },
-      };
+      }
 
       describe("within", () => {
         it("evaluates point correctly inside of polygon", () => {
@@ -60,16 +60,16 @@ describe("decision", () => {
                 [0, 0],
               ],
             ],
-          });
+          })
 
           getGeometry(
             feature,
             { type: "Point", coordinates: [2, 2] },
-            mockCanonical
-          );
+            mockCanonical,
+          )
 
-          testExpression(expression, feature, true);
-        });
+          testExpression(expression, feature, true)
+        })
 
         it("evaluates point correctly outside of polygon", () => {
           const expression = spatial.within({
@@ -83,17 +83,17 @@ describe("decision", () => {
                 [0, 0],
               ],
             ],
-          });
+          })
 
           getGeometry(
             feature,
             { type: "Point", coordinates: [6, 6] },
-            mockCanonical
-          );
+            mockCanonical,
+          )
 
-          testExpression(expression, feature, false);
-        });
-      });
+          testExpression(expression, feature, false)
+        })
+      })
 
       describe("edge cases", () => {
         it("evaluates point on polygon boundary", () => {
@@ -108,16 +108,16 @@ describe("decision", () => {
                 [0, 0],
               ],
             ],
-          });
+          })
 
           getGeometry(
             feature,
             { type: "Point", coordinates: [0, 2.5] },
-            mockCanonical
-          );
+            mockCanonical,
+          )
 
-          testExpression(expression, feature, false);
-        });
+          testExpression(expression, feature, false)
+        })
 
         it("evaluates point on polygon vertex", () => {
           const expression = spatial.within({
@@ -131,17 +131,17 @@ describe("decision", () => {
                 [0, 0],
               ],
             ],
-          });
+          })
 
           getGeometry(
             feature,
             { type: "Point", coordinates: [0, 5] },
-            mockCanonical
-          );
+            mockCanonical,
+          )
 
-          testExpression(expression, feature, false);
-        });
-      });
+          testExpression(expression, feature, false)
+        })
+      })
 
       describe("complex polygons", () => {
         it("evaluates point within polygon with hole", () => {
@@ -165,24 +165,24 @@ describe("decision", () => {
                 [4, 4],
               ],
             ],
-          });
+          })
 
           // Test point outside the hole
           getGeometry(
             feature,
             { type: "Point", coordinates: [2, 2] },
-            mockCanonical
-          );
-          testExpression(expression, feature, true);
+            mockCanonical,
+          )
+          testExpression(expression, feature, true)
 
           // Test point inside the hole
           getGeometry(
             feature,
             { type: "Point", coordinates: [5, 5] },
-            mockCanonical
-          );
-          testExpression(expression, feature, false);
-        });
+            mockCanonical,
+          )
+          testExpression(expression, feature, false)
+        })
 
         it("evaluates point within multipolygon", () => {
           const expression = spatial.within({
@@ -209,33 +209,33 @@ describe("decision", () => {
                 ],
               ],
             ],
-          });
+          })
 
           // Test point in first polygon
           getGeometry(
             feature,
             { type: "Point", coordinates: [2, 2] },
-            mockCanonical
-          );
-          testExpression(expression, feature, true);
+            mockCanonical,
+          )
+          testExpression(expression, feature, true)
 
           // Test point in second polygon
           getGeometry(
             feature,
             { type: "Point", coordinates: [12, 12] },
-            mockCanonical
-          );
-          testExpression(expression, feature, true);
+            mockCanonical,
+          )
+          testExpression(expression, feature, true)
 
           // Test point outside both polygons
           getGeometry(
             feature,
             { type: "Point", coordinates: [7, 7] },
-            mockCanonical
-          );
-          testExpression(expression, feature, false);
-        });
-      });
+            mockCanonical,
+          )
+          testExpression(expression, feature, false)
+        })
+      })
 
       describe("invalid inputs", () => {
         it("handles unclosed polygon", () => {
@@ -250,17 +250,17 @@ describe("decision", () => {
                 // Missing the closing point [0, 0]
               ],
             ],
-          });
+          })
 
           getGeometry(
             feature,
             { type: "Point", coordinates: [2, 2] },
-            mockCanonical
-          );
+            mockCanonical,
+          )
 
           // The current implementation appears to auto-close polygons
-          testExpression(expression, feature, true);
-        });
+          testExpression(expression, feature, true)
+        })
 
         it("handles degenerate polygon", () => {
           const expression = spatial.within({
@@ -273,17 +273,17 @@ describe("decision", () => {
                 [0, 0],
               ],
             ],
-          });
+          })
 
           getGeometry(
             feature,
             { type: "Point", coordinates: [0, 0] },
-            mockCanonical
-          );
+            mockCanonical,
+          )
 
-          testExpression(expression, feature, false);
-        });
-      });
-    });
-  });
-});
+          testExpression(expression, feature, false)
+        })
+      })
+    })
+  })
+})

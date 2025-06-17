@@ -1,23 +1,10 @@
-import pluginJs from "@eslint/js";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import antfu from "@antfu/eslint-config"
 
-/** @type {import('eslint').Linter.Config[]} */
-export default [
-  { files: ["**/*.{js,mjs,cjs,ts}"] },
-  { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
-  {
-    plugins: {
-      "simple-import-sort": simpleImportSort,
-    },
+export default antfu({
+  type: "lib",
+  pnpm: true,
+  formatters: true,
+  stylistic: {
+    quotes: "double",
   },
-  {
-    rules: {
-      "simple-import-sort/imports": "warn",
-      "simple-import-sort/exports": "warn",
-    },
-  },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-];
+})

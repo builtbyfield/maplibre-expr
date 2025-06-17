@@ -2,9 +2,9 @@ import type {
   CollatorExpressionSpecification,
   ExpressionInputType,
   ExpressionSpecification,
-} from "@maplibre/maplibre-gl-style-spec";
+} from "@maplibre/maplibre-gl-style-spec"
 
-type ExpressionValue = ExpressionInputType | ExpressionSpecification;
+type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
 const OPERATORS = {
   EQUAL: "==" as const,
@@ -13,19 +13,19 @@ const OPERATORS = {
   LESS: "<" as const,
   GREATER_OR_EQUAL: ">=" as const,
   LESS_OR_EQUAL: "<=" as const,
-} as const;
+} as const
 
-type ComparisonOperator = (typeof OPERATORS)[keyof typeof OPERATORS];
+type ComparisonOperator = (typeof OPERATORS)[keyof typeof OPERATORS]
 
 function createComparisonExpression(
   operator: ComparisonOperator,
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return collator
     ? ([operator, a, b, collator] satisfies ExpressionSpecification)
-    : ([operator, a, b] satisfies ExpressionSpecification);
+    : ([operator, a, b] satisfies ExpressionSpecification)
 }
 
 /**
@@ -46,14 +46,14 @@ function createComparisonExpression(
 export function equal(
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return createComparisonExpression(
     OPERATORS.EQUAL,
     a,
     b,
-    collator
-  ) satisfies ExpressionSpecification;
+    collator,
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -64,7 +64,7 @@ export function equal(
  * expr.eq("$type", "Polygon"); // ["==", "$type", "Polygon"]
  * ```
  */
-export const eq = equal;
+export const eq = equal
 
 /**
  * Returns true if the input values are not equal, false otherwise.
@@ -84,14 +84,14 @@ export const eq = equal;
 export function notEqual(
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return createComparisonExpression(
     OPERATORS.NOT_EQUAL,
     a,
     b,
-    collator
-  ) satisfies ExpressionSpecification;
+    collator,
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -102,7 +102,7 @@ export function notEqual(
  * expr.neq("cluster", true); // ["!=", "cluster", true]
  * ```
  */
-export const neq = notEqual;
+export const neq = notEqual
 
 /**
  * Returns true if the first input is strictly greater than the second.
@@ -122,14 +122,14 @@ export const neq = notEqual;
 export function greater(
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return createComparisonExpression(
     OPERATORS.GREATER,
     a,
     b,
-    collator
-  ) satisfies ExpressionSpecification;
+    collator,
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -140,7 +140,7 @@ export function greater(
  * expr.gt(["get", "mag"], 2); // [">", ["get", "mag"], 2]
  * ```
  */
-export const gt = greater;
+export const gt = greater
 
 /**
  * Returns true if the first input is strictly less than the second.
@@ -160,14 +160,14 @@ export const gt = greater;
 export function less(
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return createComparisonExpression(
     OPERATORS.LESS,
     a,
     b,
-    collator
-  ) satisfies ExpressionSpecification;
+    collator,
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -176,7 +176,7 @@ export function less(
  * @example
  * expr.lt(["get", "mag"], 2); // ["<", ["get", "mag"], 2]
  */
-export const lt = less;
+export const lt = less
 
 /**
  * Returns true if the first input is greater than or equal to the second.
@@ -196,14 +196,14 @@ export const lt = less;
 export function greaterOrEqual(
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return createComparisonExpression(
     OPERATORS.GREATER_OR_EQUAL,
     a,
     b,
-    collator
-  ) satisfies ExpressionSpecification;
+    collator,
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -212,7 +212,7 @@ export function greaterOrEqual(
  * @example
  * expr.gte(["get", "mag"], 6); // [">=", ["get", "mag"], 6]
  */
-export const gte = greaterOrEqual;
+export const gte = greaterOrEqual
 
 /**
  * Returns true if the first input is less than or equal to the second.
@@ -232,14 +232,14 @@ export const gte = greaterOrEqual;
 export function lessOrEqual(
   a: ExpressionValue,
   b: ExpressionValue,
-  collator?: CollatorExpressionSpecification
+  collator?: CollatorExpressionSpecification,
 ) {
   return createComparisonExpression(
     OPERATORS.LESS_OR_EQUAL,
     a,
     b,
-    collator
-  ) satisfies ExpressionSpecification;
+    collator,
+  ) satisfies ExpressionSpecification
 }
 
 /**
@@ -248,7 +248,7 @@ export function lessOrEqual(
  * @example
  * expr.lte(["get", "mag"], 6); // ["<=", ["get", "mag"], 6]
  */
-export const lte = lessOrEqual;
+export const lte = lessOrEqual
 
 /**
  * Creates comparison expressions for MapLibre styles
@@ -275,4 +275,4 @@ export const comparison = {
   gte,
   lessOrEqual,
   lte,
-} as const;
+} as const

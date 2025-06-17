@@ -1,4 +1,4 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 /**
  * Gets the current zoom level. Note that in style layout and paint properties,
@@ -17,5 +17,5 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
  * ```
  */
 export function zoom() {
-  return ["zoom"] satisfies ExpressionSpecification;
+  return ["zoom"] satisfies ExpressionSpecification
 }

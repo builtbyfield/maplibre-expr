@@ -1,6 +1,6 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types";
+import type { NumericExpression } from "../../utils/types"
 
 /**
  * Rounds the input to the nearest integer. Halfway values are rounded away from zero.
@@ -23,7 +23,7 @@ import type { NumericExpression } from "../../utils/types";
  * ```
  */
 export function round<T extends NumericExpression>(value: T) {
-  return ["round", value] satisfies ExpressionSpecification;
+  return ["round", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -47,7 +47,7 @@ export function round<T extends NumericExpression>(value: T) {
  * ```
  */
 export function ceil<T extends NumericExpression>(value: T) {
-  return ["ceil", value] satisfies ExpressionSpecification;
+  return ["ceil", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -71,7 +71,7 @@ export function ceil<T extends NumericExpression>(value: T) {
  * ```
  */
 export function floor<T extends NumericExpression>(value: T) {
-  return ["floor", value] satisfies ExpressionSpecification;
+  return ["floor", value] satisfies ExpressionSpecification
 }
 
 /**
@@ -96,4 +96,4 @@ export const rounding = {
   round,
   ceil,
   floor,
-} as const;
+} as const
