@@ -58,11 +58,31 @@ export function ExpressionPanel({ onExpressionSelect }: ExpressionPanelProps) {
       {selectedExpression && (
         <div className="expression-details">
           <h3>{selectedExpression}</h3>
-          <div className="expression-info">
-            {expressionCategories[selectedCategory]?.find(
+          {(() => {
+            const expr = expressionCategories[selectedCategory]?.find(
               ex => ex.name === selectedExpression,
-            )?.description}
-          </div>
+            )
+            return (
+              <>
+                <div className="expression-info">
+                  <strong>Description:</strong> {expr?.description}
+                </div>
+                {expr?.detailedDescription && (
+                  <div className="expression-detailed">
+                    <strong>Details:</strong> {expr.detailedDescription}
+                  </div>
+                )}
+                {expr?.useCase && (
+                  <div className="expression-usecase">
+                    <strong>Use Cases:</strong> {expr.useCase}
+                  </div>
+                )}
+                <div className="expression-layer">
+                  <strong>Layer Type:</strong> {expr?.layerType} | <strong>Property:</strong> {expr?.paintProperty}
+                </div>
+              </>
+            )
+          })()} 
         </div>
       )}
     </div>

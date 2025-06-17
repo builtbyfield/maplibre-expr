@@ -16,7 +16,7 @@ import type { NumericExpression } from "../../types"
  * expr.sin(1.5) // ["sin", 1.5] -> ~0.9974949866
  * ```
  */
-export function sin<T extends NumericExpression>(value: T) {
+export function sin(value: NumericExpression): ["sin", NumericExpression] {
   return ["sin", value] satisfies ExpressionSpecification
 }
 
@@ -34,7 +34,7 @@ export function sin<T extends NumericExpression>(value: T) {
  * expr.cos(1.5) // ["cos", 1.5] -> ~0.0707372017
  * ```
  */
-export function cos<T extends NumericExpression>(value: T) {
+export function cos(value: NumericExpression): ["cos", NumericExpression] {
   return ["cos", value] satisfies ExpressionSpecification
 }
 
@@ -52,7 +52,7 @@ export function cos<T extends NumericExpression>(value: T) {
  * expr.tan(1.5) // ["tan", 1.5] -> ~14.1014199472
  * ```
  */
-export function tan<T extends NumericExpression>(value: T) {
+export function tan(value: NumericExpression): ["tan", NumericExpression] {
   return ["tan", value] satisfies ExpressionSpecification
 }
 
@@ -70,7 +70,7 @@ export function tan<T extends NumericExpression>(value: T) {
  * expr.asin(0.5) // ["asin", 0.5] -> ~0.5235987756
  * ```
  */
-export function asin<T extends NumericExpression>(value: T) {
+export function asin(value: NumericExpression): ["asin", NumericExpression] {
   return ["asin", value] satisfies ExpressionSpecification
 }
 
@@ -86,7 +86,7 @@ export function asin<T extends NumericExpression>(value: T) {
  * expr.acos(0.5) // ["acos", 0.5] -> ~1.0471975512
  * ```
  */
-export function acos<T extends NumericExpression>(value: T) {
+export function acos(value: NumericExpression): ["acos", NumericExpression] {
   return ["acos", value] satisfies ExpressionSpecification
 }
 
@@ -104,7 +104,7 @@ export function acos<T extends NumericExpression>(value: T) {
  * expr.atan(1) // ["atan", 1] -> ~0.7853981634
  * ```
  */
-export function atan<T extends NumericExpression>(value: T) {
+export function atan(value: NumericExpression): ["atan", NumericExpression] {
   return ["atan", value] satisfies ExpressionSpecification
 }
 

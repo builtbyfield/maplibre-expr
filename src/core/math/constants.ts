@@ -12,7 +12,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
  * expr.ln2(); // ["ln2"] -> ~0.6931471805599453
  * ```
  */
-export function ln2() {
+export function ln2(): ["ln2"] {
   return ["ln2"] satisfies ExpressionSpecification
 }
 
@@ -28,7 +28,7 @@ export function ln2() {
  * expr.pi(); // ["pi"] -> ~3.141592653589793
  * ```
  */
-export function pi() {
+export function pi(): ["pi"] {
   return ["pi"] satisfies ExpressionSpecification
 }
 
@@ -47,7 +47,7 @@ export function pi() {
 export function e(): ExpressionSpecification {
   // TODO: Figure out why 'e' is not included in the types
   // @ts-expect-error: e isn't included in MapLibre GL Style Spec types for some reason
-  return ["e"] satisfies ExpressionSpecification
+  return ["e"] as ExpressionSpecification
 }
 
 /**

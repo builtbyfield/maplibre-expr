@@ -17,13 +17,8 @@ import type { NumericExpression } from "../../types"
  * expr.min([1, 2, 3, 4, 5]); // ["min", 1, 2, 3, 4, 5] -> 1
  * ```
  */
-export function min(values: NumericExpression[]) {
-  if (values.length < 1) {
-    throw new Error("min requires at least one argument")
-  }
-
-  const [first, ...rest] = values
-  return ["min", first, ...rest] satisfies ExpressionSpecification
+export function min(values: [NumericExpression, ...NumericExpression[]]): ["min", ...NumericExpression[]] {
+  return ["min", ...values] satisfies ExpressionSpecification
 }
 
 /**
@@ -33,14 +28,16 @@ export function min(values: NumericExpression[]) {
  * @returns An expression that returns the maximum value of the inputs.
  *
  * @see [MapLibre Style Specification - max](https://maplibre.org/maplibre-style-spec/expressions/#max)
+ *
+ * @example
+ * ```ts
+ * expr.max([1, 2, 3]); // ["max", 1, 2, 3] -> 3
+ * expr.max([1, 2, 3, 4]); // ["max", 1, 2, 3, 4] -> 4
+ * expr.max([1, 2, 3, 4, 5]); // ["max", 1, 2, 3, 4, 5] -> 5
+ * ```
  */
-export function max(values: NumericExpression[]) {
-  if (values.length < 1) {
-    throw new Error("max requires at least one argument")
-  }
-
-  const [first, ...rest] = values
-  return ["max", first, ...rest] satisfies ExpressionSpecification
+export function max(values: [NumericExpression, ...NumericExpression[]]): ["max", ...NumericExpression[]] {
+  return ["max", ...values] satisfies ExpressionSpecification
 }
 
 /**

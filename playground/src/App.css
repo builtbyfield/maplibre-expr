@@ -98,3 +98,32 @@
   line-height: 1.4;
   color: #333;
 }
+
+.expression-detailed,
+.expression-usecase,
+.expression-layer {
+  margin-top: 10px;
+}
+
+.expression-detailed {
+  font-size: 0.9em;
+  font-style: italic;
+  color: #555;
+}
+
+.expression-usecase {
+  background: #f0f8ff;
+  padding: 8px;
+  border-radius: 4px;
+  border-left: 3px solid #007cbf;
+  font-size: 0.9em;
+}
+
+.expression-layer {
+  font-size: 0.85em;
+  background: #f5f5f5;
+  padding: 5px 8px;
+  border-radius: 3px;
+  color: #777;
+}
+EOF < /dev/null

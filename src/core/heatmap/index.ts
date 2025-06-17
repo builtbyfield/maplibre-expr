@@ -16,7 +16,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
  * expr.heatmapDensity(); // ["heatmap-density"]
  * ```
  */
-export function heatmapDensity() {
+export function heatmapDensity(): ["heatmap-density"] {
   return ["heatmap-density"] satisfies ExpressionSpecification
 }
 

@@ -22,7 +22,7 @@ import type { NumericExpression } from "../../types"
  * ) // ["+", ["*", 2, ["get", "value"]], ["/", 10, 2]]
  * ```
  */
-export function add(...values: NumericExpression[]) {
+export function add(...values: NumericExpression[]): ["+", ...NumericExpression[]] {
   if (values.length < 1) {
     throw new Error("add operation requires at least one argument")
   }
@@ -50,7 +50,7 @@ export function add(...values: NumericExpression[]) {
  * expr.subtract(expr.get("a"), expr.get("b")); // ["-", ["get", "a"], ["get", "b"]]
  * ```
  */
-export function subtract(a: NumericExpression, b?: NumericExpression): ExpressionSpecification {
+export function subtract(a: NumericExpression, b?: NumericExpression): ["-", NumericExpression, NumericExpression?] {
   if (b === undefined) {
     return ["-", a] satisfies ExpressionSpecification
   }
@@ -77,12 +77,8 @@ export function subtract(a: NumericExpression, b?: NumericExpression): Expressio
  * expr.multiply(1, 2, 3, 4); // ["*", 1, 2, 3, 4] -> 24
  * ```
  */
-export function multiply(...values: NumericExpression[]): ExpressionSpecification {
-  if (values.length < 2) {
-    throw new Error("multiply operation requires at least two arguments")
-  }
-  const [first, second, ...rest] = values
-  return ["*", first, second, ...rest] satisfies ExpressionSpecification
+export function multiply(...values: [NumericExpression, NumericExpression, ...NumericExpression[]]): ["*", ...NumericExpression[]] {
+  return ["*", ...values] satisfies ExpressionSpecification
 }
 
 /**
@@ -106,7 +102,7 @@ export function multiply(...values: NumericExpression[]): ExpressionSpecificatio
 export function divide(
   numerator: NumericExpression,
   denominator: NumericExpression,
-): ExpressionSpecification {
+): ["/", NumericExpression, NumericExpression] {
   return ["/", numerator, denominator]
 }
 
@@ -128,7 +124,7 @@ export function divide(
  * expr.mod(expr.get("a"), expr.get("b")); // ["%", ["get", "a"], ["get", "b"]]
  * ```
  */
-export function mod(a: NumericExpression, b: NumericExpression): ExpressionSpecification {
+export function mod(a: NumericExpression, b: NumericExpression): ["%", NumericExpression, NumericExpression] {
   return ["%", a, b]
 }
 
@@ -150,7 +146,7 @@ export function mod(a: NumericExpression, b: NumericExpression): ExpressionSpeci
  * expr.pow(expr.get("a"), expr.get("b")); // ["^", ["get", "a"], ["get", "b"]]
  * ```
  */
-export function pow(base: NumericExpression, exp: NumericExpression): ExpressionSpecification {
+export function pow(base: NumericExpression, exp: NumericExpression): ["^", NumericExpression, NumericExpression] {
   return ["^", base, exp]
 }
 

@@ -15,7 +15,7 @@ import type { NumericExpression } from "../../types"
  * expr.abs(-1.5); // ["abs", -1.5] -> 1.5
  * ```
  */
-export function abs(value: NumericExpression) {
+export function abs(value: NumericExpression): ["abs", NumericExpression] {
   return ["abs", value] satisfies ExpressionSpecification
 }
 
@@ -32,7 +32,7 @@ export function abs(value: NumericExpression) {
  * expr.sqrt(9); // ["sqrt", 9] -> 3
  * ```
  */
-export function sqrt(value: NumericExpression) {
+export function sqrt(value: NumericExpression): ["sqrt", NumericExpression] {
   return ["sqrt", value] satisfies ExpressionSpecification
 }
 
@@ -49,7 +49,7 @@ export function sqrt(value: NumericExpression) {
  * expr.log2(8); // ["log2", 8] -> 3
  * ```
  */
-export function log2(value: NumericExpression) {
+export function log2(value: NumericExpression): ["log2", NumericExpression] {
   return ["log2", value] satisfies ExpressionSpecification
 }
 
@@ -66,7 +66,7 @@ export function log2(value: NumericExpression) {
  * expr.ln(Math.E); // ["ln", Math.E] -> 1
  * ```
  */
-export function ln(value: NumericExpression) {
+export function ln(value: NumericExpression): ["ln", NumericExpression] {
   return ["ln", value] satisfies ExpressionSpecification
 }
 
@@ -83,7 +83,7 @@ export function ln(value: NumericExpression) {
  * expr.log10(100); // ["log10", 100] -> 2
  * ```
  */
-export function log10(value: NumericExpression) {
+export function log10(value: NumericExpression): ["log10", NumericExpression] {
   return ["log10", value] satisfies ExpressionSpecification
 }
 

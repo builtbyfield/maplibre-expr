@@ -1,5 +1,7 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
+type DistanceGeometry = GeoJSON.Point | GeoJSON.MultiPoint | GeoJSON.LineString | GeoJSON.MultiLineString | GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Feature | GeoJSON.FeatureCollection
+
 /**
  * Returns the shortest distance in meters between the evaluated feature and the
  * input geometry. The input value can be a valid GeoJSON of type `Point`,
@@ -20,16 +22,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
  * ```
  */
 export function distance(
-  geometry:
-    | GeoJSON.Point
-    | GeoJSON.MultiPoint
-    | GeoJSON.LineString
-    | GeoJSON.MultiLineString
-    | GeoJSON.Polygon
-    | GeoJSON.MultiPolygon
-    | GeoJSON.Feature
-    | GeoJSON.FeatureCollection
-    | ExpressionSpecification,
-) {
+  geometry: DistanceGeometry,
+): ["distance", DistanceGeometry] {
   return ["distance", geometry] satisfies ExpressionSpecification
 }

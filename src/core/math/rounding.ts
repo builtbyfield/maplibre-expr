@@ -22,7 +22,7 @@ import type { NumericExpression } from "../../types"
  * expr.round(-0.5); // ["round", -0.5] -> -1
  * ```
  */
-export function round<T extends NumericExpression>(value: T) {
+export function round(value: NumericExpression): ["round", NumericExpression] {
   return ["round", value] satisfies ExpressionSpecification
 }
 
@@ -46,7 +46,7 @@ export function round<T extends NumericExpression>(value: T) {
  * expr.ceil(-0.5); // ["ceil", -0.5] -> 0
  * ```
  */
-export function ceil<T extends NumericExpression>(value: T) {
+export function ceil(value: NumericExpression): ["ceil", NumericExpression] {
   return ["ceil", value] satisfies ExpressionSpecification
 }
 
@@ -70,7 +70,7 @@ export function ceil<T extends NumericExpression>(value: T) {
  * expr.floor(-0.5); // ["floor", -0.5] -> -1
  * ```
  */
-export function floor<T extends NumericExpression>(value: T) {
+export function floor(value: NumericExpression): ["floor", NumericExpression] {
   return ["floor", value] satisfies ExpressionSpecification
 }
 

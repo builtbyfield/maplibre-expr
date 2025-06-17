@@ -22,7 +22,7 @@ export function rgb(
   red: NumericExpression,
   green: NumericExpression,
   blue: NumericExpression,
-) {
+): ["rgb", NumericExpression, NumericExpression, NumericExpression] {
   return ["rgb", red, green, blue] satisfies ExpressionSpecification
 }
 
@@ -49,7 +49,7 @@ export function rgba(
   green: NumericExpression,
   blue: NumericExpression,
   alpha: NumericExpression,
-) {
+): ["rgba", NumericExpression, NumericExpression, NumericExpression, NumericExpression] {
   return ["rgba", red, green, blue, alpha] satisfies ExpressionSpecification
 }
 

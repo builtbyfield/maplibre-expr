@@ -18,7 +18,7 @@ import type {
 export function at(
   index: number | ExpressionSpecification,
   array: ExpressionSpecification,
-) {
+): ["at", number | ExpressionSpecification, ExpressionSpecification] {
   return ["at", index, array] satisfies ExpressionSpecification
 }
 
@@ -37,7 +37,7 @@ export function at(
 export function in_(
   needle: ExpressionInputType | ExpressionSpecification,
   haystack: ExpressionInputType | ExpressionSpecification,
-) {
+): ["in", ExpressionInputType | ExpressionSpecification, ExpressionInputType | ExpressionSpecification] {
   return ["in", needle, haystack] satisfies ExpressionSpecification
 }
 
@@ -57,7 +57,7 @@ export function in_(
 export function indexOf(
   searchElement: ExpressionInputType | ExpressionSpecification,
   array: ExpressionInputType | ExpressionSpecification,
-) {
+): ["index-of", ExpressionInputType | ExpressionSpecification, ExpressionInputType | ExpressionSpecification] {
   return ["index-of", searchElement, array] satisfies ExpressionSpecification
 }
 
@@ -79,10 +79,12 @@ export function slice(
   input: string | ExpressionSpecification,
   start: number | ExpressionSpecification,
   end?: number | ExpressionSpecification,
-) {
-  return end !== undefined
-    ? (["slice", input, start, end] satisfies ExpressionSpecification)
-    : (["slice", input, start] satisfies ExpressionSpecification)
+):
+  | ["slice", string | ExpressionSpecification, number | ExpressionSpecification]
+  | ["slice", string | ExpressionSpecification, number | ExpressionSpecification, number | ExpressionSpecification] {
+  return (end !== undefined
+    ? ["slice", input, start, end]
+    : ["slice", input, start]) satisfies ExpressionSpecification
 }
 
 /**
@@ -99,7 +101,7 @@ export function slice(
  * @example
  * expr.globalState("zoom"); // ["global-state", "zoom"]
  */
-export function globalState(property: string) {
+export function globalState(property: string): ["global-state", string] {
   return ["global-state", property] satisfies ExpressionSpecification
 }
 
@@ -120,10 +122,12 @@ export function globalState(property: string) {
 export function get(
   property: string | ExpressionSpecification,
   object?: Record<string, unknown> | ExpressionSpecification,
-) {
-  return object !== undefined
-    ? (["get", property, object] satisfies ExpressionSpecification)
-    : (["get", property] satisfies ExpressionSpecification)
+):
+  | ["get", string | ExpressionSpecification, Record<string, unknown> | ExpressionSpecification]
+  | ["get", string | ExpressionSpecification] {
+  return (object !== undefined
+    ? ["get", property, object]
+    : ["get", property]) satisfies ExpressionSpecification
 }
 
 /**
@@ -143,10 +147,12 @@ export function get(
 export function has(
   property: string | ExpressionSpecification,
   object?: Record<string, unknown> | ExpressionSpecification,
-) {
-  return object !== undefined
-    ? (["has", property, object] satisfies ExpressionSpecification)
-    : (["has", property] satisfies ExpressionSpecification)
+):
+  | ["has", string | ExpressionSpecification, Record<string, unknown> | ExpressionSpecification]
+  | ["has", string | ExpressionSpecification] {
+  return (object !== undefined
+    ? ["has", property, object]
+    : ["has", property]) satisfies ExpressionSpecification
 }
 
 /**
@@ -161,7 +167,7 @@ export function has(
  * expr.length(["get", "coordinates"]); // ["length", ["get", "coordinates"]]
  * expr.length("hello"); // ["length", "hello"] -> 5
  */
-export function length(input: string | ExpressionSpecification) {
+export function length(input: string | ExpressionSpecification): ["length", string | ExpressionSpecification] {
   return ["length", input] satisfies ExpressionSpecification
 }
 

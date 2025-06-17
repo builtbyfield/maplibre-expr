@@ -17,7 +17,7 @@ type InterpolationType
     y2: NumericExpression
   }
 
-interface Stop {
+interface StepStop {
   input: number
   output: ExpressionInputType | ExpressionSpecification
 }
@@ -52,14 +52,24 @@ interface Stop {
 export function step(
   input: NumericExpression,
   fallback: ExpressionInputType | ExpressionSpecification,
-  ...stops: Stop[]
-): ExpressionSpecification {
+  ...stops: StepStop[]
+): [
+    "step",
+    NumericExpression,
+    ExpressionInputType | ExpressionSpecification,
+    ...(StepStop["input"] | StepStop["output"])[],
+  ] {
   return [
     "step",
     input,
     fallback,
     ...stops.flatMap(stop => [stop.input, stop.output]),
   ] satisfies ExpressionSpecification
+}
+
+interface InterpolationStop {
+  input: number
+  output: number | Array<number> | ColorSpecification | ExpressionSpecification | ProjectionDefinitionSpecification
 }
 
 /**
@@ -122,11 +132,13 @@ export function step(
 export function interpolate(
   interpolationType: InterpolationType,
   input: NumericExpression,
-  ...stops: {
-    input: number
-    output: number | Array<number> | ColorSpecification | ExpressionSpecification | ProjectionDefinitionSpecification
-  }[]
-): ExpressionSpecification {
+  ...stops: InterpolationStop[]
+): [
+    "interpolate",
+    InterpolationSpecification,
+    NumericExpression,
+    ...(InterpolationStop["input"] | InterpolationStop["output"])[],
+  ] {
   const flatStops = stops.flatMap(stop => [stop.input, stop.output])
 
   switch (interpolationType.type) {
@@ -168,6 +180,11 @@ export function interpolate(
   }
 }
 
+interface InterpolateHclStop {
+  input: number
+  output: ColorSpecification | Array<ColorSpecification>
+}
+
 /**
  * Produces continuous, smooth results by interpolating between pairs of input
  * and output values ("stops"). Works like `interpolate`, but the output type
@@ -195,11 +212,13 @@ export function interpolate(
 export function interpolateHcl(
   interpolationType: InterpolationType,
   input: NumericExpression,
-  ...stops: {
-    input: number
-    output: ColorSpecification | Array<ColorSpecification>
-  }[]
-): ExpressionSpecification {
+  ...stops: InterpolateHclStop[]
+): [
+    "interpolate-hcl",
+    InterpolationSpecification,
+    NumericExpression,
+    ...(InterpolateHclStop["input"] | InterpolateHclStop["output"])[],
+  ] {
   const flatStops = stops.flatMap(stop => [stop.input, stop.output])
 
   switch (interpolationType.type) {
@@ -211,7 +230,8 @@ export function interpolateHcl(
         ] satisfies InterpolationSpecification,
         input,
         ...flatStops,
-      ] as ExpressionSpecification // We use `as` here because Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+        // @ts-expect-error - Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+      ] satisfies ExpressionSpecification
     case "exponential":
       return [
         "interpolate-hcl",
@@ -221,7 +241,8 @@ export function interpolateHcl(
         ] satisfies InterpolationSpecification,
         input,
         ...flatStops,
-      ] as ExpressionSpecification // We use `as` here because Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+        // @ts-expect-error - Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+      ] satisfies ExpressionSpecification
     case "cubic-bezier":
       return [
         "interpolate-hcl",
@@ -234,11 +255,17 @@ export function interpolateHcl(
         ] satisfies InterpolationSpecification,
         input,
         ...flatStops,
-      ] as ExpressionSpecification // We use `as` here because Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+        // @ts-expect-error - Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+      ] satisfies ExpressionSpecification
     default:
       // @ts-expect-error - This should never happen, but we need to satisfy the type checker
       throw new Error(`Invalid interpolation-hcl type: ${interpolationType.type}`)
   }
+}
+
+interface InterpolateLabStop {
+  input: number
+  output: ColorSpecification | Array<ColorSpecification>
 }
 
 /**
@@ -268,11 +295,13 @@ export function interpolateHcl(
 export function interpolateLab(
   interpolationType: InterpolationType,
   input: NumericExpression,
-  ...stops: {
-    input: number
-    output: ColorSpecification | Array<ColorSpecification>
-  }[]
-): ExpressionSpecification {
+  ...stops: InterpolateLabStop[]
+): [
+    "interpolate-lab",
+    InterpolationSpecification,
+    NumericExpression,
+    ...(InterpolateLabStop["input"] | InterpolateLabStop["output"])[],
+  ] {
   const flatStops = stops.flatMap(stop => [stop.input, stop.output])
 
   switch (interpolationType.type) {
@@ -284,7 +313,8 @@ export function interpolateLab(
         ] satisfies InterpolationSpecification,
         input,
         ...flatStops,
-      ] as ExpressionSpecification // We use `as` here because Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+        // @ts-expect-error - Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+      ] satisfies ExpressionSpecification
     case "exponential":
       return [
         "interpolate-lab",
@@ -294,7 +324,8 @@ export function interpolateLab(
         ] satisfies InterpolationSpecification,
         input,
         ...flatStops,
-      ] as ExpressionSpecification // We use `as` here because Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+        // @ts-expect-error - Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+      ] satisfies ExpressionSpecification
     case "cubic-bezier":
       return [
         "interpolate-lab",
@@ -307,7 +338,8 @@ export function interpolateLab(
         ] satisfies InterpolationSpecification,
         input,
         ...flatStops,
-      ] as ExpressionSpecification // We use `as` here because Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+        // @ts-expect-error - Array<ColorSpecification> doesn't satisfy the ExpressionSpecification type for some reason
+      ] satisfies ExpressionSpecification
     default:
       // @ts-expect-error - This should never happen, but we need to satisfy the type checker
       throw new Error(`Invalid interpolation-lab type: ${interpolationType.type}`)

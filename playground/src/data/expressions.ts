@@ -4,10 +4,12 @@ import { expr } from "../../../src/index"
 export interface ExpressionExample {
   name: string
   description: string
+  detailedDescription?: string
   expression: ExpressionSpecification
   layerType: "circle" | "fill" | "line" | "symbol"
   paintProperty: string
   defaultValue?: number | string | boolean | null
+  useCase?: string
 }
 
 export const expressionCategories: Record<string, ExpressionExample[]> = {
@@ -15,56 +17,69 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
     {
       name: "add",
       description: "Add two numbers together",
+      detailedDescription: "Mathematical addition - useful for offsetting values or combining multiple data points. Here we add 1000 to the population to ensure minimum radius.",
       expression: expr.math.arithmetic.add(expr.lookup.get("population"), 1000),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
+      useCase: "Ensuring minimum circle size, combining metrics"
     },
     {
       name: "multiply",
       description: "Multiply values for scaling",
+      detailedDescription: "Scale values proportionally - perfect for converting data ranges to visual ranges. This doubles the magnitude for more dramatic visual impact.",
       expression: expr.math.arithmetic.multiply(expr.lookup.get("magnitude"), 2),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
+      useCase: "Scaling data to visual ranges, emphasizing differences"
     },
     {
       name: "divide",
       description: "Divide for normalization",
+      detailedDescription: "Normalize values to a 0-1 range for opacity. Dividing by 100 converts percentage values to decimal opacity values.",
       expression: expr.math.arithmetic.divide(expr.lookup.get("value"), 100),
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.5,
+      useCase: "Converting percentages to opacity, normalizing data ranges"
     },
     {
       name: "subtract",
       description: "Subtract to find difference",
+      detailedDescription: "Calculate differences or create inverse relationships. Here we subtract density from 100 to create an inverse effect.",
       expression: expr.math.arithmetic.subtract(100, expr.lookup.get("density")),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
+      useCase: "Inverse relationships, calculating differences"
     },
     {
       name: "modulo",
       description: "Modulo for pattern effects",
+      detailedDescription: "Create cyclical patterns using remainder operations. This creates 3 distinct opacity levels that repeat based on the data value.",
       expression: expr.math.arithmetic.mod(expr.lookup.get("value"), 3),
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.5,
+      useCase: "Creating repeating visual patterns, categorizing continuous data"
     },
     {
       name: "pow",
-      description: "Power of a number",
-      expression: expr.math.arithmetic.pow(expr.lookup.get("value"), 1),
+      description: "Exponential scaling with power function",
+      detailedDescription: "Raise values to a power for non-linear scaling. Using power of 2 creates quadratic growth, emphasizing larger values dramatically.",
+      expression: expr.math.arithmetic.pow(expr.lookup.get("value"), 2),
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 5,
+      useCase: "Non-linear scaling, emphasizing outliers, area-based sizing"
     },
   ],
   "Math - Trigonometry": [
     {
       name: "sin wave pattern",
       description: "Create sine wave based radius",
+      detailedDescription: "Generate smooth oscillating patterns using sine function. Perfect for creating rhythmic visual effects that vary with data values.",
       expression: expr.math.arithmetic.add(
         10,
         expr.math.arithmetic.multiply(
@@ -77,10 +92,12 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-radius",
       defaultValue: 10,
+      useCase: "Creating wave-like visual patterns, temporal data visualization"
     },
     {
       name: "cos wave pattern",
       description: "Create cosine wave based opacity",
+      detailedDescription: "Use cosine for phase-shifted oscillating patterns. Converts -1 to 1 range to 0 to 1 opacity range.",
       expression: expr.math.arithmetic.divide(
         expr.math.arithmetic.add(
           1,
@@ -93,6 +110,25 @@ export const expressionCategories: Record<string, ExpressionExample[]> = {
       layerType: "circle",
       paintProperty: "circle-opacity",
       defaultValue: 0.5,
+      useCase: "Phase-shifted patterns, complementary wave effects"
+    },
+    {
+      name: "tan gradient",
+      description: "Tangent function for steep transitions",
+      detailedDescription: "Creates sharp transitions between values using tangent function. Useful for highlighting threshold areas.",
+      expression: expr.math.arithmetic.add(
+        5,
+        expr.math.trigonometry.tan(
+          expr.math.arithmetic.multiply(
+            expr.lookup.get("temperature"),
+            0.05
+          )
+        )
+      ),
+      layerType: "circle",
+      paintProperty: "circle-radius",
+      defaultValue: 5,
+      useCase: "Sharp transitions, threshold highlighting"
     },
   ],
   "Math - Advanced": [

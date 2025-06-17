@@ -13,7 +13,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
  * expr.featureData.properties() // ['properties']
  * ```
  */
-export function properties() {
+export function properties(): ["properties"] {
   return ["properties"] satisfies ExpressionSpecification
 }
 
@@ -28,7 +28,7 @@ export function properties() {
  * string, or any primitive data type. Note that ["feature-state"] can only be
  * used with paint properties that support data-driven styling.
  */
-export function featureState(property: string) {
+export function featureState(property: string): ["feature-state", string] {
   return ["feature-state", property] satisfies ExpressionSpecification
 }
 
@@ -46,7 +46,7 @@ export function featureState(property: string) {
  * expr.featureData.geometryType() // ['geometry-type']
  * ```
  */
-export function geometryType() {
+export function geometryType(): ["geometry-type"] {
   return ["geometry-type"] satisfies ExpressionSpecification
 }
 
@@ -62,7 +62,7 @@ export function geometryType() {
  * expr.featureData.id() // ['id']
  * ```
  */
-export function id() {
+export function id(): ["id"] {
   return ["id"] satisfies ExpressionSpecification
 }
 
@@ -74,7 +74,7 @@ export function id() {
  *
  * @see [MapLibre Style Specification - line-progress](https://maplibre.org/maplibre-style-spec/expressions/#line-progress)
  */
-export function lineProgress() {
+export function lineProgress(): ["line-progress"] {
   return ["line-progress"] satisfies ExpressionSpecification
 }
 
@@ -86,7 +86,7 @@ export function lineProgress() {
  *
  * @see [MapLibre Style Specification - accumulated](https://maplibre.org/maplibre-style-spec/expressions/#accumulated)
  */
-export function accumulated() {
+export function accumulated(): ["accumulated"] {
   return ["accumulated"] satisfies ExpressionSpecification
 }
 
