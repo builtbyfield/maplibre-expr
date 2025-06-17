@@ -131,7 +131,7 @@ export function number(
  * Asserts that the input value is a boolean.
  *
  * @param value - The value to check
- * @param fallbacks - Optional fallback values to try
+ * @param fallback - Optional fallback value to try
  * @returns An expression that asserts the input is a boolean
  *
  * @see [MapLibre Style Specification - boolean](https://maplibre.org/maplibre-style-spec/expressions/#boolean)
@@ -142,8 +142,8 @@ export function number(
  * ```
  */
 export function boolean(
-  value: ExpressionSpecification | ExpressionInputType,
-  fallback?: ExpressionSpecification | ExpressionInputType,
+  value: (unknown | ExpressionSpecification)[],
+  fallback?: unknown | ExpressionSpecification,
 ) {
   return fallback !== undefined
     ? (["boolean", value, fallback] satisfies ExpressionSpecification)

@@ -18,6 +18,6 @@ catalogs:
   types:
     "@types/geojson": ^7946.0.15
   utils:
-    "@maplibre/maplibre-gl-style-spec": ^22.0.1
+    "@maplibre/maplibre-gl-style-spec": ^23.3.0
 onlyBuiltDependencies:
   - esbuild

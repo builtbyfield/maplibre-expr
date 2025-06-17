@@ -99,7 +99,7 @@ export function slice(
  * @example
  * expr.globalState("zoom"); // ["global-state", "zoom"]
  */
-export function globalState(property: string | ExpressionSpecification) {
+export function globalState(property: string) {
   return ["global-state", property] satisfies ExpressionSpecification
 }
 
