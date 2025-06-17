@@ -1,32 +1,48 @@
-import { core } from "./core"
-import { custom } from "./custom"
+// Core expression categories
+export * from "./core/color"
+export * from "./core/decision"
+export * from "./core/feature-data"
+export * from "./core/heatmap"
+export * from "./core/interpolation"
+export * from "./core/lookup"
+export * from "./core/math"
+export * from "./core/strings"
+export * from "./core/types"
+export * from "./core/variables"
+export * from "./core/zoom"
 
-/**
- * Core expressions for MapLibre Style Specification and custom helper functions
- * designed to solve common use cases when working with MapLibre GL.
- *
- * Direct access to all expressions is available via the `expr` object
- * (e.g. `expr.round(1.5)`); however, you can also access expressions via
- * sub-objects for each category (e.g. `expr.math.round(1.5)`) or sub-category
- * (e.g. `expr.math.rounding.round(1.5)`) if applicable.
- *
- * @see [MapLibre Style Specification - Expressions](https://maplibre.org/maplibre-style-spec/expressions/)
- *
- * @example
- * ```ts
- * import { expr } from '@builtbyfield/maplibre-expression-helpers'
- *
- * // Direct access
- * expr.round(1.5); // ["round", 1.5]
- * // Access via math
- * expr.math.round(1.5); // ["round", 1.5]
- * // Access via math.rounding
- * expr.math.rounding.round(1.5); // ["round", 1.5]
- * ```
- */
+// Custom extensions
+export * from "./custom/datetime"
+
+// Grouped exports for convenient access
+import * as color from "./core/color"
+import * as decision from "./core/decision"
+import * as featureData from "./core/feature-data"
+import * as heatmap from "./core/heatmap"
+import * as interpolation from "./core/interpolation"
+import * as lookup from "./core/lookup"
+import * as math from "./core/math"
+import * as strings from "./core/strings"
+import * as types from "./core/types"
+import * as variables from "./core/variables"
+import * as zoom from "./core/zoom"
+import * as datetime from "./custom/datetime"
+
+// Export grouped namespace
 export const expr = {
-  ...core,
-  ...custom,
+  color,
+  decision,
+  featureData,
+  heatmap,
+  interpolation,
+  lookup,
+  math,
+  strings,
+  types,
+  variables,
+  zoom,
+  datetime,
 }
 
-export default expr
+// Export types
+export type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"

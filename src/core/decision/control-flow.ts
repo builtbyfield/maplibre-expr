@@ -60,7 +60,7 @@ type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]]
  * value if no match is found.
  *
  * @param input - The input value to match against
- * @param matches - Array of alternating label and output pairs
+ * @param pairs - Array of alternating label and output pairs
  * @param fallback - The fallback value if no matches are found
  * @returns An expression that returns the matched output or fallback value
  *

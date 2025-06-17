@@ -1,6 +1,11 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import { expr } from "../index"
+import { equal, greaterOrEqual, lessOrEqual } from "../core/decision/comparison"
+import { and } from "../core/decision/logical"
+import { get, has } from "../core/lookup"
+import { divide } from "../core/math/arithmetic"
+import { floor } from "../core/math/rounding"
+import { literal } from "../core/types/assertion"
 
 /**
  * Check if a time is within a range defined by two time properties. Both
@@ -25,23 +30,23 @@ export function isWithinTimeRange(
   // Convert inputs to expressions if they're property names (strings) or timestamps (numbers)
   const dateExpr
     = typeof timeToCheck === "string"
-      ? expr.get(timeToCheck)
+      ? get(timeToCheck)
       : typeof timeToCheck === "number"
-        ? expr.literal(timeToCheck)
+        ? literal(timeToCheck)
         : timeToCheck
 
   const startExpr
     = typeof startTime === "string"
-      ? expr.get(startTime)
+      ? get(startTime)
       : typeof startTime === "number"
-        ? expr.literal(startTime)
+        ? literal(startTime)
         : startTime
 
   const endExpr
     = typeof endTime === "string"
-      ? expr.get(endTime)
+      ? get(endTime)
       : typeof endTime === "number"
-        ? expr.literal(endTime)
+        ? literal(endTime)
         : endTime
 
   // Build conditions array
@@ -49,21 +54,21 @@ export function isWithinTimeRange(
 
   // Add property existence checks if needed
   if (typeof startTime === "string") {
-    conditions.push(expr.has(startTime))
+    conditions.push(has(startTime))
   }
   if (typeof endTime === "string") {
-    conditions.push(expr.has(endTime))
+    conditions.push(has(endTime))
   }
 
   // Add range check
-  const rangeCheck = expr.and(
-    expr.greaterOrEqual(dateExpr, startExpr),
-    expr.lessOrEqual(dateExpr, endExpr),
+  const rangeCheck = and(
+    greaterOrEqual(dateExpr, startExpr),
+    lessOrEqual(dateExpr, endExpr),
   )
 
   // If we have property checks, combine them with the range check
   const finalCondition = conditions.length
-    ? expr.and(...conditions, rangeCheck)
+    ? and(...conditions, rangeCheck)
     : rangeCheck
 
   return [
@@ -93,10 +98,10 @@ export function isToday(
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
 
-  return expr.isWithinTimeRange(
+  return isWithinTimeRange(
     timeToCheck,
-    expr.literal(today.getTime()),
-    expr.literal(tomorrow.getTime()),
+    literal(today.getTime()),
+    literal(tomorrow.getTime()),
   ) satisfies ExpressionSpecification
 }
 
@@ -121,10 +126,10 @@ export function isWithinNextDuration(
   const now = new Date()
   const future = new Date(now.getTime() + duration)
 
-  return expr.isWithinTimeRange(
+  return isWithinTimeRange(
     timeToCheck,
-    expr.literal(now.getTime()),
-    expr.literal(future.getTime()),
+    literal(now.getTime()),
+    literal(future.getTime()),
   ) satisfies ExpressionSpecification
 }
 
@@ -149,10 +154,10 @@ export function isWithinPastDuration(
   const now = new Date()
   const past = new Date(now.getTime() - duration)
 
-  return expr.isWithinTimeRange(
+  return isWithinTimeRange(
     timeToCheck,
-    expr.literal(past.getTime()),
-    expr.literal(now.getTime()),
+    literal(past.getTime()),
+    literal(now.getTime()),
   ) satisfies ExpressionSpecification
 }
 
@@ -174,38 +179,38 @@ export function isSameDay(
   // Convert inputs to expressions if they're property names (strings) or timestamps (numbers)
   const time1Expr
     = typeof time1 === "string"
-      ? expr.get(time1)
+      ? get(time1)
       : typeof time1 === "number"
-        ? expr.literal(time1)
+        ? literal(time1)
         : time1
 
   const time2Expr
     = typeof time2 === "string"
-      ? expr.get(time2)
+      ? get(time2)
       : typeof time2 === "number"
-        ? expr.literal(time2)
+        ? literal(time2)
         : time2
 
   // First check if both times exist
   const conditions: ExpressionSpecification[] = []
   if (typeof time1 === "string") {
-    conditions.push(expr.has(time1))
+    conditions.push(has(time1))
   }
   if (typeof time2 === "string") {
-    conditions.push(expr.has(time2))
+    conditions.push(has(time2))
   }
 
   // Convert to days since epoch by dividing by milliseconds in a day
   const msPerDay = 24 * 60 * 60 * 1000
-  const day1 = expr.floor(expr.divide(time1Expr, msPerDay))
-  const day2 = expr.floor(expr.divide(time2Expr, msPerDay))
+  const day1 = floor(divide(time1Expr, msPerDay))
+  const day2 = floor(divide(time2Expr, msPerDay))
 
   // Compare the days
-  const comparison = expr.eq(day1, day2)
+  const comparison = equal(day1, day2)
 
   // If we have property checks, combine them with the comparison
   const finalCondition = conditions.length
-    ? expr.and(...conditions, comparison)
+    ? and(...conditions, comparison)
     : comparison
 
   return [

@@ -13,7 +13,7 @@ catalogs:
     typescript: ^5.7.2
     typescript-eslint: ^8.18.0
   testing:
-    "@vitest/coverage-v8": 2.1.8
+    "@vitest/coverage-v8": ^2.1.8
     vitest: ^2.1.8
   types:
     "@types/geojson": ^7946.0.15

@@ -1,6 +1,6 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types"
+import type { NumericExpression } from "../../types"
 
 /**
  * Returns the sine of the input.

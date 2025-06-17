@@ -2,6 +2,7 @@ import type {
   ExpressionInputType,
   ExpressionSpecification,
 } from "@maplibre/maplibre-gl-style-spec"
+import type { UnknownExpression } from "../../types"
 
 type ExpressionValue = ExpressionInputType | ExpressionSpecification
 
@@ -57,7 +58,7 @@ export function literal(
 export function array(
   itemType: ExpressionInputType | ExpressionSpecification,
   N?: number | ExpressionSpecification,
-  fallback?: unknown | ExpressionSpecification,
+  fallback?: UnknownExpression,
 ) {
   if (N !== undefined) {
     return fallback !== undefined
@@ -80,7 +81,7 @@ export function array(
  * expr.typeof(["get", "name"]); // ["typeof", ["get", "name"]]
  * ```
  */
-export function typeof_(value: ExpressionSpecification | ExpressionInputType) {
+export function typeof_(value: ExpressionSpecification | ExpressionInputType): ExpressionSpecification {
   // @ts-expect-error: MapLibre types are incomplete for typeof
   return ["typeof", value] satisfies ExpressionSpecification
 }
@@ -142,8 +143,8 @@ export function number(
  * ```
  */
 export function boolean(
-  value: (unknown | ExpressionSpecification)[],
-  fallback?: unknown | ExpressionSpecification,
+  value: UnknownExpression[],
+  fallback?: UnknownExpression,
 ) {
   return fallback !== undefined
     ? (["boolean", value, fallback] satisfies ExpressionSpecification)

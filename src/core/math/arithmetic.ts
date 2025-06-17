@@ -1,6 +1,6 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { NumericExpression } from "../../utils/types"
+import type { NumericExpression } from "../../types"
 
 /**
  * Add two or more numbers or expressions
@@ -50,7 +50,7 @@ export function add(...values: NumericExpression[]) {
  * expr.subtract(expr.get("a"), expr.get("b")); // ["-", ["get", "a"], ["get", "b"]]
  * ```
  */
-export function subtract(a: NumericExpression, b?: NumericExpression) {
+export function subtract(a: NumericExpression, b?: NumericExpression): ExpressionSpecification {
   if (b === undefined) {
     return ["-", a] satisfies ExpressionSpecification
   }
@@ -77,7 +77,7 @@ export function subtract(a: NumericExpression, b?: NumericExpression) {
  * expr.multiply(1, 2, 3, 4); // ["*", 1, 2, 3, 4] -> 24
  * ```
  */
-export function multiply(...values: NumericExpression[]) {
+export function multiply(...values: NumericExpression[]): ExpressionSpecification {
   if (values.length < 2) {
     throw new Error("multiply operation requires at least two arguments")
   }
@@ -98,7 +98,7 @@ export function multiply(...values: NumericExpression[]) {
  * ```ts
  * // Simple division
  * expr.divide(6, 2); // ["/", 6, 2] -> 3
-
+ *
  * // Divide two expressions
  * expr.divide(expr.get("a"), expr.get("b")); // ["/", ["get", "a"], ["get", "b"]]
  * ```
@@ -106,8 +106,8 @@ export function multiply(...values: NumericExpression[]) {
 export function divide(
   numerator: NumericExpression,
   denominator: NumericExpression,
-) {
-  return ["/", numerator, denominator] satisfies ExpressionSpecification
+): ExpressionSpecification {
+  return ["/", numerator, denominator]
 }
 
 /**
@@ -128,8 +128,8 @@ export function divide(
  * expr.mod(expr.get("a"), expr.get("b")); // ["%", ["get", "a"], ["get", "b"]]
  * ```
  */
-export function mod(a: NumericExpression, b: NumericExpression) {
-  return ["%", a, b] satisfies ExpressionSpecification
+export function mod(a: NumericExpression, b: NumericExpression): ExpressionSpecification {
+  return ["%", a, b]
 }
 
 /**
@@ -150,8 +150,8 @@ export function mod(a: NumericExpression, b: NumericExpression) {
  * expr.pow(expr.get("a"), expr.get("b")); // ["^", ["get", "a"], ["get", "b"]]
  * ```
  */
-export function pow(base: NumericExpression, exp: NumericExpression) {
-  return ["^", base, exp] satisfies ExpressionSpecification
+export function pow(base: NumericExpression, exp: NumericExpression): ExpressionSpecification {
+  return ["^", base, exp]
 }
 
 /**

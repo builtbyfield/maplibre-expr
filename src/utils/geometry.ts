@@ -6,11 +6,11 @@ import type {
 
 const EXTENT = 8192
 
-function mercatorXfromLng(lng: number) {
+function mercatorXfromLng(lng: number): number {
   return (180 + lng) / 360
 }
 
-function mercatorYfromLat(lat: number) {
+function mercatorYfromLat(lat: number): number {
   return (
     (180
       - (180 / Math.PI)
@@ -86,7 +86,7 @@ export function getGeometry(
     | GeoJSON.Polygon
     | GeoJSON.MultiPolygon,
   canonical: ICanonicalTileID,
-) {
+): void {
   if (!geometry.coordinates) {
     return
   }

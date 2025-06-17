@@ -6,6 +6,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
  * @returns An expression that returns ln(2) (~0.6931471805599453).
  *
  * @see [MapLibre Style Specification - ln2](https://maplibre.org/maplibre-style-spec/expressions/#ln2)
+ *
  * @example
  * ```ts
  * expr.ln2(); // ["ln2"] -> ~0.6931471805599453
@@ -43,7 +44,7 @@ export function pi() {
  * expr.e(); // ["e"] -> ~2.718281828459045
  * ```
  */
-export function e() {
+export function e(): ExpressionSpecification {
   // TODO: Figure out why 'e' is not included in the types
   // @ts-expect-error: e isn't included in MapLibre GL Style Spec types for some reason
   return ["e"] satisfies ExpressionSpecification

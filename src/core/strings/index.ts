@@ -1,7 +1,7 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 import type { CollatorExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import type { StringExpression } from "../../utils/types"
+import type { StringExpression } from "../../types"
 
 /**
  * Returns `true` if the input string is expected to render legibly. Returns
