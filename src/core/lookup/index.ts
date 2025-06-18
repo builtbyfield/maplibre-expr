@@ -77,7 +77,7 @@ export function indexOf(
  * expr.slice(["get", "name"], 0, 3); // ["slice", ["get", "name"], 0, 3]
  */
 export function slice(
-  input: string | ExpressionSpecification,
+  input: StringExpression,
   start: NumericExpression,
   end?: NumericExpression,
 ): ["slice", StringExpression, NumericExpression, NumericExpression?] {
@@ -119,11 +119,9 @@ export function globalState(property: string): ["global-state", string] {
  * expr.get("population", ["properties"]); // ["get", "population", ["properties"]]
  */
 export function get(
-  property: string | ExpressionSpecification,
+  property: StringExpression,
   object?: Record<string, unknown> | ExpressionSpecification,
-):
-  | ["get", string | ExpressionSpecification, Record<string, unknown> | ExpressionSpecification]
-  | ["get", string | ExpressionSpecification] {
+): ["get", StringExpression, (Record<string, unknown> | ExpressionSpecification)?] {
   return (object !== undefined
     ? ["get", property, object]
     : ["get", property]) satisfies ExpressionSpecification
@@ -144,11 +142,9 @@ export function get(
  * expr.has("population", ["properties"]); // ["has", "population", ["properties"]]
  */
 export function has(
-  property: string | ExpressionSpecification,
+  property: StringExpression,
   object?: Record<string, unknown> | ExpressionSpecification,
-):
-  | ["has", string | ExpressionSpecification, Record<string, unknown> | ExpressionSpecification]
-  | ["has", string | ExpressionSpecification] {
+): ["has", StringExpression, (Record<string, unknown> | ExpressionSpecification)?] {
   return (object !== undefined
     ? ["has", property, object]
     : ["has", property]) satisfies ExpressionSpecification
@@ -166,7 +162,7 @@ export function has(
  * expr.length(["get", "coordinates"]); // ["length", ["get", "coordinates"]]
  * expr.length("hello"); // ["length", "hello"] -> 5
  */
-export function length(input: string | ExpressionSpecification): ["length", string | ExpressionSpecification] {
+export function length(input: StringExpression): ["length", StringExpression] {
   return ["length", input] satisfies ExpressionSpecification
 }
 
