@@ -2,6 +2,7 @@ import type {
   ExpressionInputType,
   ExpressionSpecification,
 } from "@maplibre/maplibre-gl-style-spec"
+import type { NumericExpression, StringExpression } from "../../types"
 
 /**
  * Retrieves an item from an array at the specified index.
@@ -16,9 +17,9 @@ import type {
  * expr.at(1, ["literal", ["a", "b", "c"]]); // ["at", 1, ["literal", ["a", "b", "c"]]] -> "b"
  */
 export function at(
-  index: number | ExpressionSpecification,
+  index: NumericExpression,
   array: ExpressionSpecification,
-): ["at", number | ExpressionSpecification, ExpressionSpecification] {
+): ["at", NumericExpression, ExpressionSpecification] {
   return ["at", index, array] satisfies ExpressionSpecification
 }
 
@@ -77,11 +78,9 @@ export function indexOf(
  */
 export function slice(
   input: string | ExpressionSpecification,
-  start: number | ExpressionSpecification,
-  end?: number | ExpressionSpecification,
-):
-  | ["slice", string | ExpressionSpecification, number | ExpressionSpecification]
-  | ["slice", string | ExpressionSpecification, number | ExpressionSpecification, number | ExpressionSpecification] {
+  start: NumericExpression,
+  end?: NumericExpression,
+): ["slice", StringExpression, NumericExpression, NumericExpression?] {
   return (end !== undefined
     ? ["slice", input, start, end]
     : ["slice", input, start]) satisfies ExpressionSpecification

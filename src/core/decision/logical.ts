@@ -1,4 +1,5 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
+import type { BooleanExpression } from "../../types"
 
 /**
  * Returns true if all the inputs are true.
@@ -16,7 +17,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
  * ); // ["all", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  * ```
  */
-export function all(...conditions: Array<ExpressionSpecification>) {
+export function all(...conditions: BooleanExpression[]): ["all", ...BooleanExpression[]] {
   return ["all", ...conditions] satisfies ExpressionSpecification
 }
 
@@ -52,7 +53,7 @@ export const and = all
  * ); // ["any", [">=", ["get", "mag"], 4], ["<", ["get", "mag"], 5]]
  * ```
  */
-export function any(...conditions: Array<ExpressionSpecification>) {
+export function any(...conditions: BooleanExpression[]): ["any", ...BooleanExpression[]] {
   return ["any", ...conditions] satisfies ExpressionSpecification
 }
 
@@ -85,7 +86,7 @@ export const or = any
  * expr.not(["has", "point_count"]); // ["!", ["has", "point_count"]]
  * ```
  */
-export function not(value: ExpressionSpecification) {
+export function not(value: BooleanExpression): ["!", BooleanExpression] {
   return ["!", value] satisfies ExpressionSpecification
 }
 

@@ -290,7 +290,7 @@ describe("math", () => {
             [
               "*",
               ["*", ["-", 100, ["get", "humidity"]], // Inverse humidity weight
-                ["/", ["get", "temperature"], 30],  // Temperature factor              ],
+                ["/", ["get", "temperature"], 30]],  // Temperature factor
               2,
             ],
           ]),

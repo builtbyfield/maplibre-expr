@@ -1,5 +1,6 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 import type * as GeoJSON from "geojson"
+import type { UnknownExpression } from "../../types"
 
 /**
  * Returns true if the evaluated feature is fully contained inside the input
@@ -26,7 +27,7 @@ export function within(
     | GeoJSON.Feature
     | GeoJSON.FeatureCollection
     | ExpressionSpecification,
-) {
+): ["within", UnknownExpression] {
   return ["within", geometry] satisfies ExpressionSpecification
 }
 

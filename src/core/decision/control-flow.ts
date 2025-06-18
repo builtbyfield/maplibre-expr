@@ -37,7 +37,13 @@ export type CaseConditionsAndResults = [
 export function case_(
   conditionsAndResults: CaseConditionsAndResults,
   fallback: ExpressionValue,
-) {
+): [
+    "case",
+    boolean | ExpressionSpecification,
+    ExpressionInputType | ExpressionSpecification,
+    ...(boolean | ExpressionInputType | ExpressionSpecification)[],
+    ExpressionInputType | ExpressionSpecification,
+  ] {
   const [firstPair, ...restPairs] = conditionsAndResults
 
   return [
@@ -78,7 +84,14 @@ export function match(
   input: ExpressionValue,
   pairs: MatchPairs,
   fallback: ExpressionValue,
-) {
+): [
+    "match",
+    ExpressionInputType | ExpressionSpecification,
+    ExpressionInputType | ExpressionInputType[],
+    ExpressionInputType | ExpressionSpecification,
+    ...(ExpressionInputType | ExpressionInputType[] | ExpressionSpecification)[],
+    ExpressionInputType | ExpressionSpecification,
+  ] {
   if (pairs.length === 0) {
     throw new Error("match requires at least one pair of values")
   }
@@ -108,7 +121,10 @@ export function match(
  *   ["image", "marker_15"]
  * ); // ["coalesce", ["image", ["concat", ["get", "icon"], "_15"]], ["image", "marker_15"]]
  */
-export function coalesce(...args: Array<ExpressionSpecification>) {
+export function coalesce(...args: Array<ExpressionSpecification>): [
+  "coalesce",
+  ...(ExpressionInputType | ExpressionSpecification)[],
+] {
   return ["coalesce", ...args] satisfies ExpressionSpecification
 }
 

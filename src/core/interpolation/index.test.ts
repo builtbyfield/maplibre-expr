@@ -2,10 +2,12 @@ import type {
   ExpressionSpecification,
   Feature,
 } from "@maplibre/maplibre-gl-style-spec"
+import { createExpression } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
 import { testExpressionValue, testExpressionCompilation } from "../../utils/test-utils"
 import { interpolation } from "./index"
+import { color } from "../color"
 
 describe("interpolation", () => {
   describe("compilation", () => {
@@ -247,17 +249,17 @@ describe("interpolation", () => {
           { input: 0, output: 0 },
           { input: 100, output: 10 }
         )
-        testExpressionValue(expression, feature, 15) // Extrapolated: 10 + (50/100)*10
+        // MapLibre clamps to nearest stop value, doesn't extrapolate
+        testExpressionValue(expression, feature, 10)
       })
 
       it("should interpolate colors", () => {
         const expression = interpolation.interpolate(
           { type: "linear" },
           ["get", "temperature"], // 25
-          { input: 0, output: "#0000ff" },   // Blue
-          { input: 50, output: "#ff0000" }   // Red
+          { input: 0, output: color.rgb(0, 0, 255) },   // Blue
+          { input: 50, output: color.rgb(255, 0, 0) }   // Red
         )
-        // Colors are complex objects, just test compilation
         testExpressionCompilation(expression)
       })
     })
@@ -377,10 +379,10 @@ describe("interpolation", () => {
       const expression = interpolation.interpolate(
         { type: "linear" },
         ["get", "temperature"],
-        { input: -10, output: "#0000ff" }, // Blue for cold
-        { input: 0, output: "#00ffff" },   // Cyan for freezing
-        { input: 20, output: "#ffff00" },  // Yellow for mild
-        { input: 40, output: "#ff0000" }   // Red for hot
+        { input: -10, output: color.rgb(0, 0, 255) }, // Blue for cold
+        { input: 0, output: color.rgb(0, 255, 255) },   // Cyan for freezing
+        { input: 20, output: color.rgb(255, 255, 0) },  // Yellow for mild
+        { input: 40, output: color.rgb(255, 0, 0) }   // Red for hot
       )
       testExpressionCompilation(expression)
     })

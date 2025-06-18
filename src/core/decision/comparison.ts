@@ -17,15 +17,22 @@ const OPERATORS = {
 
 type ComparisonOperator = (typeof OPERATORS)[keyof typeof OPERATORS]
 
-function createComparisonExpression(
-  operator: ComparisonOperator,
+type ComparisonExpression<T extends ComparisonOperator> = [
+  T,
+  ExpressionInputType | ExpressionSpecification,
+  ExpressionInputType | ExpressionSpecification,
+  CollatorExpressionSpecification?,
+]
+
+function createComparisonExpression<T extends ComparisonOperator>(
+  operator: T,
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<T> {
   return (collator !== undefined
     ? [operator, a, b, collator]
-    : [operator, a, b]) satisfies ExpressionSpecification
+    : [operator, a, b])
 }
 
 /**
@@ -47,7 +54,7 @@ export function equal(
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<typeof OPERATORS.EQUAL> {
   return createComparisonExpression(
     OPERATORS.EQUAL,
     a,
@@ -85,7 +92,7 @@ export function notEqual(
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<typeof OPERATORS.NOT_EQUAL> {
   return createComparisonExpression(
     OPERATORS.NOT_EQUAL,
     a,
@@ -123,7 +130,7 @@ export function greater(
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<typeof OPERATORS.GREATER> {
   return createComparisonExpression(
     OPERATORS.GREATER,
     a,
@@ -161,7 +168,7 @@ export function less(
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<typeof OPERATORS.LESS> {
   return createComparisonExpression(
     OPERATORS.LESS,
     a,
@@ -197,7 +204,7 @@ export function greaterOrEqual(
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<typeof OPERATORS.GREATER_OR_EQUAL> {
   return createComparisonExpression(
     OPERATORS.GREATER_OR_EQUAL,
     a,
@@ -233,7 +240,7 @@ export function lessOrEqual(
   a: ExpressionValue,
   b: ExpressionValue,
   collator?: CollatorExpressionSpecification,
-) {
+): ComparisonExpression<typeof OPERATORS.LESS_OR_EQUAL> {
   return createComparisonExpression(
     OPERATORS.LESS_OR_EQUAL,
     a,
