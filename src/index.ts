@@ -1,4 +1,4 @@
-// Core expression categories
+// Export core expression categories
 export * from "./core/color"
 export * from "./core/decision"
 export * from "./core/feature-data"
@@ -11,10 +11,10 @@ export * from "./core/types"
 export * from "./core/variables"
 export * from "./core/zoom"
 
-// Custom extensions
+// Export custom extensions
 export * from "./custom/datetime"
 
-// Grouped exports for convenient access
+// Core expression categories
 import * as color from "./core/color"
 import * as decision from "./core/decision"
 import * as featureData from "./core/feature-data"
@@ -26,6 +26,8 @@ import * as strings from "./core/strings"
 import * as types from "./core/types"
 import * as variables from "./core/variables"
 import * as zoom from "./core/zoom"
+
+// Custom extensions
 import * as datetime from "./custom/datetime"
 
 // Export grouped namespace

@@ -75,8 +75,10 @@ type MatchPairs = [firstPair: MatchPair, ...restPairs: [...MatchPair[]]]
  * @example
  * expr.match(
  *   ["get", "building_type"],
- *   "residential", "#f00",
- *   "commercial", "#0f0",
+ *   [
+ *     ["residential", "#f00"],
+ *     ["commercial", "#0f0"],
+ *   ],
  *   "#000"
  * ); // ["match", ["get", "building_type"], "residential", "#f00", "commercial", "#0f0", "#000"]
  */

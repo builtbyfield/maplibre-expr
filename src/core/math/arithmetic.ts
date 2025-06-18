@@ -30,6 +30,11 @@ export function add(...values: NumericExpression[]): ["+", ...NumericExpression[
 }
 
 /**
+ * Alias for add
+ */
+export const sum = add
+
+/**
  * Subtract two numbers or negate a single number.
  *
  * @param a - The first number.

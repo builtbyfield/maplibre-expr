@@ -1,3 +1,17 @@
+// Core expression categories
+export * from "./color"
+export * from "./decision"
+export * from "./feature-data"
+export * from "./heatmap"
+export * from "./interpolation"
+export * from "./lookup"
+export * from "./math"
+export * from "./strings"
+export * from "./types"
+export * from "./variables"
+export * from "./zoom"
+
+// Grouped exports for convenient access
 import * as color from "./color"
 import * as decision from "./decision"
 import * as featureData from "./feature-data"
