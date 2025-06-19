@@ -1,4 +1,5 @@
 import type { Expression } from "@maplibre/maplibre-gl-style-spec"
+
 import { CompoundExpression } from "@maplibre/maplibre-gl-style-spec"
 
 export function isFeatureConstant(e: Expression): boolean {

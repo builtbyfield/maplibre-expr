@@ -7,4 +7,10 @@ export default antfu({
   stylistic: {
     quotes: "double",
   },
+}).override("antfu/perfectionist/setup", {
+  rules: {
+    "perfectionist/sort-imports": ["error", {
+      internalPattern: ["^@/.+"],
+    }],
+  },
 })

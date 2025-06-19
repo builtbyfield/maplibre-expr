@@ -2,6 +2,7 @@ import type {
   ExpressionSpecification,
   Feature,
 } from "@maplibre/maplibre-gl-style-spec"
+
 import { describe, expect, it } from "vitest"
 
 import { testExpression, testExpressionValue } from "../../utils/test-utils"

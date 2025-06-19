@@ -4,6 +4,7 @@ import type {
   GlobalProperties,
   ICanonicalTileID,
 } from "@maplibre/maplibre-gl-style-spec"
+
 import { createExpression, featureFilter } from "@maplibre/maplibre-gl-style-spec"
 import { expect } from "vitest"
 
