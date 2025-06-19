@@ -415,16 +415,19 @@ function generateTestSummary(result: ExpressionTestResult): string {
  * });
  * ```
  */
-export function createTestFeature(
-  properties: Record<string, unknown>,
-  geometry:
-    | GeoJSON.MultiLineString
-    | GeoJSON.LineString
-    | GeoJSON.Point
-    | GeoJSON.MultiPoint
-    | GeoJSON.Polygon
-    | GeoJSON.MultiPolygon = { type: "Point", coordinates: [0, 0] },
-): GeoJSON.Feature {
+export function createTestFeature<
+  P extends GeoJSON.GeoJsonProperties,
+  G extends
+  | GeoJSON.MultiLineString
+  | GeoJSON.LineString
+  | GeoJSON.Point
+  | GeoJSON.MultiPoint
+  | GeoJSON.Polygon
+  | GeoJSON.MultiPolygon = GeoJSON.Point,
+>(
+  properties: P,
+  geometry: G = { type: "Point", coordinates: [0, 0] } as G,
+): GeoJSON.Feature<G, P> {
   return {
     type: "Feature",
     geometry,

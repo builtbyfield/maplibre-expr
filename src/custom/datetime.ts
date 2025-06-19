@@ -26,7 +26,7 @@ export function isWithinTimeRange(
   timeToCheck: number | string | ExpressionSpecification,
   startTime: number | string | ExpressionSpecification,
   endTime: number | string | ExpressionSpecification,
-) {
+): ExpressionSpecification {
   // Convert inputs to expressions if they're property names (strings) or timestamps (numbers)
   const dateExpr
     = typeof timeToCheck === "string"
@@ -92,7 +92,7 @@ export function isWithinTimeRange(
  */
 export function isToday(
   timeToCheck: number | string | ExpressionSpecification,
-) {
+): ExpressionSpecification {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const tomorrow = new Date(today)
@@ -122,7 +122,7 @@ export function isToday(
 export function isWithinNextDuration(
   timeToCheck: number | string | ExpressionSpecification,
   duration: number,
-) {
+): ExpressionSpecification {
   const now = new Date()
   const future = new Date(now.getTime() + duration)
 
@@ -150,7 +150,7 @@ export function isWithinNextDuration(
 export function isWithinPastDuration(
   timeToCheck: string | number | ExpressionSpecification,
   duration: number,
-) {
+): ExpressionSpecification {
   const now = new Date()
   const past = new Date(now.getTime() - duration)
 
@@ -175,7 +175,7 @@ export function isWithinPastDuration(
 export function isSameDay(
   time1: number | string | ExpressionSpecification,
   time2: number | string | ExpressionSpecification,
-) {
+): ExpressionSpecification {
   // Convert inputs to expressions if they're property names (strings) or timestamps (numbers)
   const time1Expr
     = typeof time1 === "string"

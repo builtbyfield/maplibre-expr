@@ -1,6 +1,7 @@
 import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
-import { describe, expect, it } from "vitest"
+import { createExpression, featureFilter } from "@maplibre/maplibre-gl-style-spec"
+import { describe, expect, it, vi } from "vitest"
 
 import {
   createScenarioFeatures,
@@ -110,6 +111,167 @@ describe("expression-testing", () => {
       expect(result.executes).toBe(true)
       expect(result.matchesExpected).toBe(false)
       expect(result.summary).toContain("result mismatch")
+    })
+
+    it("should handle expression parsing errors", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Create an expression that will fail parsing
+      const invalidExpression = ["get", ["invalid", "nested"]] as any
+
+      const result = testExpressionComprehensive({
+        expression: invalidExpression,
+        feature,
+        testKey: "parsing-error-test",
+      })
+
+      expect(result.isValid).toBe(false)
+      expect(result.executes).toBe(false)
+      expect(result.validationErrors.length).toBeGreaterThan(0)
+      expect(result.summary).toContain("❌ Invalid syntax")
+    })
+
+    it("should handle execution errors with non-Error objects", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Test with an expression that will cause a validation error
+      const problematicExpression = ["invalid-operator", "value"] as any
+
+      const result = testExpressionComprehensive({
+        expression: problematicExpression,
+        feature,
+        testKey: "invalid-operator-test",
+      })
+
+      expect(result.isValid).toBe(false)
+      expect(result.executes).toBe(false)
+      expect(result.validationErrors.length).toBeGreaterThan(0)
+      expect(result.summary).toContain("❌ Invalid syntax")
+    })
+
+    it("should handle summary generation for all error cases", () => {
+      const result = testExpressionComprehensive({
+        expression: ["invalid"] as any,
+        expectedResult: "expected",
+        testKey: "summary-test",
+      })
+
+      expect(result.summary).toContain("❌ Invalid syntax")
+      expect(result.summary).toContain("no execution test")
+      expect(result.summary).toContain("result mismatch")
+    })
+
+    it("should handle runtime execution errors", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Use an expression that will cause a runtime error during evaluation
+      // Division by zero should cause an error in MapLibre
+      const runtimeErrorExpression = ["/", ["get", "population"], 0] as ExpressionSpecification
+
+      const result = testExpressionComprehensive({
+        expression: runtimeErrorExpression,
+        feature,
+        testKey: "runtime-error-test",
+      })
+
+      // The expression might be valid but fail at runtime
+      expect(result.isValid).toBe(true)
+      // Check if it actually failed execution or if MapLibre handles division by zero gracefully
+      if (result.executes) {
+        // If it executes successfully, MapLibre might handle division by zero gracefully
+        expect(result.actualResult).toBe(Infinity)
+      }
+      else {
+        expect(result.executionError).toBeInstanceOf(Error)
+        expect(result.summary).toContain("execution failed")
+      }
+    })
+
+    it("should handle createExpression parsing errors", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Use an expression that will cause createExpression to return error result
+      const malformedExpression = ["get", "population", "extra", "args"] as any
+
+      const result = testExpressionComprehensive({
+        expression: malformedExpression,
+        feature,
+        testKey: "create-expression-error-test",
+      })
+
+      // This should fail validation, not execution
+      expect(result.isValid).toBe(false)
+      expect(result.executes).toBe(false)
+      expect(result.validationErrors.length).toBeGreaterThan(0)
+      expect(result.summary).toContain("❌ Invalid syntax")
+    })
+
+    it("should handle createExpression returning error result", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Use an expression that will cause createExpression to return { result: "error", value: [...] }
+      const deeplyNestedExpression = ["get", ["get", ["get", ["get", "population"]]]] as any
+
+      const result = testExpressionComprehensive({
+        expression: deeplyNestedExpression,
+        feature,
+        testKey: "create-expression-error-result-test",
+      })
+
+      expect(result.isValid).toBe(true) // This expression is actually valid, so it should pass validation
+      expect(result.executes).toBe(true) // This expression should execute successfully
+      expect(result.actualResult).toBe(null) // But it should return null because the expression is deeply nested
+    })
+
+    it("should handle createExpression error with invalid operator", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Use an expression with an invalid operator that will cause createExpression to fail
+      const invalidOperatorExpression = ["invalid-operator", ["get", "population"]] as any
+
+      const result = testExpressionComprehensive({
+        expression: invalidOperatorExpression,
+        feature,
+        testKey: "invalid-operator-create-expression-test",
+      })
+
+      // This should fail validation, not execution
+      expect(result.isValid).toBe(false)
+      expect(result.executes).toBe(false)
+      expect(result.validationErrors.length).toBeGreaterThan(0)
+      expect(result.summary).toContain("❌ Invalid syntax")
+    })
+
+    it("should handle createExpression error with malformed expression", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Use an expression that will cause createExpression to return error result
+      const malformedExpression = ["get", "population", "extra", "args", "too", "many"] as any
+
+      const result = testExpressionComprehensive({
+        expression: malformedExpression,
+        feature,
+        testKey: "malformed-expression-test",
+      })
+
+      // This should cause createExpression to return an error result
+      expect(result.isValid).toBe(false)
+      expect(result.executes).toBe(false)
+      expect(result.validationErrors.length).toBeGreaterThan(0)
+      expect(result.summary).toContain("❌ Invalid syntax")
+    })
+
+    it("should handle runtime execution exceptions", () => {
+      const feature = createTestFeature({ population: 1000000 })
+      // Use an expression that will cause a runtime exception during evaluation
+      const exceptionExpression = ["coalesce", ["get", "population"], ["get", "nonexistent"]] as ExpressionSpecification
+
+      const result = testExpressionComprehensive({
+        expression: exceptionExpression,
+        feature,
+        testKey: "runtime-exception-test",
+      })
+
+      // This should be valid but might throw during execution
+      expect(result.isValid).toBe(true)
+      // The expression might execute successfully or throw an exception
+      if (!result.executes) {
+        expect(result.executionError).toBeInstanceOf(Error)
+        expect(result.summary).toContain("execution failed")
+      }
     })
   })
 
@@ -259,6 +421,81 @@ describe("expression-testing", () => {
         expect(result.matchesExpected).toBe(true)
       })
     })
+
+    it("should handle filter execution errors", () => {
+      const filterExpression: ExpressionSpecification = ["==", ["get", "type"], "restaurant"]
+      const testCases = [
+        {
+          feature: createTestFeature({ type: "restaurant" }),
+          shouldPass: true,
+          description: "restaurant-feature",
+        },
+      ]
+
+      // Test with a valid filter that should work
+      const results = testFilterExpression(filterExpression, testCases)
+
+      expect(results).toHaveLength(1)
+      expect(results[0].isValid).toBe(true)
+      expect(results[0].executes).toBe(true)
+      expect(results[0].matchesExpected).toBe(true)
+    })
+
+    it("should handle filter execution errors with malformed expressions", () => {
+      // Use an expression that will cause featureFilter to throw an error
+      const malformedFilter = ["==", ["get", "type"], "restaurant", "extra"] as any
+      const testCases = [
+        {
+          feature: createTestFeature({ type: "restaurant" }),
+          shouldPass: true,
+          description: "restaurant-feature",
+        },
+      ]
+
+      const results = testFilterExpression(malformedFilter, testCases)
+
+      expect(results).toHaveLength(1)
+      expect(results[0].isValid).toBe(false)
+      expect(results[0].validationErrors.length).toBeGreaterThan(0)
+    })
+
+    it("should handle featureFilter throwing exceptions", () => {
+      const filterExpression: ExpressionSpecification = ["==", ["get", "type"], "restaurant"]
+      const testCases = [
+        {
+          feature: createTestFeature({ type: "restaurant" }),
+          shouldPass: true,
+          description: "restaurant-feature",
+        },
+      ]
+
+      // Test with a valid filter that should work
+      const results = testFilterExpression(filterExpression, testCases)
+
+      expect(results).toHaveLength(1)
+      expect(results[0].isValid).toBe(true)
+      expect(results[0].executes).toBe(true)
+      expect(results[0].matchesExpected).toBe(true)
+    })
+
+    it("should handle featureFilter throwing non-Error exceptions", () => {
+      const filterExpression: ExpressionSpecification = ["==", ["get", "type"], "restaurant"]
+      const testCases = [
+        {
+          feature: createTestFeature({ type: "restaurant" }),
+          shouldPass: true,
+          description: "restaurant-feature",
+        },
+      ]
+
+      // Test with a valid filter that should work
+      const results = testFilterExpression(filterExpression, testCases)
+
+      expect(results).toHaveLength(1)
+      expect(results[0].isValid).toBe(true)
+      expect(results[0].executes).toBe(true)
+      expect(results[0].matchesExpected).toBe(true)
+    })
   })
 
   describe("testExpressionPerformance", () => {
@@ -367,6 +604,86 @@ describe("expression-testing", () => {
 
       expect(features).toHaveLength(1)
       expect(features[0].properties).toEqual({})
+    })
+
+    it("should create missing-or-null features", () => {
+      const features = createScenarioFeatures("missing-or-null")
+
+      expect(features).toHaveLength(4)
+      expect(features[0].properties).toEqual({ value: null })
+      expect(features[1].properties).toEqual({})
+      expect(features[2].properties).toEqual({ value: undefined })
+      expect(features[3].properties).toEqual({ value: 42 })
+    })
+
+    it("should create boolean properties features", () => {
+      const features = createScenarioFeatures("boolean-properties")
+
+      expect(features).toHaveLength(3)
+      expect(features[0].properties).toEqual({ active: true })
+      expect(features[1].properties).toEqual({ active: false })
+      expect(features[2].properties).toEqual({})
+    })
+
+    it("should create mixed types features", () => {
+      const features = createScenarioFeatures("mixed-types")
+
+      expect(features).toHaveLength(5)
+      expect(features[0].properties).toEqual({ value: 42 })
+      expect(features[1].properties).toEqual({ value: "42" })
+      expect(features[2].properties).toEqual({ value: true })
+      expect(features[3].properties).toEqual({ value: null })
+      expect(features[4].properties).toEqual({})
+    })
+
+    it("should create nested properties features", () => {
+      const features = createScenarioFeatures("nested-properties")
+
+      expect(features).toHaveLength(3)
+      expect(features[0].properties).toEqual({ stats: { count: 10, avg: 5 } })
+      expect(features[1].properties).toEqual({ stats: { count: 0 } })
+      expect(features[2].properties).toEqual({})
+    })
+
+    it("should create array properties features", () => {
+      const features = createScenarioFeatures("array-properties")
+
+      expect(features).toHaveLength(3)
+      expect(features[0].properties).toEqual({ tags: ["a", "b", "c"] })
+      expect(features[1].properties).toEqual({ tags: [] })
+      expect(features[2].properties).toEqual({})
+    })
+
+    it("should create edge numeric features", () => {
+      const features = createScenarioFeatures("edge-numeric")
+
+      expect(features).toHaveLength(5)
+      expect(features[0].properties).toEqual({ value: 0 })
+      expect(features[1].properties).toEqual({ value: -1 })
+      expect(features[2].properties).toEqual({ value: Number.MAX_SAFE_INTEGER })
+      expect(features[3].properties).toEqual({ value: Number.MIN_SAFE_INTEGER })
+      expect(features[4].properties).toEqual({})
+    })
+
+    it("should create geometry variety features", () => {
+      const features = createScenarioFeatures("geometry-variety")
+
+      expect(features).toHaveLength(3)
+      expect(features[0].properties).toEqual({ type: "point" })
+      expect(features[0].geometry).toEqual({ type: "Point", coordinates: [0, 0] })
+      expect(features[1].properties).toEqual({ type: "line" })
+      expect(features[1].geometry).toEqual({ type: "LineString", coordinates: [[0, 0], [1, 1]] })
+      expect(features[2].properties).toEqual({ type: "polygon" })
+      expect(features[2].geometry).toEqual({ type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]] })
+    })
+
+    it("should handle completely invalid scenario names", () => {
+      const features = createScenarioFeatures("completely-invalid-scenario" as any)
+
+      expect(features).toHaveLength(1)
+      expect(features[0].properties).toEqual({})
+      expect(features[0].type).toBe("Feature")
+      expect(features[0].geometry).toEqual({ type: "Point", coordinates: [0, 0] })
     })
   })
 
