@@ -1,16 +1,16 @@
 {
-  "name": "maplibre-expression-helpers",
+  "name": "maplibre-expr",
   "type": "module",
-  "version": "1.0.0",
-  "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac",
-  "description": "",
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.34.7",
+  "description": "Typed builders for MapLibre style expressions. Wrong compositions fail to compile, output is plain spec JSON.",
   "author": {
     "name": "Jesse McLean",
     "email": "jesse@builtbyfield.com",
-    "url": "https://builtbyfield.com"
+    "url": "https://www.builtbyfield.com"
   },
   "license": "MIT",
-  "homepage": "https://github.com/builtbyfield/maplibre-expression-helpers",
+  "homepage": "https://github.com/builtbyfield/maplibre-expression-helpers#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/builtbyfield/maplibre-expression-helpers.git"
@@ -20,42 +20,57 @@
   },
   "keywords": [
     "maplibre",
-    "mapbox",
-    "expressions"
+    "maplibre-gl",
+    "style-spec",
+    "expressions",
+    "typescript",
+    "typed"
   ],
+  "sideEffects": false,
   "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
-    }
+    ".": "./dist/index.js",
+    "./testing": "./dist/testing.js",
+    "./package.json": "./package.json"
   },
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.mts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "engines": {
-    "node": ">=20",
-    "pnpm": ">=10"
+    "node": ">=22"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest",
+    "test:run": "vitest run",
     "coverage": "vitest run --coverage",
-    "lint": "eslint . --fix",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build && pnpm smoke",
+    "smoke": "node scripts/smoke.mjs",
+    "prepublishOnly": "pnpm check",
+    "check:links": "node scripts/check-links.mjs"
+  },
+  "peerDependencies": {
+    "@maplibre/maplibre-gl-style-spec": ">=26.0.0"
+  },
+  "dependencies": {
+    "@types/geojson": "^7946.0.16"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "catalog:cli",
-    "@eslint/js": "catalog:cli",
-    "@maplibre/maplibre-gl-style-spec": "catalog:utils",
-    "@types/geojson": "catalog:types",
-    "@vitest/coverage-v8": "catalog:testing",
-    "eslint": "catalog:cli",
-    "eslint-plugin-format": "catalog:cli",
-    "tsup": "catalog:cli",
-    "typescript": "catalog:cli",
-    "typescript-eslint": "catalog:cli",
-    "vitest": "catalog:testing"
+    "@antfu/eslint-config": "^9.5.1",
+    "@arethetypeswrong/core": "^0.18.1",
+    "@maplibre/maplibre-gl-style-spec": "^26.4.4",
+    "@types/node": "^24.0.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^10.12.0",
+    "eslint-plugin-format": "^2.0.1",
+    "publint": "^0.3.25",
+    "tsdown": "^0.23.1",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^5.0.5"
   }
 }

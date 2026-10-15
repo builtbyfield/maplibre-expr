@@ -2,15 +2,8 @@ import antfu from "@antfu/eslint-config"
 
 export default antfu({
   type: "lib",
-  pnpm: true,
   formatters: true,
   stylistic: {
     quotes: "double",
-  },
-}).override("antfu/perfectionist/setup", {
-  rules: {
-    "perfectionist/sort-imports": ["error", {
-      internalPattern: ["^@/.+"],
-    }],
   },
 })
