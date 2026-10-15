@@ -1,5 +1,5 @@
 {
-  "name": "maplibre-expr",
+  "name": "@builtbyfield/maplibre-expr",
   "type": "module",
   "version": "0.1.0",
   "packageManager": "pnpm@10.34.7",

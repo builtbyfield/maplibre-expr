@@ -4,7 +4,7 @@
  * expressions before shipping them in a style.
  *
  * @example
- * import { evaluate } from "maplibre-expr/testing"
+ * import { evaluate } from "@builtbyfield/maplibre-expr/testing"
  *
  * evaluate(add(get("a"), 1), { properties: { a: 2 } }) // 3
  *
