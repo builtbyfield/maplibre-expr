@@ -158,6 +158,14 @@ pnpm check:links   # verify every @see link into the spec docs (needs network)
 
 Every operator is tested by evaluating it with MapLibre's engine, not by comparing array shapes. `test/coverage.test.ts` fails if the installed style spec has an operator without a wrapper. A weekly CI job runs the suite against the latest spec.
 
+## Releasing
+
+Releases are managed with [Changesets](https://github.com/changesets/changesets):
+
+1. In a PR that changes behavior, run `pnpm changeset`, pick patch/minor/major (while on 0.x, breaking changes are minor) and describe the change. Commit the generated file.
+2. After merging to `main`, the Release workflow opens a "version packages" PR that bumps the version and updates `CHANGELOG.md`.
+3. Merging that PR publishes to npm (trusted publishing, with provenance) and creates the GitHub release.
+
 ## License
 
 MIT

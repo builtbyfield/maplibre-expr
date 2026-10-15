@@ -36,6 +36,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22"
   },
@@ -51,7 +54,9 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build && pnpm smoke",
     "smoke": "node scripts/smoke.mjs",
     "prepublishOnly": "pnpm check",
-    "check:links": "node scripts/check-links.mjs"
+    "check:links": "node scripts/check-links.mjs",
+    "changeset": "changeset",
+    "release": "changeset publish"
   },
   "peerDependencies": {
     "@maplibre/maplibre-gl-style-spec": ">=26.0.0"
@@ -62,6 +67,8 @@
   "devDependencies": {
     "@antfu/eslint-config": "^9.5.1",
     "@arethetypeswrong/core": "^0.18.1",
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.3",
     "@maplibre/maplibre-gl-style-spec": "^26.4.4",
     "@types/node": "^24.0.0",
     "@typescript/native": "npm:typescript@^7.0.2",
