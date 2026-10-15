@@ -1,0 +1,23 @@
+name: Spec drift
+
+# Weekly run against the latest style spec.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  latest-spec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm add -D @maplibre/maplibre-gl-style-spec@latest
+      - run: pnpm typecheck
+      - run: pnpm test:run
+      - run: pnpm check:links
