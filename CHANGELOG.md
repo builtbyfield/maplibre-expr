@@ -1,4 +1,4 @@
-# maplibre-expr
+# @builtbyfield/maplibre-expr
 
 ## 0.1.0
 

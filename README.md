@@ -1,9 +1,9 @@
-# maplibre-expr
+# @builtbyfield/maplibre-expr
 
 Typed builders for [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/). Wrong compositions fail to compile; the output is plain style-spec JSON.
 
 ```ts
-import { add, get, interpolate, linear, upcase, zoom } from "maplibre-expr"
+import { add, get, interpolate, linear, upcase, zoom } from "@builtbyfield/maplibre-expr"
 
 const width = interpolate(linear(), zoom(), [[10, 1], [16, add(get("lanes"), 2)]])
 // ["interpolate", ["linear"], ["zoom"], 10, 1, 16, ["+", ["get", "lanes"], 2]]
@@ -16,13 +16,13 @@ MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]
 
 - **All 88 operators** of the style spec (v26), each with JSDoc and a link to its spec entry.
 - **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts. Importing one function adds about 170 bytes.
-- **An evaluation harness** (`maplibre-expr/testing`) that runs expressions through MapLibre's real engine, for unit tests and for checking generated expressions.
+- **An evaluation harness** (`@builtbyfield/maplibre-expr/testing`) that runs expressions through MapLibre's real engine, for unit tests and for checking generated expressions.
 - **A few recipes** for jobs that are fiddly to get right by hand: meters-to-pixels radii, compact number labels, hover states, alpha changes.
 
 ## Install
 
 ```sh
-npm install maplibre-expr
+npm install @builtbyfield/maplibre-expr
 ```
 
 Requires `@maplibre/maplibre-gl-style-spec` v26+ as a peer (maplibre-gl 6 already depends on it) and TypeScript 5.4+ if you use TypeScript. ESM only.
@@ -31,7 +31,7 @@ Requires `@maplibre/maplibre-gl-style-spec` v26+ as a peer (maplibre-gl 6 alread
 
 ```ts
 import type { LayerSpecification } from "maplibre-gl"
-import { byZoom, case_, eq, featureState, get, gt, isOneOf, match, numberFormat } from "maplibre-expr"
+import { byZoom, case_, eq, featureState, get, gt, isOneOf, match, numberFormat } from "@builtbyfield/maplibre-expr"
 
 const layers: LayerSpecification[] = [
   {
@@ -91,11 +91,11 @@ The `Expr` type is deliberately opaque: statically it presents as a single membe
 
 ## Testing expressions
 
-`maplibre-expr/testing` evaluates expressions with MapLibre's own engine. Unlike MapLibre at render time, it throws instead of silently falling back to a default:
+`@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's own engine. Unlike MapLibre at render time, it throws instead of silently falling back to a default:
 
 ```ts
-import { compactNumber, get, interpolate, linear, zoom } from "maplibre-expr"
-import { evaluate, validate } from "maplibre-expr/testing"
+import { compactNumber, get, interpolate, linear, zoom } from "@builtbyfield/maplibre-expr"
+import { evaluate, validate } from "@builtbyfield/maplibre-expr/testing"
 
 evaluate(compactNumber(get("count")), { properties: { count: 5_600_000 } }) // "5.6M"
 evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 }) // "rgba(128,128,128,1)"

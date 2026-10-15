@@ -33,8 +33,8 @@ try {
 
   step("runtime imports")
   writeFileSync(join(work, "runtime.mjs"), `
-    import { add, get, interpolate, linear, zoom } from "maplibre-expr"
-    import { evaluate } from "maplibre-expr/testing"
+    import { add, get, interpolate, linear, zoom } from "@builtbyfield/maplibre-expr"
+    import { evaluate } from "@builtbyfield/maplibre-expr/testing"
     const value = evaluate(add(get("a"), interpolate(linear(), zoom(), [[0, 0], [10, 10]])), { properties: { a: 1 }, zoom: 5 })
     if (value !== 6) throw new Error("unexpected result " + value)
     console.log("  ok: evaluated to", value)
@@ -44,8 +44,8 @@ try {
   step("consumer types (TypeScript 7, 6, and the minimum supported 5.4)")
   writeFileSync(join(work, "consumer.ts"), `
     import type { CircleLayerSpecification } from "@maplibre/maplibre-gl-style-spec"
-    import { add, byZoom, eq, get, match, upcase } from "maplibre-expr"
-    import { evaluate } from "maplibre-expr/testing"
+    import { add, byZoom, eq, get, match, upcase } from "@builtbyfield/maplibre-expr"
+    import { evaluate } from "@builtbyfield/maplibre-expr/testing"
 
     export const layer: CircleLayerSpecification = {
       id: "c", type: "circle", source: "s",
@@ -69,7 +69,7 @@ try {
   }
 
   step("tree-shaking")
-  writeFileSync(join(work, "entry.mjs"), `import { add } from "maplibre-expr"; console.log(add(1, 2))`)
+  writeFileSync(join(work, "entry.mjs"), `import { add } from "@builtbyfield/maplibre-expr"; console.log(add(1, 2))`)
   const bundle = run("npx", ["esbuild", "entry.mjs", "--bundle", "--minify", "--format=esm", "--platform=neutral"])
   const bytes = Buffer.byteLength(bundle)
   if (bytes > 500)
