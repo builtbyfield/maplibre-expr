@@ -10,13 +10,13 @@
     "url": "https://www.builtbyfield.com"
   },
   "license": "MIT",
-  "homepage": "https://github.com/builtbyfield/maplibre-expression-helpers#readme",
+  "homepage": "https://github.com/builtbyfield/maplibre-expr#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/builtbyfield/maplibre-expression-helpers.git"
+    "url": "git+https://github.com/builtbyfield/maplibre-expr.git"
   },
   "bugs": {
-    "url": "https://github.com/builtbyfield/maplibre-expression-helpers/issues"
+    "url": "https://github.com/builtbyfield/maplibre-expr/issues"
   },
   "keywords": [
     "maplibre",
