@@ -1,10 +1,13 @@
 import type { ArrayInput, Expr, Input, NumberInput, ObjectInput, StringInput } from "../expr"
 
-import { op } from "../internal"
+import { assertNotLegacyComparison, op } from "../internal"
 
 /**
  * A feature property, or a property of `object` if given. Evaluates to
- * `null` if missing.
+ * `null` if missing, and most operators fail on `null`, which makes MapLibre
+ * silently use the property's default; see `getOr` and {@link coalesce}.
+ * Names aren't paths: `get("a.b")` reads a property named `"a.b"`; use
+ * `get("b", object(get("a")))` for nested values.
  *
  * Untyped by default, so it's accepted anywhere: like MapLibre, which checks
  * the value's type at runtime. Pass a type argument to have the compiler
@@ -44,13 +47,15 @@ export function at<T>(index: NumberInput, array: ArrayInput<T>): Expr<T> {
  * `true` if `needle` is an item of `haystack` (an array), or a substring of
  * it (a string). MapLibre `in`.
  *
- * Named `in_` because `in` is a reserved word.
+ * Named `in_` because `in` is a reserved word. Throws for two literals, as
+ * {@link eq} does.
  *
  * @example in_(get("type"), literal(["park", "forest"]))
  * @example in_("Main", get("street"))
  * @see https://maplibre.org/maplibre-style-spec/expressions/#in
  */
 export function in_(needle: Input<string | number | boolean> | null, haystack: ArrayInput | StringInput): Expr<boolean> {
+  assertNotLegacyComparison("in_", needle, haystack)
   return op("in", needle, haystack)
 }
 

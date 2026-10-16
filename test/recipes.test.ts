@@ -79,8 +79,9 @@ describe("isOneOf", () => {
     expect(evaluate(isOneOf(geometryType(), ["LineString", "Polygon"]))).toBe(false)
   })
 
-  it("rejects an empty list", () => {
+  it("rejects lists MapLibre would reject", () => {
     expect(() => isOneOf(get("x"), [])).toThrow(RangeError)
+    expect(() => isOneOf(get("n"), [1.5, 2])).toThrow(/integers/)
   })
 })
 
@@ -114,12 +115,21 @@ describe("compactNumber", () => {
     [5_600_000, "5.6M"],
     [2_100_000_000, "2.1B"],
     [-1500, "-1.5k"],
+    [999.4, "999"],
+    [999.5, "1k"],
+    [999_949, "999.9k"],
+    [999_950, "1M"],
+    [999_949_999, "999.9M"],
+    [999_950_000, "1B"],
+    [-999_950, "-1M"],
   ])("formats %d as %s", (n, text) => {
     expect(evaluate(compactNumber(get("n"), { locale: "en-US" }), { properties: { n } })).toBe(text)
   })
 
   it("respects fraction digits and locale", () => {
     expect(evaluate(compactNumber(1234, { locale: "de-DE", maxFractionDigits: 2 }))).toBe("1,23k")
+    expect(evaluate(compactNumber(999_994, { locale: "en-US", maxFractionDigits: 2 }))).toBe("999.99k")
+    expect(evaluate(compactNumber(999_995, { locale: "en-US", maxFractionDigits: 2 }))).toBe("1M")
   })
 })
 
@@ -127,6 +137,11 @@ describe("color recipes", () => {
   it("withAlpha replaces the alpha channel", () => {
     expect(evaluate(withAlpha("#ff0000", 0.25))).toBe("rgba(255,0,0,0.25)")
     expect(evaluate(withAlpha(get("c"), 0.5), { properties: { c: "rgba(0,0,255,1)" } })).toBe("rgba(0,0,255,0.5)")
+  })
+
+  it("fading to 'transparent' darkens; fading to the same color at alpha 0 doesn't", () => {
+    expect(evaluate(mixColors("#ff0000", "transparent", 0.5))).toBe("rgba(128,0,0,0.5)")
+    expect(evaluate(mixColors("#ff0000", "rgba(255,0,0,0)", 0.5))).toBe("rgba(255,0,0,0.5)")
   })
 
   it("mixColors blends between two colors", () => {

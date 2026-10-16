@@ -87,7 +87,7 @@ Some mistakes are caught when the expression is built:
 
 - **Feature data is untyped by default.** `get`, `featureState`, `globalState` and `var_` produce values of unknown type that are accepted anywhere. MapLibre checks them at runtime. Pin a type to have the compiler check its uses: `get<number>("population")`.
 - **Raw arrays are an escape hatch.** You can pass `["get", "x"]` or any existing `ExpressionSpecification` value. Only the operator name is checked, not the arguments.
-- **Where an expression is allowed.** For example, `zoom()` must be the input of a top-level `interpolate`/`step`; `validate(expr, { type })` (below) catches that. `featureState` isn't allowed in filters or layout properties; only MapLibre's full style validation catches that.
+- **Where an expression is allowed.** For example, `zoom()` must be the input of a top-level `interpolate`/`step`, and `featureState` isn't allowed in filters or layout properties. `validate(expr, { property })` (below) catches these.
 
 The `Expr` type is deliberately opaque: statically it presents as a single member of the spec union, which keeps type-checking fast. Use `toSpec(expr)` if you need to inspect the array.
 
@@ -104,6 +104,22 @@ The builders emit standard style-spec JSON, so they work wherever MapLibre style
 
 Each of these functions' docs carries the same note, with a link to the tracking issue.
 
+## Gotchas
+
+MapLibre behaviors that surprise people. The builders throw for the ones they can detect; the rest are noted in the docs of the functions involved.
+
+- **Missing properties break math.** `get` returns `null` for a missing property, most operators fail on `null`, and MapLibre then silently uses the property's default. Use `getOr("height", 0)` or `coalesce`.
+- **No type coercion.** A property holding `"1"` doesn't equal or match `1`, and `lt(get("n"), 5)` fails at runtime if `n` is a string; vector tiles often store numbers as strings. Convert with `toNumber`.
+- **Comparing two literals in a filter.** `eq("class", "park")` reads as old-style filter syntax (property `class` is `"park"`) in a filter, and as a constant `false` anywhere else. The comparison builders throw for it; write `eq(get("class"), "park")`.
+- **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0.
+- **Odd conversions.** `toNumber("")` is `0`, `toBoolean("false")` is `true`, and `sqrt(-1)` and `0 / 0` give `NaN`, which MapLibre replaces with the property's default.
+- **Names aren't paths.** `get("a.b")` reads a property literally named `"a.b"`; use `get("b", object(get("a")))`.
+- **Colors.** `oklch()`, `lab()` and `color()` aren't supported; hex, `rgb()`, `hsl()` and named colors are.
+- **Upstream bugs this library works around or documents:**
+  - `number-format` ignores a fraction-digit setting of `0`; `numberFormat` works around it.
+  - `distance` measures MultiLineString features as one connected line.
+  - `toColor` reads `[r, g, b, a]` arrays as premultiplied.
+
 ## Testing expressions
 
 `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's own engine. Unlike MapLibre at render time, it throws instead of silently falling back to a default:
@@ -117,7 +133,10 @@ evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 }
 evaluate(["number", ["get", "missing"]]) // throws ExpressionError: Expected value to be of type number, but found null instead.
 
 validate(["+", 1, ["upcase", "x"]]) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
+validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
 ```
+
+Pass `property` (any layer property name, or `"filter"`) to check an expression where it will be used. That runs MapLibre's own style validator, which also catches data expressions in properties that don't support them, `zoom` outside a top-level ramp, and `feature-state` in filters and layout properties.
 
 `evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
 

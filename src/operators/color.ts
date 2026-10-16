@@ -1,14 +1,17 @@
 import type { Color, ColorInput, Expr, NumberInput } from "../expr"
 
-import { op } from "../internal"
+import { assertInRange, op } from "../internal"
 
 /**
  * A color from red, green and blue components (0-255). MapLibre `rgb`.
+ *
+ * Throws for literal components out of range (MapLibre rejects them).
  *
  * @example rgb(255, multiply(get("score"), 2.55), 0)
  * @see https://maplibre.org/maplibre-style-spec/expressions/#rgb
  */
 export function rgb(red: NumberInput, green: NumberInput, blue: NumberInput): Expr<Color> {
+  for (const [name, value] of Object.entries({ red, green, blue })) assertInRange("rgb", name, value, 0, 255)
   return op("rgb", red, green, blue)
 }
 
@@ -20,6 +23,8 @@ export function rgb(red: NumberInput, green: NumberInput, blue: NumberInput): Ex
  * @see https://maplibre.org/maplibre-style-spec/expressions/#rgba
  */
 export function rgba(red: NumberInput, green: NumberInput, blue: NumberInput, alpha: NumberInput): Expr<Color> {
+  for (const [name, value] of Object.entries({ red, green, blue })) assertInRange("rgba", name, value, 0, 255)
+  assertInRange("rgba", "alpha", alpha, 0, 1)
   return op("rgba", red, green, blue, alpha)
 }
 

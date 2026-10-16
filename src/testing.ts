@@ -11,18 +11,21 @@
  * @module
  */
 import type {
+  AllLayoutProperties,
+  AllPaintProperties,
   Feature,
   GlobalProperties,
   ICanonicalTileID,
   StyleExpression,
   StylePropertySpecification,
+  StyleSpecification,
 } from "@maplibre/maplibre-gl-style-spec"
 
 import type { Geometry, Position } from "geojson"
 
 import type { Color as ColorValue, ExprLike, Formatted as FormattedValue, Projection as ProjectionValue, ResolvedImage as ResolvedImageValue } from "./expr"
 
-import { Color, ColorArray, createExpression, createPropertyExpression, Formatted, NumberArray, Padding, ProjectionDefinition, ResolvedImage } from "@maplibre/maplibre-gl-style-spec"
+import { Color, ColorArray, createExpression, createPropertyExpression, Formatted, latest, NumberArray, Padding, ProjectionDefinition, ResolvedImage, validateStyleMin } from "@maplibre/maplibre-gl-style-spec"
 
 /** The value type MapLibre should parse the expression as. */
 export type ExpectedType
@@ -138,18 +141,35 @@ const CANONICAL_ZOOM = 20
 const WORLD_SIZE = EXTENT * 2 ** CANONICAL_ZOOM
 const CANONICAL = { z: CANONICAL_ZOOM, x: 0, y: 0, key: "canonical" } as ICanonicalTileID
 
+/** A layer property name such as `"circle-radius"`, or `"filter"`. */
+export type StylePropertyName = keyof AllPaintProperties | keyof AllLayoutProperties | "filter"
+
+/** Options of {@link validate}. */
+export interface ValidateOptions {
+  /**
+   * Check the expression as the value of this layer property (or as a layer
+   * `filter`), with MapLibre's style validator. This is the most complete
+   * check: it also catches data expressions in properties that don't support
+   * them, `zoom` outside a top-level ramp, and `feature-state` in filters
+   * and layout properties.
+   */
+  property?: StylePropertyName
+  /** Check the expression as producing this type. Ignored if `property` is given. */
+  type?: ExpectedType
+}
+
 /**
- * Checks that an expression parses, without evaluating it.
- *
- * Pass `type` to check it as the value of a style property of that type.
- * That also enforces property-level rules, such as `zoom` only being allowed
- * as the input of a top-level `interpolate` or `step`. Rules that depend on
- * where the property lives (e.g. no `feature-state` in filters or layout
- * properties) need MapLibre's full style validation (`validateStyleMin`).
+ * Checks that an expression parses, without evaluating it. Pass `property`
+ * to check it where it will be used; without it, rules that depend on the
+ * property (where `zoom` and `feature-state` may appear, whether feature data
+ * is allowed) aren't checked.
  *
  * @example validate(add(get("a"), "x")) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
+ * @example validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
  */
-export function validate(expression: ExprLike, options: { type?: ExpectedType } = {}): ValidationResult {
+export function validate(expression: ExprLike, options: ValidateOptions = {}): ValidationResult {
+  if (options.property !== undefined)
+    return validateAsProperty(expression, options.property)
   if (options.type !== undefined) {
     const result = createPropertyExpression(expression, "expression", propertySpec(options.type))
     return result.result === "success" ? { valid: true, errors: [] } : { valid: false, errors: result.value.map(formatError) }
@@ -216,6 +236,32 @@ function parse(expression: unknown, type: ExpectedType | undefined): Parsed {
     }
   }
   return { ok: false, errors: result.value.map(formatError) }
+}
+
+function validateAsProperty(expression: unknown, property: StylePropertyName): ValidationResult {
+  let layer: Record<string, unknown>
+  if (property === "filter") {
+    layer = { id: "layer", type: "circle", source: "source", filter: expression }
+  }
+  else {
+    const group = Object.keys(latest).find(key => /^(?:paint|layout)_/.test(key) && property in (latest as unknown as Record<string, object>)[key]!)
+    if (group === undefined)
+      throw new TypeError(`validate: unknown style property ${JSON.stringify(property)}`)
+    const [kind, type] = group.split(/_(.*)/) as [string, string]
+    layer = { id: "layer", type, ...(type !== "background" && { source: "source" }), [kind]: { [property]: expression } }
+  }
+  const style = { version: 8, sources: { source: sourceFor(layer.type as string) }, layers: [layer] } as unknown as StyleSpecification
+  const errors = validateStyleMin(style).map(error => error.message.replace(/^layers\[0\]\.(?:paint\.|layout\.)?/, ""))
+  return errors.length === 0 ? { valid: true, errors: [] } : { valid: false, errors }
+}
+
+function sourceFor(layerType: string): object {
+  const tiles = ["https://example.com/{z}/{x}/{y}.png"]
+  if (layerType === "raster")
+    return { type: "raster", tiles }
+  if (layerType === "hillshade" || layerType === "color-relief")
+    return { type: "raster-dem", tiles }
+  return { type: "geojson", data: { type: "FeatureCollection", features: [] } }
 }
 
 function formatError(error: { key: string, message: string }): string {
