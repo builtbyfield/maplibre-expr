@@ -4,6 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>A month of earthquakes · maplibre-expr starter</title>
+    <meta
+      name="description"
+      content="A MapLibre map whose every filter, size and color is a typed expression built with @builtbyfield/maplibre-expr and tested with MapLibre's own engine."
+    />
+    <meta property="og:title" content="A month of earthquakes · maplibre-expr" />
+    <meta
+      property="og:description"
+      content="Typed MapLibre expressions, tested with MapLibre's own engine. 1,908 real earthquakes on an OpenFreeMap basemap."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='13' fill='%23e85d04'/><circle cx='16' cy='16' r='6' fill='%23ffb703'/></svg>"
+    />
     <style>
       :root {
         color-scheme: light dark;
@@ -16,6 +29,49 @@
       #map {
         margin: 0;
         height: 100%;
+      }
+      .about {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        max-width: 340px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: color-mix(in srgb, Canvas 88%, transparent);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 2px 12px rgb(0 0 0 / 0.2);
+      }
+      .about summary {
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+      }
+      .about summary::after {
+        content: " +";
+        opacity: 0.5;
+      }
+      .about[open] summary::after {
+        content: " -";
+      }
+      .about p {
+        margin: 8px 0 0;
+      }
+      .about code {
+        font-size: 12px;
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        margin-top: 8px;
+      }
+      a {
+        color: inherit;
+      }
+      .credit {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.7;
       }
       .panel {
         position: absolute;
@@ -62,6 +118,12 @@
         font-size: 11px;
         margin: 6px 0 0;
       }
+      @media (max-width: 640px) {
+        /* The attribution wraps to two lines on narrow screens; keep the panel above it. */
+        .panel {
+          bottom: 62px;
+        }
+      }
       .maplibregl-popup-content {
         color: #222;
       }
@@ -69,6 +131,24 @@
   </head>
   <body>
     <div id="map"></div>
+    <details class="about" id="about" open>
+      <summary>A month of earthquakes</summary>
+      <p>
+        Every filter, size and color on this map is a typed expression built with
+        <a href="https://github.com/builtbyfield/maplibre-expr"><code>@builtbyfield/maplibre-expr</code></a
+        >, and tested with MapLibre's own engine.
+      </p>
+      <p>Drag the slider: the map reads the time from global state, so its filter never changes or gets rebuilt.</p>
+      <div class="links">
+        <a href="https://github.com/builtbyfield/maplibre-expr/tree/main/examples/starter">Source</a>
+        <a href="https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter"
+          >Open in StackBlitz</a
+        >
+        <a href="https://github.com/builtbyfield/maplibre-expr">GitHub</a>
+        <a href="https://www.npmjs.com/package/@builtbyfield/maplibre-expr">npm</a>
+      </div>
+      <div class="credit">by <a href="https://builtbyfield.com">Built by Field</a></div>
+    </details>
     <div class="panel">
       <div class="row">
         <button id="play" type="button">Play</button>

@@ -57,6 +57,10 @@ function setTime(time: number): void {
 slider.addEventListener("input", () => setTime(Number(slider.value)))
 setTime(now)
 
+// Start the "about" card collapsed on small screens.
+if (matchMedia("(max-width: 640px)").matches)
+  document.querySelector<HTMLDetailsElement>("#about")!.open = false
+
 // Play the month in about 20 seconds.
 const playButton = document.querySelector<HTMLButtonElement>("#play")!
 let playing = 0
