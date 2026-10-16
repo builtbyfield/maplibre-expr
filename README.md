@@ -1,6 +1,6 @@
 # @builtbyfield/maplibre-expr
 
-[![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr) [![CI](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml/badge.svg)](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr) [![CI](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml/badge.svg)](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml) [![coverage](https://codecov.io/gh/builtbyfield/maplibre-expr/graph/badge.svg)](https://codecov.io/gh/builtbyfield/maplibre-expr) [![bundle size](https://deno.bundlejs.com/badge?q=@builtbyfield/maplibre-expr)](https://bundlejs.com/?q=@builtbyfield/maplibre-expr) [![style spec](https://img.shields.io/badge/style%20spec-v26-blue)](https://github.com/builtbyfield/maplibre-expr/actions/workflows/spec-drift.yml) [![license](https://img.shields.io/npm/l/@builtbyfield/maplibre-expr)](LICENSE)
 
 Type-safe [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/) for TypeScript. A broken expression doesn't throw: features quietly disappear, or a paint property falls back to its default. With this package, typos and type mismatches fail to compile, and a test harness runs your expressions on MapLibre's own engine. The output is plain style JSON.
 

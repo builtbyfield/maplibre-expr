@@ -8,6 +8,9 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Codecov upload via OIDC, no token secret
     strategy:
       matrix:
         node: [22, 24]
@@ -24,7 +27,15 @@ jobs:
       - run: pnpm lint
       - name: Typecheck (with time budget)
         run: timeout 60 pnpm typecheck
-      - run: pnpm test:run
+      - name: Tests (with coverage thresholds)
+        run: pnpm coverage
+      - name: Upload coverage
+        if: matrix.node == 24
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: coverage/lcov.info
+          fail_ci_if_error: false
       - run: pnpm build
       - run: pnpm smoke
       - name: Starter example builds and passes its tests
