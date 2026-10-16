@@ -33,7 +33,7 @@ export interface TypedGlobalState<G> {
 /**
  * Property accessors for features of a known shape, so misspelled property
  * names are compile errors and values are typed. They emit the same
- * `["get", …]` / `["has", …]` arrays as {@link get} and {@link has}.
+ * `["get", ...]` / `["has", ...]` arrays as {@link get} and {@link has}.
  *
  * Declare the type a property has *when present*; a missing property is
  * still `null` at runtime (use `getOr` or {@link coalesce} for that).
@@ -55,7 +55,7 @@ export function typedProperties<P>(): TypedProperties<P> {
 
 /**
  * Feature-state accessors for a known state shape, so misspelled state names
- * are compile errors. Emits `["feature-state", …]`, like
+ * are compile errors. Emits `["feature-state", ...]`, like
  * {@link featureState}.
  *
  * @example
@@ -68,7 +68,7 @@ export function typedFeatureState<S>(): TypedFeatureState<S> {
 
 /**
  * Global-state accessors for a known state shape, so misspelled names are
- * compile errors. Emits `["global-state", …]`, like {@link globalState}.
+ * compile errors. Emits `["global-state", ...]`, like {@link globalState}.
  *
  * @example
  * const app = typedGlobalState<{ now: number, minRank: number }>()

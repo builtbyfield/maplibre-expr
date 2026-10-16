@@ -205,6 +205,9 @@ export function floor(input: NumberInput): Expr<number> {
  * and MultiPolygon (and Features / FeatureCollections of them).
  * MapLibre `distance`.
  *
+ * In a map, geometry comes from tiles, so the result is less precise at low
+ * zooms (the spec warns below zoom 13); `evaluate` measures at full precision.
+ *
  * MapLibre measures a MultiLineString feature as one line with its parts
  * joined end to start, so the result can be smaller than the true distance.
  *

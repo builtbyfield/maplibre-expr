@@ -19,6 +19,8 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generated files are up to date
+        run: node scripts/generate.mjs --check
       - run: pnpm lint
       - name: Typecheck (with time budget)
         run: timeout 60 pnpm typecheck
