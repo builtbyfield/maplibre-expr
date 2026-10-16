@@ -2,7 +2,7 @@
 
 A small, complete MapLibre app built with [`@builtbyfield/maplibre-expr`](../../README.md): a basemap from OpenFreeMap vector tiles and a month of real earthquakes, with a time slider. Every expression is typed, and the tests check them with MapLibre's own engine.
 
-**[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** · **[Live demo](https://builtbyfield.github.io/maplibre-expr/)**
+**[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** | **[Live demo](https://builtbyfield.github.io/maplibre-expr/)**
 
 ## Try it
 
@@ -46,4 +46,4 @@ npm run build      # production build
 ## Data
 
 - Earthquakes: [USGS](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php) (public domain). M2.5+ quakes from 16 September to 16 October 2026, trimmed to magnitude, depth, time and place.
-- Basemap: [OpenFreeMap](https://openfreemap.org), © [OpenMapTiles](https://www.openmaptiles.org/), data from [OpenStreetMap](https://www.openstreetmap.org/copyright). No API key needed.
+- Basemap: [OpenFreeMap](https://openfreemap.org), &copy; [OpenMapTiles](https://www.openmaptiles.org/), data from [OpenStreetMap](https://www.openstreetmap.org/copyright). No API key needed.

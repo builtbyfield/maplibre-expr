@@ -11,11 +11,18 @@ import { DARK, LIGHT } from "./palette"
 import { QUAKES } from "./sources"
 import { buildStyle } from "./style"
 import "maplibre-gl/dist/maplibre-gl.css"
+import "@fontsource-variable/inter/opsz.css"
 
 setWorkerUrl(workerUrl)
 
 const quakesUrl = `${import.meta.env.BASE_URL}quakes.geojson`
-const quakes = await (await fetch(quakesUrl)).json() as FeatureCollection<Point, Quake>
+const dateLabel = document.querySelector("#date")!
+const quakes = await fetch(quakesUrl)
+  .then(response => response.ok ? response.json() as Promise<FeatureCollection<Point, Quake>> : Promise.reject(new Error(response.statusText)))
+  .catch((error: unknown) => {
+    dateLabel.textContent = "The earthquake data didn't load. Reload the page to try again."
+    throw error
+  })
 const times = quakes.features.map(f => f.properties.time)
 const start = Math.min(...times)
 const end = Math.max(...times)
@@ -37,14 +44,14 @@ const map = new MapLibreMap({
 let stopSync = syncGlobalState(map, "now", now)
 
 const slider = document.querySelector<HTMLInputElement>("#time")!
-const dateLabel = document.querySelector("#date")!
 const countLabel = document.querySelector("#count")!
 slider.min = String(start)
 slider.max = String(end)
 slider.step = String(60 * 60 * 1000)
 slider.value = String(now)
 
-const formatTime = (time: number): string => `${new Date(time).toISOString().slice(0, 16).replace("T", " ")} UTC`
+const dateFormat = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" })
+const formatTime = (time: number): string => dateFormat.format(time)
 
 function setTime(time: number): void {
   now = time
@@ -52,7 +59,7 @@ function setTime(time: number): void {
   stopSync()
   stopSync = syncGlobalState(map, "now", time)
   dateLabel.textContent = formatTime(time)
-  countLabel.textContent = `${times.filter(t => t <= time).length.toLocaleString()} quakes so far`
+  countLabel.textContent = `${times.filter(t => t <= time).length.toLocaleString()} of ${times.length.toLocaleString()} quakes`
 }
 slider.addEventListener("input", () => setTime(Number(slider.value)))
 setTime(now)
@@ -63,17 +70,22 @@ if (matchMedia("(max-width: 640px)").matches)
 
 // Play the month in about 20 seconds.
 const playButton = document.querySelector<HTMLButtonElement>("#play")!
+const playLabel = document.querySelector("#play-label")!
 let playing = 0
+function showPlaying(isPlaying: boolean): void {
+  playButton.setAttribute("aria-pressed", String(isPlaying))
+  playLabel.textContent = isPlaying ? "Pause" : "Play"
+}
 playButton.addEventListener("click", () => {
   if (playing) {
     cancelAnimationFrame(playing)
     playing = 0
-    playButton.textContent = "Play"
+    showPlaying(false)
     return
   }
   if (now >= end)
     setTime(start)
-  playButton.textContent = "Pause"
+  showPlaying(true)
   let last = performance.now()
   const tick = (frame: number): void => {
     setTime(Math.min(end, now + ((frame - last) / 20_000) * (end - start)))
@@ -83,7 +95,7 @@ playButton.addEventListener("click", () => {
     }
     else {
       playing = 0
-      playButton.textContent = "Play"
+      showPlaying(false)
     }
   }
   playing = requestAnimationFrame(tick)
@@ -92,8 +104,12 @@ playButton.addEventListener("click", () => {
 // Switching theme swaps the palette; the diff keeps sources and state.
 const themeButton = document.querySelector<HTMLButtonElement>("#theme")!
 function showTheme(): void {
-  themeButton.textContent = palette === DARK ? "Light" : "Dark"
-  document.documentElement.style.colorScheme = palette === DARK ? "dark" : "light"
+  const root = document.documentElement
+  document.querySelector("#theme-label")!.textContent = palette === DARK ? "Light" : "Dark"
+  root.dataset.mode = palette === DARK ? "dark" : "light"
+  root.style.setProperty("--quake-shallow", palette.quakeShallow)
+  root.style.setProperty("--quake-mid", palette.quakeMid)
+  root.style.setProperty("--quake-deep", palette.quakeDeep)
   const layer = buildStyle(palette, quakesUrl, now).layers.find(l => l.id === "quakes")!
   document.querySelector("#json")!.textContent = JSON.stringify({ filter: "filter" in layer ? layer.filter : undefined, ...layer.layout, ...layer.paint }, null, 1)
 }
@@ -117,9 +133,11 @@ map.on("mousemove", "quakes", (event) => {
   map.setFeatureState({ source: QUAKES, id: hovered! }, { hover: true })
   map.getCanvas().style.cursor = "pointer"
   const { mag, place, time, depth } = feature.properties as Quake
-  popup.setLngLat(event.lngLat)
-    .setHTML(`<strong>M${mag}</strong> ${place}<br>${formatTime(time)}<br>${depth} km deep`)
-    .addTo(map)
+  const title = Object.assign(document.createElement("div"), { className: "popup-title", textContent: `M${mag.toFixed(1)} ${place}` })
+  const meta = Object.assign(document.createElement("div"), { className: "popup-meta", textContent: `${formatTime(time)}, ${Math.round(depth)} km deep` })
+  const content = document.createElement("div")
+  content.append(title, meta)
+  popup.setLngLat(event.lngLat).setDOMContent(content).addTo(map)
 })
 map.on("mouseleave", "quakes", () => {
   if (hovered !== undefined)

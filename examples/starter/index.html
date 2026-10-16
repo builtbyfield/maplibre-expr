@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>A month of earthquakes · maplibre-expr starter</title>
+    <title>A month of earthquakes | maplibre-expr</title>
     <meta
       name="description"
       content="A MapLibre map whose every filter, size and color is a typed expression built with @builtbyfield/maplibre-expr and tested with MapLibre's own engine."
     />
-    <meta property="og:title" content="A month of earthquakes · maplibre-expr" />
+    <meta property="og:title" content="A month of earthquakes | maplibre-expr" />
     <meta
       property="og:description"
       content="Typed MapLibre expressions, tested with MapLibre's own engine. 1,908 real earthquakes on an OpenFreeMap basemap."
@@ -20,9 +20,33 @@
     <style>
       :root {
         color-scheme: light dark;
-        font:
-          14px/1.4 system-ui,
-          sans-serif;
+        --canvas: light-dark(oklch(0.982 0.001 17), oklch(0.17 0.002 17));
+        --raised: light-dark(oklch(1 0 0), oklch(0.236 0.002 17));
+        --space: light-dark(oklch(0.945 0.002 17), oklch(0.15 0.002 17));
+        --recessed: light-dark(oklch(0.955 0.002 17), oklch(0.145 0.002 17));
+        --ink-strong: light-dark(oklch(0.2 0.003 17), oklch(0.968 0.002 17));
+        --ink: light-dark(oklch(0.395 0.003 17), oklch(0.84 0.002 17));
+        --ink-muted: light-dark(oklch(0.51 0.003 17), oklch(0.7 0.002 17));
+        --hairline: color-mix(in oklch, var(--ink-strong) 6%, transparent);
+        --line: color-mix(in oklch, var(--ink-strong) 10%, transparent);
+        --line-strong: color-mix(in oklch, var(--ink-strong) 16%, transparent);
+        --wash-hover: color-mix(in oklch, var(--ink-strong) 4%, transparent);
+        --wash-soft: color-mix(in oklch, var(--ink-strong) 6%, transparent);
+        --focus: light-dark(oklch(0.56 0.15 250), oklch(0.68 0.15 245));
+        --drop-low: light-dark(oklch(0 0 0 / 0.03), oklch(0 0 0 / 0.15));
+        --drop-high: light-dark(oklch(0 0 0 / 0.08), oklch(0 0 0 / 0.35));
+        --floating: 0 0 0 1px var(--line-strong), 0 6px 32px 0 var(--drop-high);
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --micro: 80ms;
+        --popup: 150ms;
+        --sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+      }
+      [data-mode="light"] {
+        color-scheme: light;
+      }
+      [data-mode="dark"] {
+        color-scheme: dark;
       }
       html,
       body,
@@ -30,137 +54,498 @@
         margin: 0;
         height: 100%;
       }
-      .about {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        max-width: 340px;
-        padding: 10px 14px;
-        border-radius: 10px;
-        background: color-mix(in srgb, Canvas 88%, transparent);
-        backdrop-filter: blur(6px);
-        box-shadow: 0 2px 12px rgb(0 0 0 / 0.2);
+      body {
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 16px;
+        line-height: 24px;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
-      .about summary {
-        cursor: pointer;
-        font-weight: 600;
-        list-style: none;
-      }
-      .about summary::after {
-        content: " +";
-        opacity: 0.5;
-      }
-      .about[open] summary::after {
-        content: " -";
-      }
-      .about p {
-        margin: 8px 0 0;
-      }
-      .about code {
-        font-size: 12px;
-      }
-      .links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 12px;
-        margin-top: 8px;
+      #map {
+        background: var(--space);
       }
       a {
         color: inherit;
+        text-decoration-color: var(--line-strong);
+        text-underline-offset: 3px;
+        transition: text-decoration-color var(--micro) var(--ease-out);
       }
-      .credit {
-        margin-top: 8px;
-        font-size: 12px;
-        opacity: 0.7;
+      a:hover {
+        text-decoration-color: currentColor;
+        transition-duration: 0s;
       }
-      .panel {
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.9em;
+        white-space: nowrap;
+      }
+      p {
+        margin: 0;
+        text-wrap: pretty;
+      }
+
+      .card {
         position: absolute;
         left: 12px;
         right: 12px;
-        bottom: 28px;
-        max-width: 560px;
-        padding: 12px 14px;
-        border-radius: 10px;
-        background: color-mix(in srgb, Canvas 88%, transparent);
-        backdrop-filter: blur(6px);
-        box-shadow: 0 2px 12px rgb(0 0 0 / 0.2);
+        box-sizing: border-box;
+        padding: 16px;
+        border-radius: 20px;
+        background: var(--raised);
+        box-shadow: var(--floating);
       }
-      .row {
+
+      .about {
+        top: 12px;
+      }
+      .about summary {
         display: flex;
-        gap: 10px;
         align-items: center;
-      }
-      .row input[type="range"] {
-        flex: 1;
-      }
-      .meta {
-        display: flex;
         justify-content: space-between;
-        margin-top: 6px;
-        opacity: 0.8;
-        font-variant-numeric: tabular-nums;
-      }
-      button {
-        font: inherit;
-        padding: 4px 10px;
-        border-radius: 6px;
-        border: 1px solid color-mix(in srgb, CanvasText 25%, transparent);
-        background: Canvas;
-        color: CanvasText;
+        gap: 12px;
+        margin: -10px -6px;
+        padding: 10px 6px;
+        border-radius: 10px;
+        list-style: none;
         cursor: pointer;
       }
-      details {
-        margin-top: 8px;
+      .about summary::-webkit-details-marker {
+        display: none;
+      }
+      .title {
+        color: var(--ink-strong);
+        font-size: 18px;
+        line-height: 24px;
+        font-weight: 500;
+        text-wrap: balance;
+      }
+      .chevron {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        color: var(--ink-muted);
+        transition: rotate var(--popup) var(--ease-out);
+      }
+      details[open] > summary .chevron {
+        rotate: 180deg;
+      }
+      .about-body {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .lead {
+        color: var(--ink-strong);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+      }
+      .credit {
+        margin-top: 4px;
+        padding-top: 14px;
+        box-shadow: inset 0 1px 0 var(--hairline);
+      }
+      .credit a {
+        display: inline-flex;
+        color: var(--ink-muted);
+        transition: color var(--micro) var(--ease-out);
+      }
+      .credit a:hover {
+        color: var(--ink-strong);
+        transition-duration: 0s;
+      }
+      .credit svg {
+        height: 16px;
+        width: auto;
+      }
+
+      .pill {
+        position: relative;
+        isolation: isolate;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 44px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 9999px;
+        font: inherit;
+        font-size: 15px;
+        line-height: 20px;
+        font-weight: 500;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: transform var(--micro) var(--ease-out);
+      }
+      .pill::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        background: var(--wash);
+        opacity: 0;
+        transition: opacity var(--micro) var(--ease-out);
+      }
+      .pill:hover::before {
+        opacity: 1;
+        transition-duration: 0s;
+      }
+      .pill:active {
+        transform: scale(0.97);
+      }
+      .primary {
+        background: var(--ink-strong);
+        color: var(--canvas);
+        --wash: color-mix(in oklch, var(--canvas) 16%, transparent);
+      }
+      .raised {
+        background: var(--raised);
+        color: var(--ink-strong);
+        box-shadow:
+          0 2px 4px 0 var(--drop-low),
+          0 0 0 1px var(--line);
+        --wash: var(--wash-hover);
+      }
+      .soft {
+        background: var(--wash-soft);
+        color: var(--ink-strong);
+        --wash: var(--wash-hover);
+      }
+      .pill svg {
+        width: 16px;
+        height: 16px;
+        margin-left: -2px;
+      }
+      /* Reserve the longer label so the button keeps its width when it changes. */
+      .label {
+        display: inline-grid;
+      }
+      .label::after {
+        content: attr(data-alt);
+        visibility: hidden;
+        grid-area: 1 / 1;
+      }
+      .label > span {
+        grid-area: 1 / 1;
+      }
+      #play .icon-pause,
+      #play[aria-pressed="true"] .icon-play {
+        display: none;
+      }
+      #play[aria-pressed="true"] .icon-pause {
+        display: block;
+      }
+
+      .panel {
+        bottom: 62px;
+        display: grid;
+        gap: 14px;
+      }
+      .reading {
+        font-variant-numeric: tabular-nums;
+      }
+      .date {
+        color: var(--ink-strong);
+        font-size: 20px;
+        line-height: 26px;
+        font-weight: 500;
+      }
+      .count {
+        color: var(--ink-muted);
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .controls input[type="range"] {
+        flex: 1;
+        min-width: 0;
+        height: 44px;
+        margin: 0 4px;
+        accent-color: var(--ink-strong);
+        cursor: pointer;
+      }
+      .legend {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 4px 12px;
+        align-items: center;
+        color: var(--ink-muted);
+        font-size: 14px;
+        line-height: 20px;
+      }
+      .ramp {
+        height: 8px;
+        border-radius: 9999px;
+        background: linear-gradient(to right in oklch, var(--quake-shallow), var(--quake-mid) 23.3%, var(--quake-deep));
+      }
+      .scale {
+        position: relative;
+        grid-column: 2;
+        height: 20px;
+        font-variant-numeric: tabular-nums;
+      }
+      .scale span {
+        position: absolute;
+        white-space: nowrap;
+      }
+      .scale span:nth-child(2) {
+        left: 23.3%;
+        translate: -50%;
+      }
+      .scale span:last-child {
+        right: 0;
+      }
+      .legend p {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+      }
+      .code summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--ink-muted);
+        font-size: 14px;
+        line-height: 20px;
+        list-style: none;
+        cursor: pointer;
+        transition: color var(--micro) var(--ease-out);
+      }
+      .code summary::-webkit-details-marker {
+        display: none;
+      }
+      .code summary:hover {
+        color: var(--ink-strong);
+        transition-duration: 0s;
+      }
+      .code .chevron {
+        width: 16px;
+        height: 16px;
       }
       pre {
         max-height: 30vh;
         overflow: auto;
-        font-size: 11px;
-        margin: 6px 0 0;
+        margin: 10px 0 0;
+        padding: 12px;
+        border-radius: 12px;
+        background: var(--recessed);
+        color: var(--ink-strong);
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 16px;
       }
-      @media (max-width: 640px) {
-        /* The attribution wraps to two lines on narrow screens; keep the panel above it. */
+      .error {
+        color: var(--ink-strong);
+      }
+
+      /* Prefixed with .maplibregl-map to win over MapLibre's stylesheet, which loads later. */
+      .maplibregl-map .maplibregl-popup-content {
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: var(--raised);
+        color: var(--ink);
+        box-shadow: var(--floating);
+        font: 14px/20px var(--sans);
+      }
+      .maplibregl-map .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+      .maplibregl-map .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+      .maplibregl-map .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+        border-top-color: var(--raised);
+      }
+      .maplibregl-map .maplibregl-popup-anchor-top .maplibregl-popup-tip,
+      .maplibregl-map .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+      .maplibregl-map .maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+        border-bottom-color: var(--raised);
+      }
+      .maplibregl-map .maplibregl-popup-anchor-left .maplibregl-popup-tip {
+        border-right-color: var(--raised);
+      }
+      .maplibregl-map .maplibregl-popup-anchor-right .maplibregl-popup-tip {
+        border-left-color: var(--raised);
+      }
+      .popup-title {
+        color: var(--ink-strong);
+        font-weight: 500;
+      }
+      .popup-meta {
+        color: var(--ink-muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .maplibregl-map .maplibregl-ctrl.maplibregl-ctrl-attrib {
+        background: color-mix(in oklch, var(--raised) 85%, transparent);
+        color: var(--ink-muted);
+        font-family: var(--sans);
+      }
+      .maplibregl-map .maplibregl-ctrl-attrib a {
+        color: var(--ink);
+      }
+      [data-mode="dark"] .maplibregl-ctrl-attrib-button {
+        filter: invert(1);
+      }
+
+      @media (min-width: 768px) {
+        body {
+          font-size: 15px;
+          line-height: 22px;
+        }
+        .card {
+          left: 16px;
+          right: auto;
+          width: 400px;
+          padding: 20px;
+          border-radius: 24px;
+        }
+        .about {
+          top: 16px;
+        }
         .panel {
-          bottom: 62px;
+          bottom: 32px;
+        }
+        .title {
+          font-size: 20px;
+          line-height: 26px;
+        }
+        .pill {
+          font-size: 14px;
         }
       }
-      .maplibregl-popup-content {
-        color: #222;
+      @media (min-width: 768px) and (pointer: fine) {
+        .pill {
+          height: 36px;
+          padding: 0 14px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .chevron {
+          transition-property: none;
+        }
       }
     </style>
   </head>
   <body>
     <div id="map"></div>
-    <details class="about" id="about" open>
-      <summary>A month of earthquakes</summary>
-      <p>
-        Every filter, size and color on this map is a typed expression built with
-        <a href="https://github.com/builtbyfield/maplibre-expr"><code>@builtbyfield/maplibre-expr</code></a
-        >, and tested with MapLibre's own engine.
-      </p>
-      <p>Drag the slider: the map reads the time from global state, so its filter never changes or gets rebuilt.</p>
-      <div class="links">
-        <a href="https://github.com/builtbyfield/maplibre-expr/tree/main/examples/starter">Source</a>
-        <a href="https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter"
-          >Open in StackBlitz</a
-        >
-        <a href="https://github.com/builtbyfield/maplibre-expr">GitHub</a>
-        <a href="https://www.npmjs.com/package/@builtbyfield/maplibre-expr">npm</a>
+    <details class="card about" id="about" open>
+      <summary>
+        <span class="title">A month of earthquakes</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 13.17 16.95 8.22 18.36 9.64 12 16l-6.36-6.36 1.41-1.42z" />
+        </svg>
+      </summary>
+      <div class="about-body">
+        <p class="lead">
+          Every filter, size and color on this map is a typed expression, written with
+          <a href="https://github.com/builtbyfield/maplibre-expr"><code>@builtbyfield/maplibre-expr</code></a>
+          and tested with MapLibre's own engine.
+        </p>
+        <p>Drag the slider: the map reads the time from global state, so its filter is never rebuilt.</p>
+        <div class="actions">
+          <a
+            class="pill soft"
+            href="https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter"
+            >Open in StackBlitz</a
+          >
+          <a class="pill soft" href="https://github.com/builtbyfield/maplibre-expr/tree/main/examples/starter"
+            >Source</a
+          >
+          <a class="pill soft" href="https://www.npmjs.com/package/@builtbyfield/maplibre-expr">npm</a>
+        </div>
+        <div class="credit">
+          <a href="https://builtbyfield.com">
+            <svg viewBox="0 0 192 32" fill="currentColor" role="img" aria-label="Built by Field">
+              <path
+                d="M15.0016 7.01441C12.6812 7.01441 9.59985 8.74553 7.138 14.2346L9.4208 1.07521H3.6352L0 23.8592C1.75845 24.9503 4.2911 25.6 6.9632 25.6C9.98697 25.6 12.7641 24.7556 14.9794 23.2781C17.7222 19.4779 18.6368 16.1357 18.6368 12.1948C18.6368 10.5414 18.461 9.34508 18.0386 7.93744C17.1947 7.33886 16.1618 7.01441 15.0016 7.01441ZM11.1117 20.9553C10.4437 21.2365 9.74034 21.3426 9.00157 21.3426C7.98187 21.3426 7.10267 21.1667 6.3639 20.8501C7.66464 15.8536 10.1618 12.476 12.1659 12.476C12.3417 12.476 12.5176 12.5113 12.6581 12.5467C12.6934 12.8633 12.6934 13.2152 12.6934 13.5671C12.6934 16.4168 12.1305 18.951 11.1108 20.9563L11.1117 20.9553Z"
+              />
+              <path
+                d="M32.4366 8.75372C31.1345 16.6246 28.0014 20.1379 26.0651 20.1379C25.8891 20.1379 25.7485 20.1379 25.6078 20.1026L27.5786 7.62881H21.8405L19.2 24.2138C19.974 25.0216 21.3123 25.5488 22.7551 25.5488C25.958 25.5488 29.3724 23.0888 31.7315 17.2215L30.3233 24.9872H35.6032L38.3488 7.62973H32.6107L32.4347 8.75372H32.4366Z"
+              />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M45.2476 1.07521C46.1442 1.07521 47.1357 1.23518 47.9358 1.58727C48.0636 1.97154 48.128 2.35496 48.128 2.83486C48.128 5.39434 46.9765 6.48198 44.5762 6.48198C43.6796 6.48198 42.6881 6.32203 41.9202 5.96993C41.7601 5.52218 41.728 5.13793 41.728 4.72232C41.728 2.13066 42.8481 1.07521 45.2476 1.07521ZM44.4042 24.9856H38.656L41.4069 8.34566H47.1552L44.4042 24.9856Z"
+              />
+              <path d="M47.9745 24.9856H53.7023L57.4977 1.07521H51.7689L47.9745 24.9856Z" />
+              <path
+                d="M68.5449 2.91841H62.807L62.0676 7.59963H59.0048L58.2655 12.3861H61.2925L59.3914 24.3522C60.6934 25.1968 62.1373 25.5488 63.7214 25.5488C66.9598 25.5488 69.4599 24.071 71.8878 20.4811L69.5648 18.4399C68.333 20.1645 67.1359 20.9039 65.9394 20.9039H65.6926L67.0299 12.387H72.1694L72.9087 7.60055H67.8046L68.5444 2.91934L68.5449 2.91841Z"
+              />
+              <path
+                d="M92.7233 7.01441C90.4029 7.01441 87.3217 8.74553 84.8595 14.2346L87.1425 1.07521H81.3569L77.7217 23.8592C79.4799 24.9503 82.0127 25.6 84.6849 25.6C87.7087 25.6 90.4858 24.7556 92.7012 23.2781C95.444 19.4779 96.3585 16.1357 96.3585 12.1948C96.3585 10.5414 96.1828 9.34508 95.7604 7.93744C94.9161 7.33886 93.8834 7.01441 92.7233 7.01441ZM88.8336 20.9553C88.1654 21.2365 87.4619 21.3426 86.7231 21.3426C85.7037 21.3426 84.8241 21.1667 84.0858 20.8501C85.3863 15.8536 87.8833 12.476 89.8873 12.476C90.0634 12.476 90.239 12.5113 90.3798 12.5467C90.4152 12.8633 90.4152 13.2152 90.4152 13.5671C90.4152 16.4168 89.852 18.951 88.8326 20.9563L88.8336 20.9553Z"
+              />
+              <path
+                d="M105.691 21.0016L104.637 7.62881H98.558L100.737 25.3648L103.021 24.8722C101.03 27.111 98.7613 29.2108 96.8705 32H103.814C106.885 24.4565 114.307 18.162 116.48 7.62881H110.646C110.048 12.0982 108.784 15.7575 105.691 21.0016Z"
+              />
+              <path
+                d="M135.211 4.76231L135.212 4.76114C134.581 4.62745 133.884 4.55351 133.239 4.55351C132.711 4.55351 132.178 4.61358 131.557 4.74801L131.411 4.77947L131.363 4.91962C131.295 5.1084 131.189 5.57461 131.035 6.34973C130.91 6.96756 130.759 7.77129 130.584 8.74379L129.92 12.3904H134.119L133.401 17.0496H129.319L128.077 24.9856H122.47L123.72 17.0496H120.473L121.174 12.3904H124.467L124.855 10.7133C125.089 9.6722 125.194 9.05268 125.576 7.49958C125.875 6.28393 126.143 5.27145 126.376 4.49631C126.642 3.60391 126.867 2.99468 127.043 2.68291C129.288 1.00395 132.458 0.0514899 135.987 5.72205e-06L135.212 4.76114C135.213 4.76153 135.215 4.76192 135.218 4.76231H135.211Z"
+              />
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M141.708 1.07521C142.605 1.07521 143.597 1.23518 144.397 1.58727C144.524 1.97154 144.589 2.35496 144.589 2.83486C144.589 5.39434 143.437 6.48198 141.037 6.48198C140.141 6.48198 139.149 6.32203 138.381 5.96993C138.221 5.52218 138.189 5.13793 138.189 4.72232C138.189 2.13066 139.309 1.07521 141.708 1.07521ZM140.865 24.9856H135.117L137.868 8.34566H143.616L140.865 24.9856Z"
+              />
+              <path
+                d="M161.741 10.8869C161.741 10.1474 161.636 9.44333 161.425 8.7746C160.301 7.7185 158.405 7.0144 156.227 7.0144C153.313 7.0144 150.469 7.92991 147.975 9.68919C145.974 12.3994 144.64 15.9198 144.64 19.2986C144.64 20.812 144.886 22.291 145.342 23.8398C146.747 24.9658 148.678 25.6 150.891 25.6C154.683 25.6 158.09 24.2272 160.864 21.4817L158.687 18.9829C156.755 20.5671 155 21.165 152.962 21.165C152.05 21.165 151.313 20.989 150.715 20.6369C150.575 19.863 150.504 19.1589 150.469 18.3841C158.019 17.5748 161.741 15.0052 161.741 10.8869ZM150.714 15.5333C150.961 14.0897 151.452 12.6824 152.155 11.4149C152.857 11.1336 153.559 11.0275 154.261 11.0275C154.859 11.0275 155.35 11.1327 155.807 11.3087C155.877 11.5202 155.912 11.6962 155.912 11.9076C155.912 13.3512 154.753 14.8292 150.714 15.5333Z"
+              />
+              <path d="M166.56 1.07521L162.765 24.9856H168.494L172.288 1.07521H166.56Z" />
+              <path
+                d="M186.258 1.07521L185.308 7.12336C184.815 7.05265 184.321 7.01825 183.793 7.01825C180.799 7.01825 177.981 7.86207 175.762 9.40924C173.297 12.644 172.134 16.4417 172.134 20.485C172.134 22.0675 172.31 23.2629 172.733 24.6343C173.579 25.2669 174.565 25.5488 175.798 25.5488C178.298 25.5488 181.821 23.6146 184.357 17.145L182.912 24.986H188.196L192 1.07614H186.258V1.07521ZM179.21 20.1333C178.998 20.1333 178.787 20.0979 178.681 20.0626C178.646 19.7109 178.646 19.3946 178.646 19.0429C178.646 16.1598 179.245 13.6283 180.266 11.6588C180.971 11.3778 181.675 11.2718 182.415 11.2718C183.436 11.2718 184.282 11.4122 184.986 11.7639C183.683 16.757 181.217 20.1324 179.21 20.1324V20.1333Z"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
-      <div class="credit">by <a href="https://builtbyfield.com">Built by Field</a></div>
     </details>
-    <div class="panel">
-      <div class="row">
-        <button id="play" type="button">Play</button>
-        <input id="time" type="range" aria-label="Time" />
-        <button id="theme" type="button">Dark</button>
+    <section class="card panel" aria-label="Time">
+      <div class="reading">
+        <div class="date" id="date">Loading earthquakes</div>
+        <div class="count" id="count"></div>
       </div>
-      <div class="meta"><span id="date"></span><span id="count"></span></div>
-      <details>
-        <summary>The quake layer's expressions (generated)</summary>
+      <div class="controls">
+        <button id="play" class="pill primary" type="button" aria-pressed="false">
+          <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M7 4.5v15a.5.5 0 0 0 .77.42l11.5-7.5a.5.5 0 0 0 0-.84L7.77 4.08A.5.5 0 0 0 7 4.5z" />
+          </svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M6 5h4v14H6zm8 0h4v14h-4z" />
+          </svg>
+          <span class="label" data-alt="Pause"><span id="play-label">Play</span></span>
+        </button>
+        <input id="time" type="range" aria-label="Time" />
+        <button id="theme" class="pill raised" type="button">
+          <span class="label" data-alt="Light"><span id="theme-label">Dark</span></span>
+        </button>
+      </div>
+      <div class="legend">
+        <span>Depth</span>
+        <span class="ramp"></span>
+        <div class="scale"><span>0</span><span>70</span><span>300 km</span></div>
+        <p>Size is magnitude. Quakes fade over the week after they happen.</p>
+      </div>
+      <details class="code">
+        <summary>
+          The quake layer's expressions
+          <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 13.17 16.95 8.22 18.36 9.64 12 16l-6.36-6.36 1.41-1.42z" />
+          </svg>
+        </summary>
         <pre id="json"></pre>
       </details>
-    </div>
+    </section>
+    <noscript>
+      <div class="card panel"><p class="error">This map needs JavaScript to draw.</p></div>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
