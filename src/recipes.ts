@@ -1,7 +1,7 @@
 import type { Color, ColorInput, Expr, Input, NumberInput, Projection, ProjectionInput, StringInput } from "./expr"
 import type { Interpolation, Stops } from "./operators/ramps"
 
-import { op } from "./internal"
+import { assertMatchLabels, op } from "./internal"
 import { rgba, toRgba } from "./operators/color"
 import { all, case_, gte, lte } from "./operators/decision"
 import { featureState, zoom } from "./operators/feature"
@@ -91,15 +91,16 @@ export function getOr(property: StringInput, fallback: string | number | boolean
  * `match`, the fastest form for filters, and avoids the classic mistake of
  * passing a bare array to `in` without `literal`.
  *
- * Throws if `values` is empty.
+ * Throws if `values` is empty or has non-integer numbers (MapLibre rejects
+ * both as `match` labels).
  *
  * @example filter: isOneOf(get("class"), ["primary", "secondary"])
  * // ["match", ["get", "class"], ["primary", "secondary"], true, false]
  */
 export function isOneOf<L extends string | number>(input: Input<L>, values: readonly NoInfer<L>[]): Expr<boolean> {
-  if (values.length === 0)
-    throw new RangeError("isOneOf: values must not be empty")
-  return op("match", input, [...new Set(values)], true, false)
+  const unique = [...new Set(values)]
+  assertMatchLabels("isOneOf", [unique])
+  return op("match", input, unique, true, false)
 }
 
 /**
@@ -147,10 +148,13 @@ export function compactNumber(input: NumberInput, options: CompactNumberOptions 
   const { locale, maxFractionDigits = 1 } = options
   const fmt = (value: NumberInput, digits: number): Expr<string> =>
     numberFormat(value, { "max-fraction-digits": digits, ...(locale !== undefined && { locale }) })
+  // Switch units where rounding would otherwise show "1,000k": a value shown in
+  // units of `unit` with d fraction digits rounds up to 1000 from 1000 * unit - 0.5 * unit / 10^d.
+  const cutoff = (unit: number, digits: number): number => 1000 * unit - 0.5 * unit / 10 ** digits
   return let_({ n: input }, ({ n }) => case_([
-    [gte(abs(n), 1e9), concat(fmt(divide(n, 1e9), maxFractionDigits), "B")],
-    [gte(abs(n), 1e6), concat(fmt(divide(n, 1e6), maxFractionDigits), "M")],
-    [gte(abs(n), 1e3), concat(fmt(divide(n, 1e3), maxFractionDigits), "k")],
+    [gte(abs(n), cutoff(1e6, maxFractionDigits)), concat(fmt(divide(n, 1e9), maxFractionDigits), "B")],
+    [gte(abs(n), cutoff(1e3, maxFractionDigits)), concat(fmt(divide(n, 1e6), maxFractionDigits), "M")],
+    [gte(abs(n), cutoff(1, 0)), concat(fmt(divide(n, 1e3), maxFractionDigits), "k")],
   ], fmt(n, 0)))
 }
 
@@ -167,7 +171,8 @@ export function withAlpha(color: ColorInput, alpha: NumberInput): Expr<Color> {
  * Blends two colors: `ratio` 0 gives `from`, 1 gives `to`. Blends in RGB by
  * default; `"hcl"` or `"lab"` give perceptually smoother mixes. The style
  * spec lists HCL and Lab as not yet supported in MapLibre Native; see
- * https://github.com/maplibre/maplibre-native/issues/2784.
+ * https://github.com/maplibre/maplibre-native/issues/2784. Alpha isn't
+ * premultiplied: mixing with `"transparent"` mixes in black.
  *
  * @example mixColors("#fff", get("color"), 0.25) // a tint of the feature's color
  */

@@ -232,7 +232,13 @@ export type NumberFormatOptions = {
  * @see https://maplibre.org/maplibre-style-spec/expressions/#number-format
  */
 export function numberFormat(input: NumberInput, options: NumberFormatOptions): Expr<string> {
-  return op("number-format", input, options)
+  // MapLibre ignores a literal 0 here (it tests the option for truthiness); an expression 0 works.
+  const fixed = { ...options }
+  for (const key of ["min-fraction-digits", "max-fraction-digits"] as const) {
+    if (fixed[key] === 0)
+      fixed[key] = ["literal", 0] as unknown as NumberInput
+  }
+  return op("number-format", input, fixed)
 }
 
 /**
@@ -248,7 +254,8 @@ export function toString(value: AnyInput): Expr<string> {
 
 /**
  * Converts to a number, trying each input in turn: `null` and `false` are 0,
- * `true` is 1, numeric strings are parsed. Evaluation fails if none convert.
+ * `true` is 1, numeric strings are parsed (and `""` is 0, not a failure).
+ * Evaluation fails if none convert.
  * MapLibre `to-number`.
  *
  * @example toNumber(get("height_str"), 0)
@@ -260,7 +267,7 @@ export function toNumber(...values: [AnyInput, ...AnyInput[]]): Expr<number> {
 
 /**
  * Converts to a boolean: `""`, `0`, `false`, `null` and `NaN` are false,
- * everything else is true. MapLibre `to-boolean`.
+ * everything else is true, including the string `"false"`. MapLibre `to-boolean`.
  *
  * @example toBoolean(get("name"))
  * @see https://maplibre.org/maplibre-style-spec/expressions/#to-boolean

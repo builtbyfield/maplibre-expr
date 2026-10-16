@@ -2,7 +2,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 import { describe, expect, it } from "vitest"
 
-import { add, get, interpolate, linear, literal, match, toSpec, zoom } from "../src"
+import { add, byZoom, elevation, eq, featureState, get, interpolate, linear, literal, match, toSpec, zoom } from "../src"
 import { evaluate, ExpressionError, validate } from "../src/testing"
 
 describe("validate", () => {
@@ -18,6 +18,23 @@ describe("validate", () => {
   it("checks against an expected type", () => {
     expect(validate(add(1, 2), { type: "number" }).valid).toBe(true)
     expect(validate(add(1, 2), { type: "color" }).valid).toBe(false)
+  })
+
+  it("checks against a real layer property, with MapLibre's style validator", () => {
+    expect(validate(get("r"), { property: "circle-radius" })).toEqual({ valid: true, errors: [] })
+    expect(validate(get("w"), { property: "heatmap-intensity" })).toEqual({ valid: false, errors: ["heatmap-intensity: data expressions not supported"] })
+    expect(validate(add(zoom(), 1), { property: "circle-radius" }).errors[0]).toMatch(/"zoom" expression may only be used/)
+    expect(validate(featureState("s"), { property: "text-size" }).errors[0]).toMatch(/not supported with layout properties/)
+    expect(validate(eq(featureState("x"), true), { property: "filter" }).errors[0]).toMatch(/not supported with filters/)
+    expect(validate(add(1, 2), { property: "circle-color" }).errors[0]).toMatch(/Expected color but found number/)
+    // Sources are set up for every layer type
+    expect(validate(byZoom([[0, 0], [10, 1]]), { property: "raster-opacity" }).valid).toBe(true)
+    expect(validate(interpolate(linear(), elevation(), [[0, "#000"], [100, "#fff"]]), { property: "color-relief-color" }).valid).toBe(true)
+    expect(validate(byZoom([[0, "#000"], [10, "#fff"]]), { property: "background-color" }).valid).toBe(true)
+  })
+
+  it("rejects unknown properties", () => {
+    expect(() => validate(get("x"), { property: "nope" as never })).toThrow(TypeError)
   })
 
   it("enforces property-level rules when a type is given", () => {

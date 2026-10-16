@@ -47,6 +47,10 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): Int
  *
  * Throws if stop inputs aren't in strictly ascending order.
  *
+ * Colors blend without premultiplying alpha, so fading to `"transparent"`
+ * (transparent *black*) darkens on the way. Fade to the same color at
+ * alpha 0 instead, e.g. `"rgba(255, 0, 0, 0)"`, or ramp the layer's opacity.
+ *
  * @example
  * // Line width that grows with zoom
  * interpolate(exponential(1.5), zoom(), [[10, 1], [18, 12]])

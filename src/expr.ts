@@ -52,7 +52,11 @@ export type NumberInput = Input<number>
 export type StringInput = Input<string>
 /** A boolean or boolean expression. */
 export type BooleanInput = Input<boolean>
-/** A CSS color string or a color (or string) expression. */
+/**
+ * A CSS color string or a color (or string) expression. MapLibre parses
+ * hex, `rgb()`/`rgba()` (including `rgb(255 0 0 / 50%)`), `hsl()`/`hsla()`
+ * and named colors, but not newer functions like `oklch()` or `color()`.
+ */
 export type ColorInput = string | ExprLike<Color | string>
 /** An expression producing an array whose items are `T`. */
 export type ArrayInput<T = unknown> = ExprLike<readonly T[]>

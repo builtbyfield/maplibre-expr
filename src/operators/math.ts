@@ -35,7 +35,8 @@ export function subtract(a: NumberInput, b?: NumberInput): Expr<number> {
 }
 
 /**
- * `a / b`. MapLibre `/`.
+ * `a / b`. MapLibre `/`. Dividing by zero gives `Infinity`; `0 / 0` gives
+ * `NaN`, which MapLibre replaces with the property's default.
  *
  * @example divide(get("population"), get("area")) // ["/", ["get", "population"], ["get", "area"]]
  * @see https://maplibre.org/maplibre-style-spec/expressions/#_10
@@ -65,7 +66,8 @@ export function pow(base: NumberInput, exponent: NumberInput): Expr<number> {
 }
 
 /**
- * Square root. MapLibre `sqrt`.
+ * Square root. MapLibre `sqrt`. Negative inputs give `NaN`, which MapLibre
+ * replaces with the property's default.
  * @see https://maplibre.org/maplibre-style-spec/expressions/#sqrt
  */
 export function sqrt(input: NumberInput): Expr<number> {

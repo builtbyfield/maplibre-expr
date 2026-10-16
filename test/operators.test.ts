@@ -164,8 +164,9 @@ describe("decision", () => {
   })
 
   it("compares strings with a collator", () => {
-    expect(evaluate(eq("Z\u00FCrich", "zurich", collator({ "case-sensitive": false, "diacritic-sensitive": false })))).toBe(true)
-    expect(evaluate(lt("a", "B", collator({ "case-sensitive": false })))).toBe(true)
+    const props = { properties: { city: "Z\u00FCrich", s: "a" } }
+    expect(evaluate(eq(get("city"), "zurich", collator({ "case-sensitive": false, "diacritic-sensitive": false })), props)).toBe(true)
+    expect(evaluate(lt(get("s"), "B", collator({ "case-sensitive": false })), props)).toBe(true)
   })
 
   it("logic", () => {
@@ -190,8 +191,26 @@ describe("decision", () => {
     expect(evaluate(expr, { properties: { type: "road" } })).toBe(0)
   })
 
-  it("match rejects duplicate labels", () => {
+  it("match rejects labels MapLibre would reject", () => {
     expect(() => match(get("t"), [["a", 1], [["b", "a"], 2]], 0)).toThrow(/"a" appears more than once/)
+    expect(() => match(get("n"), [[1.5, "a"]], "b")).toThrow(/integers/)
+    expect(() => match(get("t"), [[[] as unknown as [string], 1]], 0)).toThrow(/must not be empty/)
+  })
+
+  it("match is strict: a string doesn't match a numeric label", () => {
+    expect(evaluate(match(get("n"), [[1, "one"]], "other"), { properties: { n: "1" } })).toBe("other")
+  })
+
+  it("rejects comparing a string literal to a literal (legacy-filter trap)", () => {
+    expect(() => eq("class", "park")).toThrow(/use get\("class"\)/)
+    expect(() => neq("class", "road")).toThrow(RangeError)
+    expect(() => lt("a", "b")).toThrow(RangeError)
+    expect(() => gte("a", "b")).toThrow(RangeError)
+    expect(() => in_("Main", "Main Street")).toThrow(RangeError)
+    // A property or expression on either side is fine, as are numeric literals
+    expect(eq(get("class"), "park")).toEqual(["==", ["get", "class"], "park"])
+    expect(eq("park", get("class"))).toEqual(["==", "park", ["get", "class"]])
+    expect(evaluate(eq(1, 1))).toBe(true)
   })
 
   it("coalesce", () => {
@@ -300,7 +319,7 @@ describe("lookup", () => {
   })
 
   it("strings", () => {
-    expect(evaluate(in_("ell", "hello"))).toBe(true)
+    expect(evaluate(in_("ell", get("word")), { properties: { word: "hello" } })).toBe(true)
     expect(evaluate(indexOf("l", "hello", 3))).toBe(3)
     expect(evaluate(slice("hello", 1, 3))).toBe("el")
     expect(evaluate(slice("hello", -2))).toBe("lo")
@@ -442,6 +461,22 @@ describe("types", () => {
     expect(evaluate(numberFormat(5, { "locale": "en-US", "min-fraction-digits": 2 }))).toBe("5.00")
   })
 
+  it("numberFormat honors a fraction-digit setting of 0 (works around MapLibre ignoring it)", () => {
+    const rounded = numberFormat(999.4, { "locale": "en-US", "max-fraction-digits": 0 })
+    expect(rounded).toEqual(["number-format", 999.4, { "locale": "en-US", "max-fraction-digits": ["literal", 0] }])
+    expect(evaluate(rounded)).toBe("999")
+    expect(evaluate(numberFormat(1.5, { "locale": "en-US", "min-fraction-digits": 0, "max-fraction-digits": 2 }))).toBe("1.5")
+  })
+
+  it("conversion edge cases", () => {
+    expect(evaluate(toNumber(""))).toBe(0)
+    expect(evaluate(toBoolean("false"))).toBe(true)
+    expect(evaluate(divide(1, 0))).toBe(Infinity)
+    expect(evaluate(divide(0, 0))).toBeNaN()
+    expect(evaluate(sqrt(-1))).toBeNaN()
+    expect(evaluate(get("a.b"), { properties: { a: { b: 1 } } })).toBe(null)
+  })
+
   it("format with overrides, wrapping plain font stacks in literal", () => {
     const expr = format([get("name"), { "font-scale": 1.2, "text-font": ["Open Sans Bold"] }], "\n", ["sub", { "text-color": "#f00", "vertical-align": "center" }])
     expect(expr).toEqual([
@@ -468,6 +503,13 @@ describe("types", () => {
 })
 
 describe("color", () => {
+  it("rejects literal components out of range", () => {
+    expect(() => rgb(300, 0, 0)).toThrow(/red must be between 0 and 255/)
+    expect(() => rgba(0, 0, 0, 2)).toThrow(/alpha must be between 0 and 1/)
+    expect(() => rgb(-1, 0, 0)).toThrow(RangeError)
+    expect(rgb(get("r"), 0, 0)).toEqual(["rgb", ["get", "r"], 0, 0])
+  })
+
   it("rgb, rgba, toRgba", () => {
     expect(evaluate(rgb(255, 0, 0))).toBe("rgba(255,0,0,1)")
     expect(evaluate(rgba(0, 0, 255, 0.5))).toBe("rgba(0,0,255,0.5)")
