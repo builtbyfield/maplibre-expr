@@ -24,7 +24,7 @@ These keep type-checking fast and the types honest. Breaking them tends to look 
 
 - **Never use `ExpressionSpecification` in a signature, and never intersect with it.** It's a union of about 90 recursive tuple types. `Expr<T>` is `["literal", unknown] & Typed<T>`, a single member of that union, so results stay assignable to MapLibre's types without TypeScript comparing the union pairwise. Parameters use the cheap `ExprLike<T>`.
 - **Value-typed getters return `Expr<NoInfer<T>>` with `T = any`** (`get`, `featureState`, `globalState`, `var_`, `accumulated`). Inferring their type from context breaks overload resolution and generic callers.
-- **Branch operators infer their output from the first branch** and take the rest as `NoInfer<T>`, as MapLibre does. Each also has a color overload so CSS color strings and color expressions mix.
+- **Branch operators infer their output from the first branch** and take the rest as `NoInfer<T>`, as MapLibre does. Each also has a color overload so CSS color strings and color expressions mix. The cost: when no overload matches, TypeScript reports the color overload's error ("not assignable to type 'ColorInput'") even for non-color mistakes. Putting the color overload first would fix the message but type all-string branches as colors, which is worse.
 - **Every exported function has an explicit return type** (`isolatedDeclarations`), JSDoc that names its operator ("MapLibre \`op\`.") and an `@see` link to the operator's heading in the spec docs.
 - **Reserved words get a trailing underscore**: `case_`, `in_`, `let_`, `var_`, `typeof_`.
 - CI fails the typecheck if it takes over 60 seconds; it normally takes under one.

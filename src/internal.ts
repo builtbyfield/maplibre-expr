@@ -16,9 +16,12 @@ export function op<T>(name: string, ...args: unknown[]): Expr<T> {
  */
 export function assertNotLegacyComparison(fn: string, a: unknown, b: unknown): void {
   if (typeof a === "string" && !Array.isArray(b)) {
+    // Legacy filters use "$type" and "$id" for the geometry type and feature id.
+    const instead = a === "$type" ? "geometryType()" : a === "$id" ? "id()" : `get(${JSON.stringify(a)})`
+    const what = a === "$type" ? "the geometry type" : a === "$id" ? "the feature id" : `the property ${JSON.stringify(a)}`
     throw new RangeError(
       `${fn}(${JSON.stringify(a)}, ${JSON.stringify(b)}) compares two literals. In a filter, MapLibre reads that as legacy syntax `
-      + `comparing the property ${JSON.stringify(a)}; elsewhere it's a constant. To compare a property, use get(${JSON.stringify(a)}).`,
+      + `comparing ${what}; elsewhere it's a constant. Use ${instead} instead.`,
     )
   }
 }
