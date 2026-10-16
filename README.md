@@ -1,5 +1,7 @@
 # @builtbyfield/maplibre-expr
 
+[![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr)
+
 Typed builders for [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/). Wrong compositions fail to compile; the output is plain style-spec JSON.
 
 ```ts
