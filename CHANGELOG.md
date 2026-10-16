@@ -1,5 +1,13 @@
 # @builtbyfield/maplibre-expr
 
+## 0.3.0
+
+### Minor Changes
+
+- [#7](https://github.com/builtbyfield/maplibre-expr/pull/7) [`0b8ef59`](https://github.com/builtbyfield/maplibre-expr/commit/0b8ef59bdc4a63c134c70c3db27d452b9d63fb82) Thanks [@essejmclean](https://github.com/essejmclean)! - - `assertEquivalent` and `checkEquivalent` in `/testing`: compare two expressions on generated cases (built from the literals they use, including values just either side of each number) and report a counterexample when they differ. For refactors and style migrations.
+  - Typed accessors (`typedProperties`, `typedFeatureState`, `typedGlobalState`) type values as when present: `null` and `undefined` in the declared type are dropped, so nullable schema types (e.g. from zod) work as is. Exports the `Present<T>` helper type.
+  - `match` accepts plain (non-`as const`) arrays as labels, like `isOneOf`; an empty array still throws.
+
 ## 0.2.0
 
 ### Minor Changes
