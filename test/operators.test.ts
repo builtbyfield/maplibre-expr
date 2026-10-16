@@ -194,7 +194,8 @@ describe("decision", () => {
   it("match rejects labels MapLibre would reject", () => {
     expect(() => match(get("t"), [["a", 1], [["b", "a"], 2]], 0)).toThrow(/"a" appears more than once/)
     expect(() => match(get("n"), [[1.5, "a"]], "b")).toThrow(/integers/)
-    expect(() => match(get("t"), [[[] as unknown as [string], 1]], 0)).toThrow(/must not be empty/)
+    const none: string[] = []
+    expect(() => match(get("t"), [[none, 1]], 0)).toThrow(/must not be empty/)
   })
 
   it("match is strict: a string doesn't match a numeric label", () => {
