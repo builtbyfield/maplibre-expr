@@ -43,7 +43,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && node scripts/notices.mjs",
     "dev": "tsdown --watch",
     "test": "vitest",
     "test:run": "vitest run",
@@ -57,9 +57,6 @@
     "check:links": "node scripts/check-links.mjs",
     "changeset": "changeset",
     "release": "changeset publish"
-  },
-  "peerDependencies": {
-    "@maplibre/maplibre-gl-style-spec": ">=26.3.0"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

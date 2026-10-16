@@ -1,4 +1,3 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 import type { OperatorName } from "./operator-names"
 
 declare const output: unique symbol
@@ -69,11 +68,11 @@ export type AnyInput = unknown
 export type JsonValue = string | number | boolean | null | readonly JsonValue[] | { readonly [key: string]: JsonValue }
 
 /**
- * Views an expression as MapLibre's `ExpressionSpecification`, e.g. to
- * inspect its operator and arguments.
+ * Views an expression as a plain array, e.g. to inspect its operator and
+ * arguments.
  *
  * @example toSpec(add(1, 2))[0] // "+"
  */
-export function toSpec(expression: ExprLike): ExpressionSpecification {
-  return expression as unknown as ExpressionSpecification
+export function toSpec(expression: ExprLike): readonly [OperatorName, ...unknown[]] {
+  return expression as readonly [OperatorName, ...unknown[]]
 }

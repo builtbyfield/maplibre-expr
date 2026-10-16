@@ -7,15 +7,37 @@ import {
   geometryType,
   get,
   getOr,
+  gt,
   ifFeatureState,
   isOneOf,
   linear,
   matchRecord,
   metersToPixels,
   mixColors,
+  typedFeatureState,
+  typedGlobalState,
+  typedProperties,
   withAlpha,
 } from "../src"
 import { evaluate, validate } from "../src/testing"
+
+describe("typed accessors", () => {
+  interface Place { name: string, rank: number }
+  const place = typedProperties<Place>()
+
+  it("emit plain get/has/feature-state/global-state arrays", () => {
+    expect(place.get("rank")).toEqual(["get", "rank"])
+    expect(place.has("name")).toEqual(["has", "name"])
+    expect(typedFeatureState<{ hover: boolean }>().get("hover")).toEqual(["feature-state", "hover"])
+    expect(typedGlobalState<{ now: number }>().get("now")).toEqual(["global-state", "now"])
+  })
+
+  it("evaluate like their untyped counterparts", () => {
+    expect(evaluate(gt(place.get("rank"), 2), { properties: { rank: 3 } })).toBe(true)
+    expect(evaluate(place.getOr("rank", 0), { properties: { rank: "high" } })).toBe(0)
+    expect(evaluate(gt(get("ends"), typedGlobalState<{ now: number }>().get("now")), { properties: { ends: 200 }, globalState: { now: 100 } })).toBe(true)
+  })
+})
 
 describe("byZoom", () => {
   it("interpolates numbers exponentially by default", () => {

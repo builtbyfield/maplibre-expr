@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr)
 
-Typed builders for [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/). Wrong compositions fail to compile; the output is plain style-spec JSON.
+Typed builders for [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/), and a test harness that runs them through MapLibre's own engine. Wrong compositions fail to compile; the output is plain style-spec JSON.
 
 ```ts
 import { add, get, interpolate, linear, upcase, zoom } from "@builtbyfield/maplibre-expr"
@@ -14,12 +14,16 @@ add(upcase(get("name")), 1)
 //  ~~~~~~~~~~~~~~~~~~~~ Argument of type 'Expr<string>' is not assignable to parameter of type 'NumberInput'.
 ```
 
-MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, so mistakes like that only show up at runtime, as a console warning and a layer that silently renders wrong. Every builder here records what its expression evaluates to (`Expr<number>`, `Expr<string>`, `Expr<Color>`, and so on), so the compiler catches them instead.
+MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, and a broken expression doesn't error at render time: features just don't show up, or a property quietly falls back to its default. This package attacks that from two sides:
 
-- **All 88 operators** of the style spec (v26), each with JSDoc and a link to its spec entry.
-- **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts. Importing one function adds about 170 bytes.
-- **An evaluation harness** (`@builtbyfield/maplibre-expr/testing`) that runs expressions through MapLibre's real engine, for unit tests and for checking generated expressions.
-- **A few recipes** for jobs that are fiddly to get right by hand: meters-to-pixels radii, compact number labels, hover states, alpha changes.
+- **Types.** Every builder records what its expression evaluates to (`Expr<number>`, `Expr<string>`, `Expr<Color>`, and so on), so wrong compositions are compile errors. With [typed feature data](#typed-feature-data), so are misspelled property names.
+- **Tests.** `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would fail silently, so you can unit-test a filter against sample features.
+
+Also:
+
+- **All 88 operators** of the style spec (v26), each with JSDoc, a link to its spec entry, and platform notes where a renderer lacks it.
+- **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts, and mix freely with existing hand-written expressions. Importing one function adds about 170 bytes.
+- **A few recipes** for jobs that are fiddly to get right by hand: zoom ramps, meters-to-pixels radii, compact number labels, hover states, global state.
 
 ## Install
 
@@ -27,7 +31,7 @@ MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]
 npm install @builtbyfield/maplibre-expr
 ```
 
-Requires `@maplibre/maplibre-gl-style-spec` v26.3+ as a peer (maplibre-gl 6 already depends on it) and TypeScript 5.4+ if you use TypeScript. ESM only.
+No runtime dependencies, and it works with any maplibre-gl version, since the builders just emit style-spec JSON. TypeScript 5.4+ if you use TypeScript. ESM only.
 
 ## Usage
 
@@ -65,6 +69,41 @@ const layers: LayerSpecification[] = [
 
 Function names follow the spec: kebab-case becomes camelCase (`index-of` becomes `indexOf`), symbolic operators get names (`==` is `eq`, `+` is `add`), and reserved words get a trailing underscore (`case_`, `in_`, `let_`, `var_`, `typeof_`). See the [operator table](#operators).
 
+## Testing expressions
+
+`@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's own engine. Unlike MapLibre at render time, it throws instead of silently falling back to a default:
+
+```ts
+import { compactNumber, get, interpolate, linear, zoom } from "@builtbyfield/maplibre-expr"
+import { evaluate, validate } from "@builtbyfield/maplibre-expr/testing"
+
+evaluate(compactNumber(get("count")), { properties: { count: 5_600_000 } }) // "5.6M"
+evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 }) // "rgba(128,128,128,1)"
+evaluate(["number", ["get", "missing"]]) // throws ExpressionError: Expected value to be of type number, but found null instead.
+
+validate(["+", 1, ["upcase", "x"]]) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
+validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
+```
+
+Pass `property` (any layer property name, or `"filter"`) to check an expression where it will be used. That runs MapLibre's own style validator, which also catches data expressions in properties that don't support them, `zoom` outside a top-level ramp, and `feature-state` in filters and layout properties.
+
+`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
+
+`evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
+
+`evaluate` and `validate` accept plain values as well as expressions, so helpers typed to return `BooleanInput` or `NumberInput` can be tested directly.
+
+## For AI coding agents
+
+A broken expression produces no error at render time, only missing features, so check expressions instead of eyeballing them:
+
+1. Build expressions with these functions, not raw arrays, and run the type checker.
+2. For any filter or data-driven property, write a test that calls `evaluate()` on a few sample features, including ones that should be excluded and ones with missing properties.
+3. Run `validate(expr, { property })` with the property it will be used in.
+4. Break the expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
+
+If the data's properties are known, declare them with [`typedProperties`](#typed-feature-data) so a misremembered property name is a compile error rather than a silently empty layer.
+
 ## What the types check
 
 - **Argument types.** A string expression isn't accepted where a number is required, a color isn't accepted where a string is, and so on.
@@ -77,6 +116,25 @@ Function names follow the spec: kebab-case becomes camelCase (`index-of` becomes
   ```
 - **Arity and structure.** For example, `add` needs at least two inputs and ramps need at least one stop.
 - **Forgotten `literal`.** A bare data array like `["a", "b"]` can't be passed as an expression; wrap it in `literal()`.
+- **Typed `typeof_` results.** `eq(typeof_(get("x")), "nubmer")` is an error.
+
+### Typed feature data
+
+Declare the shape of your features (and of feature state and global state) to have property names and values checked:
+
+```ts
+interface Place { name: string, rank: number, kind: "park" | "lake" }
+const place = typedProperties<Place>()
+const app = typedGlobalState<{ now: number }>()
+
+gt(place.get("rank"), 3) // ["get", "rank"], typed as a number
+eq(place.get("kind"), "lak") // compile error: not "park" | "lake"
+place.get("rnak") // compile error: no such property
+place.getOr("rank", 0) // the property, or 0 if missing or not a number
+gt(get("ends_at"), app.get("nwo")) // compile error
+```
+
+The accessors emit the same `["get", …]`, `["has", …]`, `["feature-state", …]` and `["global-state", …]` arrays as the untyped functions. Declare the type a property has _when present_; a missing property is still `null` at runtime.
 
 Some mistakes are caught when the expression is built:
 
@@ -85,7 +143,7 @@ Some mistakes are caught when the expression is built:
 
 ### What they don't check
 
-- **Feature data is untyped by default.** `get`, `featureState`, `globalState` and `var_` produce values of unknown type that are accepted anywhere. MapLibre checks them at runtime. Pin a type to have the compiler check its uses: `get<number>("population")`.
+- **Untyped feature data.** Plain `get`, `featureState`, `globalState` and `var_` accept any name and produce values accepted anywhere; MapLibre checks them at runtime. Use [typed feature data](#typed-feature-data), or pin one value's type with `get<number>("population")`.
 - **Raw arrays are an escape hatch.** You can pass `["get", "x"]` or any existing `ExpressionSpecification` value. Only the operator name is checked, not the arguments.
 - **Where an expression is allowed.** For example, `zoom()` must be the input of a top-level `interpolate`/`step`, and `featureState` isn't allowed in filters or layout properties. `validate(expr, { property })` (below) catches these.
 
@@ -120,28 +178,6 @@ MapLibre behaviors that surprise people. The builders throw for the ones they ca
   - `distance` measures MultiLineString features as one connected line.
   - `toColor` reads `[r, g, b, a]` arrays as premultiplied.
 
-## Testing expressions
-
-`@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's own engine. Unlike MapLibre at render time, it throws instead of silently falling back to a default:
-
-```ts
-import { compactNumber, get, interpolate, linear, zoom } from "@builtbyfield/maplibre-expr"
-import { evaluate, validate } from "@builtbyfield/maplibre-expr/testing"
-
-evaluate(compactNumber(get("count")), { properties: { count: 5_600_000 } }) // "5.6M"
-evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 }) // "rgba(128,128,128,1)"
-evaluate(["number", ["get", "missing"]]) // throws ExpressionError: Expected value to be of type number, but found null instead.
-
-validate(["+", 1, ["upcase", "x"]]) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
-validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
-```
-
-Pass `property` (any layer property name, or `"filter"`) to check an expression where it will be used. That runs MapLibre's own style validator, which also catches data expressions in properties that don't support them, `zoom` outside a top-level ramp, and `feature-state` in filters and layout properties.
-
-`evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
-
-**Using an AI coding assistant?** Ask it to check expressions with `evaluate` before wiring them into a style. Combined with the types, this lets it confirm an expression does what it says instead of guessing.
-
 ## Recipes
 
 | Recipe                                       | What it does                                                                                         |
@@ -157,12 +193,46 @@ Pass `property` (any layer property name, or `"filter"`) to check an expression 
 | `withAlpha(color, alpha)`                    | The same color with a different opacity.                                                             |
 | `mixColors(from, to, ratio, space?)`         | Blend two colors in RGB, HCL or Lab.                                                                 |
 
-**Time-based styling.** Expressions can't read the clock, and baking `Date.now()` into a style freezes "now" at the moment the style is built. Put the time in global state instead and update it from your app:
+## Global state
+
+Expressions can't read the clock or your app's state, and baking a value like `Date.now()` into a style freezes it, so every change means rebuilding the filter and calling `setFilter` on each layer. Instead, read the value with `globalState(name)` and set it on the map. The filter then never changes identity:
 
 ```ts
-filter: gt(get("ends_at"), globalState("now")) // events that haven't ended
-map.setGlobalStateProperty("now", Date.now()) // e.g. every minute
+// layer filter: events that haven't ended
+filter: gt(get("ends_at"), globalState("now"))
+
+// keep "now" set on the map
+const stop = syncGlobalState(map, "now", Date.now())
 ```
+
+Setting it by hand with `map.setGlobalStateProperty` has three pitfalls, which `syncGlobalState` handles:
+
+- **It throws before the style loads** ("Style is not done loading"), e.g. in a React effect on first mount. `syncGlobalState` applies it on the first `styledata` event instead.
+- **A full style reload clears global state.** `setStyle(…, { diff: true })` keeps it; a reload without `diff` starts empty. `syncGlobalState` re-applies after every `styledata`.
+- **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (e.g. from devtools) is put back on the next `styledata`. Stop the sync first.
+
+To change the value, stop and sync again. In React: `useEffect(() => syncGlobalState(map, "now", now), [map, now])`.
+
+Global state doesn't make re-filtering free: when the value changes, MapLibre still re-evaluates the layers that read it. What you save is rebuilding and re-applying filters. Global state needs maplibre-gl 5.6+ (see [platform support](#platform-support)).
+
+## Writing your own helpers
+
+Accept `*Input` types and return `Expr<T>`. Inputs then take literals and expressions alike, and results compose with every builder:
+
+```ts
+import type { Expr, NumberInput, Stops } from "@builtbyfield/maplibre-expr"
+
+function isOpenAt(time: NumberInput): Expr<boolean> {
+  return all(lte(get("opens"), time), gt(get("closes"), time))
+}
+
+// For ramps, use `Stops<T>`: a non-empty list of [input, output] pairs
+function widthRamp(stops: Stops<NumberInput>): Expr<number> {
+  return byZoom(stops, linear())
+}
+```
+
+`Input<T>` (`T` or an expression producing `T`) has shorthands: `NumberInput`, `StringInput`, `BooleanInput`, `ColorInput`, `ArrayInput<T>`.
 
 ## Operators
 

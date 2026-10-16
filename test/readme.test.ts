@@ -1,9 +1,12 @@
 import type { LayerSpecification } from "@maplibre/maplibre-gl-style-spec"
 
+import type { Expr, GlobalStateMap, NumberInput, Stops } from "../src"
+
 import { describe, expect, it } from "vitest"
 
 import {
   add,
+  all,
   byZoom,
   case_,
   compactNumber,
@@ -11,13 +14,18 @@ import {
   eq,
   featureState,
   get,
+  globalState,
   gt,
   interpolate,
   isOneOf,
   let_,
   linear,
+  lte,
   match,
   numberFormat,
+  syncGlobalState,
+  typedGlobalState,
+  typedProperties,
   upcase,
   zoom,
 } from "../src"
@@ -74,5 +82,37 @@ describe("rEADME examples", () => {
     expect(evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 })).toBe("rgba(128,128,128,1)")
     expect(() => evaluate(["number", ["get", "missing"]])).toThrow("Expected value to be of type number, but found null instead.")
     expect(validate(["+", 1, ["upcase", "x"]])).toEqual({ valid: false, errors: ["[2]: Expected number but found string instead."] })
+  })
+
+  it("typed feature data", () => {
+    interface Place { name: string, rank: number, kind: "park" | "lake" }
+    const place = typedProperties<Place>()
+    const app = typedGlobalState<{ now: number }>()
+    expect(gt(place.get("rank"), 3)).toEqual([">", ["get", "rank"], 3])
+    // @ts-expect-error not "park" | "lake"
+    eq(place.get("kind"), "lak")
+    // @ts-expect-error no such property
+    place.get("rnak")
+    expect(evaluate(place.getOr("rank", 0))).toBe(0)
+    // @ts-expect-error no such global state
+    gt(get("ends_at"), app.get("nwo"))
+  })
+
+  it("global state", () => {
+    const filter = gt(get("ends_at"), globalState("now"))
+    expect(evaluate(filter, { properties: { ends_at: 200 }, globalState: { now: 100 } })).toBe(true)
+    const map: GlobalStateMap = { getGlobalState: () => ({}), setGlobalStateProperty: () => {}, on: () => {}, off: () => {} }
+    expect(typeof syncGlobalState(map, "now", Date.now())).toBe("function")
+  })
+
+  it("writing your own helpers", () => {
+    function isOpenAt(time: NumberInput): Expr<boolean> {
+      return all(lte(get("opens"), time), gt(get("closes"), time))
+    }
+    function widthRamp(stops: Stops<NumberInput>): Expr<number> {
+      return byZoom(stops, linear())
+    }
+    expect(evaluate(isOpenAt(12), { properties: { opens: 9, closes: 17 } })).toBe(true)
+    expect(evaluate(widthRamp([[10, 1], [20, 3]]), { zoom: 15 })).toBe(2)
   })
 })

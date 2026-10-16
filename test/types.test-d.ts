@@ -6,7 +6,7 @@ import type {
   SymbolLayerSpecification,
 } from "@maplibre/maplibre-gl-style-spec"
 
-import type { Color, Expr, Formatted, Projection } from "../src"
+import type { BooleanInput, Color, Expr, Formatted, NumberInput, Projection } from "../src"
 
 import { describe, expectTypeOf, it } from "vitest"
 
@@ -34,6 +34,10 @@ import {
   split,
   step,
   toRgba,
+  typedFeatureState,
+  typedGlobalState,
+  typedProperties,
+  typeof_,
   upcase,
   zoom,
 } from "../src"
@@ -84,6 +88,12 @@ describe("output types", () => {
     expectTypeOf(evaluate(add(1, 2))).toEqualTypeOf<number>()
     expectTypeOf(evaluate(rgb(1, 2, 3))).toEqualTypeOf<string>()
     expectTypeOf(evaluate(split("a", ","))).toEqualTypeOf<string[]>()
+    // plain values, and variables typed as Input unions (a helper returning BooleanInput)
+    expectTypeOf(evaluate(5)).toEqualTypeOf<5>()
+    const flag = true as BooleanInput
+    expectTypeOf(evaluate(flag)).toEqualTypeOf<boolean>()
+    const size = 1 as NumberInput
+    expectTypeOf(evaluate(size)).toEqualTypeOf<number>()
     expectTypeOf(evaluate(interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])))
       .toEqualTypeOf<{ from: string, to: string, transition: number }>()
   })
@@ -114,6 +124,9 @@ describe("rejects wrong compositions", () => {
     match(geometryType(), [["Polgon", 1]], 0)
     // @ts-expect-error misspelled geometry type in isOneOf
     isOneOf(geometryType(), ["Polgon"])
+    // @ts-expect-error misspelled typeof result
+    eq(typeof_(get("x")), "nubmer")
+    eq(typeof_(get("x")), "array<number, 2>")
   })
 
   it("mixed branch outputs", () => {
@@ -128,6 +141,39 @@ describe("rejects wrong compositions", () => {
     add(1)
     // @ts-expect-error bare JS arrays aren't expressions; wrap in literal()
     at(0, ["a", "b"])
+  })
+})
+
+describe("typed accessors", () => {
+  interface Place { name: string, rank: number, kind: "park" | "lake", opened: number | null }
+  const place = typedProperties<Place>()
+  const state = typedFeatureState<{ hover: boolean }>()
+  const app = typedGlobalState<{ now: number }>()
+
+  it("types values by property name", () => {
+    expectTypeOf(place.get("rank")).toEqualTypeOf<Expr<number>>()
+    expectTypeOf(place.get("kind")).toEqualTypeOf<Expr<"park" | "lake">>()
+    expectTypeOf(place.getOr("opened", 0)).toEqualTypeOf<Expr<number>>()
+    expectTypeOf(state.get("hover")).toEqualTypeOf<Expr<boolean>>()
+    expectTypeOf(app.get("now")).toEqualTypeOf<Expr<number>>()
+    expectTypeOf(gt(place.get("rank"), app.get("now"))).toEqualTypeOf<Expr<boolean>>()
+  })
+
+  it("rejects misspelled names and values", () => {
+    // @ts-expect-error misspelled property
+    place.get("rnak")
+    // @ts-expect-error misspelled property in has
+    place.has("nmae")
+    // @ts-expect-error misspelled value of a literal-union property
+    eq(place.get("kind"), "lak")
+    // @ts-expect-error misspelled feature state
+    state.get("hovr")
+    // @ts-expect-error misspelled global state
+    app.get("nwo")
+    // @ts-expect-error fallback of the wrong type
+    place.getOr("rank", "x")
+    // @ts-expect-error nullable values must be handled before numeric use
+    add(place.get("opened"), 1)
   })
 })
 
