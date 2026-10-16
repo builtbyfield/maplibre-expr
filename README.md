@@ -27,7 +27,7 @@ Also:
 
 ## Example
 
-**[Live demo](https://builtbyfield.github.io/maplibre-expr/)** · **[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** · [Source](examples/starter)
+**[Live demo](https://builtbyfield.github.io/maplibre-expr/)** | **[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** | [Source](examples/starter)
 
 A small, complete app: a typed basemap on OpenFreeMap tiles and a month of real earthquakes with a time slider, plus tests that check every expression with MapLibre's engine. In StackBlitz, misspell a road class to see the compile error, or break the time filter and run `npm test`. To start a project from it: `npx degit builtbyfield/maplibre-expr/examples/starter my-map`.
 

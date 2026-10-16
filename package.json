@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.3.2",
   "packageManager": "pnpm@10.34.7",
-  "description": "Typed builders for MapLibre style expressions. Wrong compositions fail to compile, output is plain spec JSON.",
+  "description": "Type-safe MapLibre style expressions for TypeScript. Typos and type mismatches fail to compile instead of silently breaking your map, and a test harness runs expressions on MapLibre's own engine. Outputs plain style JSON.",
   "author": {
     "name": "Jesse McLean",
     "email": "jesse@builtbyfield.com",
