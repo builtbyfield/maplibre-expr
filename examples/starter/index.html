@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>A month of earthquakes · maplibre-expr starter</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font:
+          14px/1.4 system-ui,
+          sans-serif;
+      }
+      html,
+      body,
+      #map {
+        margin: 0;
+        height: 100%;
+      }
+      .panel {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 28px;
+        max-width: 560px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: color-mix(in srgb, Canvas 88%, transparent);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 2px 12px rgb(0 0 0 / 0.2);
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .row input[type="range"] {
+        flex: 1;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        opacity: 0.8;
+        font-variant-numeric: tabular-nums;
+      }
+      button {
+        font: inherit;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid color-mix(in srgb, CanvasText 25%, transparent);
+        background: Canvas;
+        color: CanvasText;
+        cursor: pointer;
+      }
+      details {
+        margin-top: 8px;
+      }
+      pre {
+        max-height: 30vh;
+        overflow: auto;
+        font-size: 11px;
+        margin: 6px 0 0;
+      }
+      .maplibregl-popup-content {
+        color: #222;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="panel">
+      <div class="row">
+        <button id="play" type="button">Play</button>
+        <input id="time" type="range" aria-label="Time" />
+        <button id="theme" type="button">Dark</button>
+      </div>
+      <div class="meta"><span id="date"></span><span id="count"></span></div>
+      <details>
+        <summary>The quake layer's expressions (generated)</summary>
+        <pre id="json"></pre>
+      </details>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

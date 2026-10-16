@@ -25,6 +25,12 @@ Also:
 - **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts, and mix freely with existing hand-written expressions. Importing one function adds about 170 bytes.
 - **A few recipes** for jobs that are fiddly to get right by hand: zoom ramps, meters-to-pixels radii, compact number labels, hover states, global state.
 
+## Example
+
+**[Live demo](https://builtbyfield.github.io/maplibre-expr/)** · **[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** · [Source](examples/starter)
+
+A small, complete app: a typed basemap on OpenFreeMap tiles and a month of real earthquakes with a time slider, plus tests that check every expression with MapLibre's engine. In StackBlitz, misspell a road class to see the compile error, or break the time filter and run `npm test`. To start a project from it: `npx degit builtbyfield/maplibre-expr/examples/starter my-map`.
+
 ## Install
 
 ```sh
@@ -276,6 +282,7 @@ pnpm install
 pnpm test          # unit + type tests (watch mode)
 pnpm check         # generated files, lint, typecheck, tests, build, and a smoke test of the packed tarball
 pnpm check:links   # verify every @see link into the spec docs (needs network)
+pnpm check:starter # type-check, test and build examples/starter against this commit
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the layout and the type design rules.

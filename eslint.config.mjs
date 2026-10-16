@@ -7,4 +7,8 @@ export default antfu({
   stylistic: {
     quotes: "double",
   },
+}).append({
+  // The examples are apps, not library code.
+  files: ["examples/**"],
+  rules: { "antfu/no-top-level-await": "off" },
 })

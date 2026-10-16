@@ -27,3 +27,5 @@ jobs:
       - run: pnpm test:run
       - run: pnpm build
       - run: pnpm smoke
+      - name: Starter example builds and passes its tests
+        run: node scripts/check-starter.mjs
