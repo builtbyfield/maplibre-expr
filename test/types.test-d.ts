@@ -135,6 +135,9 @@ describe("rejects wrong compositions", () => {
     match(geometryType(), [["Polgon", 1]], 0)
     // @ts-expect-error misspelled geometry type in isOneOf
     isOneOf(geometryType(), ["Polgon"])
+    // plain (non-const) arrays work as match labels, like isOneOf
+    const kinds: string[] = ["a", "b"]
+    match(get("kind"), [[kinds, 1]], 0)
     // @ts-expect-error misspelled typeof result
     eq(typeof_(get("x")), "nubmer")
     eq(typeof_(get("x")), "array<number, 2>")
@@ -165,6 +168,9 @@ describe("typed accessors", () => {
     expectTypeOf(place.get("rank")).toEqualTypeOf<Expr<number>>()
     expectTypeOf(place.get("kind")).toEqualTypeOf<Expr<"park" | "lake">>()
     expectTypeOf(place.getOr("opened", 0)).toEqualTypeOf<Expr<number>>()
+    // null/undefined in the declared type are dropped: values are typed as when present
+    expectTypeOf(place.get("opened")).toEqualTypeOf<Expr<number>>()
+    expectTypeOf(typedProperties<{ a?: string | null }>().get("a")).toEqualTypeOf<Expr<string>>()
     expectTypeOf(state.get("hover")).toEqualTypeOf<Expr<boolean>>()
     expectTypeOf(app.get("now")).toEqualTypeOf<Expr<number>>()
     expectTypeOf(gt(place.get("rank"), app.get("now"))).toEqualTypeOf<Expr<boolean>>()
@@ -183,8 +189,6 @@ describe("typed accessors", () => {
     app.get("nwo")
     // @ts-expect-error fallback of the wrong type
     place.getOr("rank", "x")
-    // @ts-expect-error nullable values must be handled before numeric use
-    add(place.get("opened"), 1)
   })
 })
 

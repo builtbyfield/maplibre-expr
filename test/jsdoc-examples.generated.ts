@@ -108,7 +108,7 @@ import {
   within,
   zoom,
 } from "../src"
-import { evaluate, validate } from "../src/testing"
+import { assertEquivalent, checkEquivalent, evaluate, validate } from "../src/testing"
 
 export const examples: [where: string, build: () => unknown][] = [
   ["expr.ts:0", () => (toSpec(add(1, 2))[0])],
@@ -215,4 +215,6 @@ export const examples: [where: string, build: () => unknown][] = [
   ["testing.ts:90", () => (evaluate(get("name"), { properties: { name: "Oslo" } }))],
   ["testing.ts:91.1", () => (evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 }))],
   ["testing.ts:92.2", () => (evaluate(eq(geometryType(), "Polygon"), { geometry: { type: "MultiPolygon", coordinates: [] } }))],
+  ["testing.ts:93", () => (checkEquivalent(gt(get("n"), 5), not(lte(get("n"), 5))))],
+  ["testing.ts:94", () => (assertEquivalent(eq(get("kind"), "park"), isOneOf(get("kind"), ["park"]), { samples: 2000 }))],
 ]

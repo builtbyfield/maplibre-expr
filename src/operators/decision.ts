@@ -146,8 +146,8 @@ export function case_(branches: readonly (readonly [unknown, unknown])[], fallba
   return op("case", ...branches.flat(), fallback)
 }
 
-/** A label of {@link match}: one literal value, or several that share an output. */
-export type MatchLabel<L> = L | readonly [L, ...L[]]
+/** A label of {@link match}: one literal value, or a non-empty array of values that share an output. */
+export type MatchLabel<L> = L | readonly L[]
 
 /**
  * Compares `input` to each branch's label(s) and returns the output of the

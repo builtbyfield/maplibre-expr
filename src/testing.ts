@@ -194,10 +194,17 @@ export function evaluate<T>(expression: ExprLike<T>, options?: EvaluateOptions):
 export function evaluate<T extends string | number | boolean | null>(value: T, options?: EvaluateOptions): T
 export function evaluate<T>(expression: Input<T>, options?: EvaluateOptions): Evaluated<T>
 export function evaluate(expression: unknown, options: EvaluateOptions = {}): unknown {
-  const parsed = parse(expression, options.type)
+  return evaluateParsed(parseOrThrow(expression, options.type), options)
+}
+
+function parseOrThrow(expression: unknown, type: ExpectedType | undefined): StyleExpression {
+  const parsed = parse(expression, type)
   if (!parsed.ok)
     throw new ExpressionError("Invalid expression", parsed.errors)
+  return parsed.expression
+}
 
+function evaluateParsed(expression: StyleExpression, options: EvaluateOptions): unknown {
   const globals = {
     zoom: options.zoom ?? 0,
     heatmapDensity: options.heatmapDensity,
@@ -216,7 +223,7 @@ export function evaluate(expression: unknown, options: EvaluateOptions = {}): un
 
   let value: unknown
   try {
-    value = parsed.expression.evaluateWithoutErrorHandling(globals, feature, options.featureState ?? {}, CANONICAL, options.availableImages ?? [])
+    value = expression.evaluateWithoutErrorHandling(globals, feature, options.featureState ?? {}, CANONICAL, options.availableImages ?? [])
   }
   catch (error) {
     throw new ExpressionError("Expression failed to evaluate", [error instanceof Error ? error.message : String(error)])
@@ -321,5 +328,159 @@ function toTileGeometry(geometry: Geometry): { x: number, y: number }[][] {
     case "MultiLineString": return geometry.coordinates.map(line => line.map(project))
     case "Polygon": return geometry.coordinates.map(ring => ring.map(project))
     case "MultiPolygon": return geometry.coordinates.flatMap(polygon => polygon.map(ring => ring.map(project)))
+  }
+}
+
+/** Options of {@link checkEquivalent} and {@link assertEquivalent}. */
+export interface EquivalenceOptions {
+  /** How many random cases to try. Default `500`. */
+  samples?: number
+  /** Seed for the case generator, so a failure reproduces. Default `1`. */
+  seed?: number
+  /**
+   * Values to try for every property and state, in addition to the literals
+   * found in the two expressions (and numbers just either side of them).
+   */
+  values?: readonly unknown[]
+  /** Zoom levels to try. Default: 0, 24, and every number in the expressions (and just either side) within that range. */
+  zooms?: readonly number[]
+  /** Geometries to try. Default: a point. */
+  geometries?: readonly Geometry[]
+  /** Parse both expressions as this type, as in {@link evaluate}. */
+  type?: ExpectedType
+}
+
+/** One evaluation case, as passed to {@link evaluate}. */
+export type EquivalenceCase = Pick<EvaluateOptions, "properties" | "featureState" | "globalState" | "zoom" | "geometry">
+
+/** Result of {@link checkEquivalent}. */
+export type EquivalenceResult
+  = | { equivalent: true, cases: number }
+    | { equivalent: false, cases: number, counterexample: EquivalenceCase, a: unknown, b: unknown }
+
+/**
+ * Checks that two expressions behave the same, by evaluating both on many
+ * generated cases: every property, feature-state and global-state name they
+ * read is set to one of the literals they compare against, a number just
+ * either side of one, a few generic edge values (`-1`, `0.5`, `1234.5`, `""`,
+ * booleans), or left missing. Useful when refactoring or
+ * migrating a style: the JSON can change while the behavior stays the same.
+ *
+ * Errors, `null` and `NaN` count as the same outcome, since MapLibre falls
+ * back to the property's default for all three. Throws an
+ * {@link ExpressionError} if either expression is invalid.
+ *
+ * @example checkEquivalent(gt(get("n"), 5), not(lte(get("n"), 5))) // { equivalent: true, cases: 500 }
+ */
+export function checkEquivalent(a: Input<unknown>, b: Input<unknown>, options: EquivalenceOptions = {}): EquivalenceResult {
+  const { samples = 500, seed = 1, type } = options
+  const parsedA = parseOrThrow(a, type)
+  const parsedB = parseOrThrow(b, type)
+  const found = { properties: new Set<string>(), featureState: new Set<string>(), globalState: new Set<string>(), strings: new Set<string>(), numbers: new Set<number>() }
+  collect(a, found)
+  collect(b, found)
+
+  const near = [...found.numbers].flatMap(n => [n, n - 1, n + 1, n - 0.001, n + 0.001])
+  // Generic edge values too: negative, fractional and large numbers, and the empty string.
+  const values = [...new Set<unknown>([...found.strings, ...near, true, false, 0, 1, -1, 0.5, 1234.5, "", ...(options.values ?? [])])]
+  const zooms = options.zooms ?? [...new Set([0, 24, ...near.filter(n => n >= 0 && n <= 24)])]
+  const geometries = options.geometries ?? [{ type: "Point", coordinates: [0, 0] } as Geometry]
+  const random = mulberry32(seed)
+  const pick = <T>(list: readonly T[]): T => list[Math.floor(random() * list.length)]!
+  const fill = (names: Set<string>): Record<string, unknown> => {
+    const object: Record<string, unknown> = {}
+    for (const name of names) {
+      // About one in five is left missing.
+      if (random() >= 0.2)
+        object[name] = pick(values)
+    }
+    return object
+  }
+
+  for (let i = 0; i < samples; i++) {
+    const testCase: EquivalenceCase = i === 0
+      ? { properties: {}, featureState: {}, globalState: {}, zoom: pick(zooms), geometry: geometries[0]! }
+      : { properties: fill(found.properties), featureState: fill(found.featureState), globalState: fill(found.globalState), zoom: pick(zooms), geometry: pick(geometries) }
+    const resultA = outcome(parsedA, testCase)
+    const resultB = outcome(parsedB, testCase)
+    if (JSON.stringify(resultA) !== JSON.stringify(resultB))
+      return { equivalent: false, cases: i + 1, counterexample: testCase, a: resultA, b: resultB }
+  }
+  return { equivalent: true, cases: samples }
+}
+
+/**
+ * Throws if two expressions behave differently on any generated case; see
+ * {@link checkEquivalent}. Works with any test runner.
+ *
+ * @example assertEquivalent(eq(get("kind"), "park"), isOneOf(get("kind"), ["park"]), { samples: 2000 })
+ */
+export function assertEquivalent(a: Input<unknown>, b: Input<unknown>, options?: EquivalenceOptions): void {
+  const result = checkEquivalent(a, b, options)
+  if (!result.equivalent) {
+    throw new Error(
+      `Expressions differ after ${result.cases} case(s).\n`
+      + `  case:   ${JSON.stringify(result.counterexample)}\n`
+      + `  first:  ${JSON.stringify(result.a)}\n`
+      + `  second: ${JSON.stringify(result.b)}`,
+    )
+  }
+}
+
+/** What MapLibre would make of an evaluation: a value, or "the property's default". */
+function outcome(expression: StyleExpression, options: EvaluateOptions): unknown {
+  try {
+    const value = evaluateParsed(expression, options)
+    return value === null || (typeof value === "number" && Number.isNaN(value)) ? "(default)" : value
+  }
+  catch {
+    return "(default)"
+  }
+}
+
+interface Found {
+  properties: Set<string>
+  featureState: Set<string>
+  globalState: Set<string>
+  strings: Set<string>
+  numbers: Set<number>
+}
+
+function collect(value: unknown, found: Found): void {
+  if (Array.isArray(value)) {
+    const [head, name] = value
+    if (typeof name === "string") {
+      if ((head === "get" || head === "has") && value.length === 2)
+        found.properties.add(name)
+      else if (head === "feature-state")
+        found.featureState.add(name)
+      else if (head === "global-state")
+        found.globalState.add(name)
+    }
+    value.forEach((item, i) => {
+      if (i > 0 || typeof item !== "string")
+        collect(item, found)
+    })
+  }
+  else if (typeof value === "string") {
+    found.strings.add(value)
+  }
+  else if (typeof value === "number" && Number.isFinite(value)) {
+    found.numbers.add(value)
+  }
+  else if (value !== null && typeof value === "object") {
+    for (const item of Object.values(value)) collect(item, found)
+  }
+}
+
+/** A small seeded PRNG, so generated cases are reproducible. */
+function mulberry32(seed: number): () => number {
+  let state = seed >>> 0
+  return () => {
+    state = (state + 0x6D2B79F5) >>> 0
+    let t = state
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }

@@ -85,6 +85,24 @@ validate(["+", 1, ["upcase", "x"]]) // { valid: false, errors: ["[2]: Expected n
 validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
 ```
 
+### Checking a rewrite
+
+When refactoring or migrating a style, the JSON can change while the behavior should stay the same. `assertEquivalent` evaluates two expressions on hundreds of generated cases and throws with a counterexample if they ever differ:
+
+```ts
+import { assertEquivalent } from "@builtbyfield/maplibre-expr/testing"
+
+assertEquivalent(legacyFilter, rewrittenFilter)
+// Error: Expressions differ after 12 case(s).
+//   case:   {"properties":{"n":5},...}
+//   first:  false
+//   second: true
+```
+
+Cases are generated from the expressions themselves: every property and state they read is set to one of the literals they compare against, a number just either side of one, a generic edge value (`-1`, `0.5`, `1234.5`, `""`, booleans), or left missing. That's what catches boundary bugs like `gt` versus `gte`. Use `checkEquivalent` for the result instead of a throw, and `samples`, `seed`, `values`, `zooms` and `geometries` to tune the cases.
+
+### Validating against a property
+
 Pass `property` (any layer property name, or `"filter"`) to check an expression where it will be used. That runs MapLibre's own style validator, which also catches data expressions in properties that don't support them, `zoom` outside a top-level ramp, and `feature-state` in filters and layout properties.
 
 `/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
@@ -134,7 +152,7 @@ place.getOr("rank", 0) // the property, or 0 if missing or not a number
 gt(get("ends_at"), app.get("nwo")) // compile error
 ```
 
-The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", ...]` and `["global-state", ...]` arrays as the untyped functions. Declare the type a property has _when present_; a missing property is still `null` at runtime.
+The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", ...]` and `["global-state", ...]` arrays as the untyped functions. Values are typed as the property's type _when present_: `null` and `undefined` in the declared type are dropped, so a schema type where every field is nullable (e.g. inferred from zod) works as is. A missing property is still `null` at runtime; use `getOr` or `coalesce` for that.
 
 Some mistakes are caught when the expression is built:
 
