@@ -20,12 +20,23 @@ import type {
 
 import type { Geometry, Position } from "geojson"
 
-import type { Color as ColorValue, ExprLike, Formatted as FormattedValue, ResolvedImage as ResolvedImageValue } from "./expr"
+import type { Color as ColorValue, ExprLike, Formatted as FormattedValue, Projection as ProjectionValue, ResolvedImage as ResolvedImageValue } from "./expr"
 
-import { Color, createExpression, createPropertyExpression, Formatted, Padding, ResolvedImage } from "@maplibre/maplibre-gl-style-spec"
+import { Color, ColorArray, createExpression, createPropertyExpression, Formatted, NumberArray, Padding, ProjectionDefinition, ResolvedImage } from "@maplibre/maplibre-gl-style-spec"
 
 /** The value type MapLibre should parse the expression as. */
-export type ExpectedType = "number" | "string" | "boolean" | "color" | "formatted" | "resolvedImage" | "padding" | "array"
+export type ExpectedType
+  = | "number"
+    | "string"
+    | "boolean"
+    | "color"
+    | "colorArray"
+    | "numberArray"
+    | "formatted"
+    | "resolvedImage"
+    | "padding"
+    | "projectionDefinition"
+    | "array"
 
 /** The feature and map state to evaluate against. All fields are optional. */
 export interface EvaluateOptions {
@@ -58,8 +69,9 @@ export interface EvaluateOptions {
    * Parse the expression as producing this type, the way a style property
    * of that type would. Needed when the type is ambiguous, e.g. `"#f00"` is
    * a string unless parsed as a `"color"`. If omitted and the expression
-   * fails to parse, `"color"` is tried before giving up, since color ramps
-   * are the common case.
+   * fails to parse, `"color"`, `"projectionDefinition"` and `"colorArray"`
+   * are tried in turn before giving up, since ramps of those are the common
+   * ambiguous cases.
    */
   type?: ExpectedType
 }
@@ -74,17 +86,26 @@ export interface EvaluatedSection {
   verticalAlign: "bottom" | "center" | "top" | null
 }
 
+/** An evaluated projection: a blend between two projections. */
+export interface EvaluatedProjection {
+  from: string
+  to: string
+  /** 0 is fully `from`, 1 is fully `to`. */
+  transition: number
+}
+
 /**
  * What an expression producing `T` evaluates to in JavaScript. Colors become
  * `"rgba(r,g,b,a)"` strings, images their names, formatted text a list of
- * sections.
+ * sections, projections `{ from, to, transition }`.
  */
 export type Evaluated<T>
   = T extends ColorValue ? string
-    : T extends ResolvedImageValue ? string
-      : T extends FormattedValue ? EvaluatedSection[]
-        : T extends readonly (infer U)[] ? Evaluated<U>[]
-          : T
+    : T extends ProjectionValue ? EvaluatedProjection
+      : T extends ResolvedImageValue ? string
+        : T extends FormattedValue ? EvaluatedSection[]
+          : T extends readonly (infer U)[] ? Evaluated<U>[]
+            : T
 
 /** Thrown when an expression fails to parse or to evaluate. */
 export class ExpressionError extends Error {
@@ -188,9 +209,11 @@ function parse(expression: unknown, type: ExpectedType | undefined): Parsed {
   if (result.result === "success")
     return { ok: true, expression: result.value }
   if (type === undefined) {
-    const asColor = createExpression(expression, "expression", propertySpec("color"))
-    if (asColor.result === "success")
-      return { ok: true, expression: asColor.value }
+    for (const fallback of ["color", "projectionDefinition", "colorArray"] as const) {
+      const retried = createExpression(expression, "expression", propertySpec(fallback))
+      if (retried.result === "success")
+        return { ok: true, expression: retried.value }
+    }
   }
   return { ok: false, errors: result.value.map(formatError) }
 }
@@ -213,8 +236,12 @@ function toPlain(value: unknown): unknown {
     return value.toString()
   if (value instanceof ResolvedImage)
     return value.name
-  if (value instanceof Padding)
+  if (value instanceof Padding || value instanceof NumberArray)
     return value.values
+  if (value instanceof ColorArray)
+    return value.values.map(color => color.toString())
+  if (value instanceof ProjectionDefinition)
+    return { from: value.from, to: value.to, transition: value.transition }
   if (value instanceof Formatted) {
     return value.sections.map(section => ({
       text: section.text,

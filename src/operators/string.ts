@@ -50,8 +50,9 @@ export function resolvedLocale(collator: ExprLike<Collator>): Expr<string> {
 }
 
 /**
- * Splits a string into an array of strings. MapLibre `split`
- * (style-spec v24.6+).
+ * Splits a string into an array of strings. MapLibre `split`.
+ *
+ * Requires MapLibre GL JS 5.20+.
  *
  * @example at(0, split(get("name"), " ")) // first word
  * @see https://maplibre.org/maplibre-style-spec/expressions/#split
@@ -61,7 +62,9 @@ export function split(input: StringInput, separator: StringInput): Expr<readonly
 }
 
 /**
- * Joins an array into a string. MapLibre `join` (style-spec v24.6+).
+ * Joins an array into a string. MapLibre `join`.
+ *
+ * Requires MapLibre GL JS 5.20+.
  *
  * @example join(get("tags"), ", ")
  * @see https://maplibre.org/maplibre-style-spec/expressions/#join

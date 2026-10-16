@@ -36,6 +36,15 @@ export interface Formatted { readonly [kind]: "formatted" }
 export interface ResolvedImage { readonly [kind]: "resolved-image" }
 /** A locale-aware string comparator. Produced by `collator`. */
 export interface Collator { readonly [kind]: "collator" }
+/** Evaluates to a map projection (or a blend of two). Produced by projection ramps. */
+export interface Projection { readonly [kind]: "projection" }
+
+/** A projection usable as a ramp output. */
+export type ProjectionName = "mercator" | "vertical-perspective"
+/** A projection name, or an expression producing a projection. */
+export type ProjectionInput = ProjectionName | ExprLike<Projection>
+/** An expression producing an array of colors, e.g. `literal(["#000", "#fff"])`. */
+export type ColorArrayInput = ExprLike<readonly (Color | string)[]>
 
 /** A number or numeric expression. */
 export type NumberInput = Input<number>

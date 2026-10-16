@@ -27,7 +27,7 @@ MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]
 npm install @builtbyfield/maplibre-expr
 ```
 
-Requires `@maplibre/maplibre-gl-style-spec` v26+ as a peer (maplibre-gl 6 already depends on it) and TypeScript 5.4+ if you use TypeScript. ESM only.
+Requires `@maplibre/maplibre-gl-style-spec` v26.3+ as a peer (maplibre-gl 6 already depends on it) and TypeScript 5.4+ if you use TypeScript. ESM only.
 
 ## Usage
 
@@ -90,6 +90,19 @@ Some mistakes are caught when the expression is built:
 - **Where an expression is allowed.** For example, `zoom()` must be the input of a top-level `interpolate`/`step`; `validate(expr, { type })` (below) catches that. `featureState` isn't allowed in filters or layout properties; only MapLibre's full style validation catches that.
 
 The `Expr` type is deliberately opaque: statically it presents as a single member of the spec union, which keeps type-checking fast. Use `toSpec(expr)` if you need to inspect the array.
+
+## Platform support
+
+The builders emit standard style-spec JSON, so they work wherever MapLibre styles do. A few operators need a recent renderer:
+
+- **MapLibre GL JS:**
+  - `semiliteral` needs 6.6+;
+  - `split`, `join` and the `unit` option of `numberFormat` need 5.20+;
+  - `globalState` and `elevation` need 5.6+;
+  - `distance` needs 4.2+.
+- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe and `mixColors` in HCL/Lab. Several of the linked tracking issues are closed, so check your Native version.
+
+Each of these functions' docs carries the same note, with a link to the tracking issue.
 
 ## Testing expressions
 

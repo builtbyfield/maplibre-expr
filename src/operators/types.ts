@@ -31,7 +31,11 @@ export function literal<const T extends readonly JsonValue[] | { readonly [key: 
 
 /**
  * Like {@link literal} for arrays, but elements may be expressions; they are
- * evaluated. MapLibre `semiliteral` (style-spec v26.3+).
+ * evaluated. MapLibre `semiliteral`.
+ *
+ * Requires MapLibre GL JS 6.6+. The style spec lists it as not yet supported
+ * in MapLibre Native; see
+ * https://github.com/maplibre/maplibre-native/issues/4401.
  *
  * @example semiliteral([get("x"), get("y")]) // ["semiliteral", [["get", "x"], ["get", "y"]]]
  * @see https://maplibre.org/maplibre-style-spec/expressions/#semiliteral
@@ -210,7 +214,14 @@ export type NumberFormatOptions = {
   "max-fraction-digits"?: NumberInput
 } & (
   | { /** ISO 4217 currency code, e.g. `"EUR"`. */ currency?: StringInput, unit?: never }
-  | { /** CLDR/ECMA-402 unit, e.g. `"kilometer"`. */ unit?: StringInput, currency?: never }
+  | {
+    /**
+     * CLDR/ECMA-402 unit, e.g. `"kilometer"`. Requires MapLibre GL JS 5.20+;
+     * not yet in MapLibre Native (https://github.com/maplibre/maplibre-native/issues/4071).
+     */
+    unit?: StringInput
+    currency?: never
+  }
 )
 
 /**
@@ -262,6 +273,10 @@ export function toBoolean(value: AnyInput): Expr<boolean> {
  * Converts to a color, trying each input in turn (CSS color strings or
  * `[r, g, b]`/`[r, g, b, a]` arrays). Evaluation fails if none convert.
  * MapLibre `to-color`.
+ *
+ * MapLibre reads `[r, g, b, a]` arrays as premultiplied: for a translucent
+ * color, multiply r, g and b by a first (`[127.5, 0, 0, 0.5]` is
+ * half-transparent red).
  *
  * @example toColor(get("color"), "#888")
  * @see https://maplibre.org/maplibre-style-spec/expressions/#to-color

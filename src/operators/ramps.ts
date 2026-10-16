@@ -1,4 +1,4 @@
-import type { Color, ColorInput, Expr, ExprLike, Input, NumberInput } from "../expr"
+import type { Color, ColorArrayInput, ColorInput, Expr, ExprLike, Input, NumberInput, Projection, ProjectionInput } from "../expr"
 
 import { op } from "../internal"
 
@@ -42,8 +42,8 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): Int
 }
 
 /**
- * Smoothly interpolates between stops. Outputs may be numbers, colors, or
- * arrays of either. MapLibre `interpolate`.
+ * Smoothly interpolates between stops. Outputs may be numbers, colors,
+ * arrays of either, or projections. MapLibre `interpolate`.
  *
  * Throws if stop inputs aren't in strictly ascending order.
  *
@@ -53,12 +53,16 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): Int
  * @example
  * // Color by population density
  * interpolate(linear(), get("density"), [[0, "#ffffcc"], [500, "#fd8d3c"], [2000, "#800026"]])
+ * @example
+ * // Globe at low zoom, flat map from zoom 12 (for `projection.type`)
+ * interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])
  * @see https://maplibre.org/maplibre-style-spec/expressions/#interpolate
  */
 export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<NumberInput>): Expr<number>
+export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<ProjectionInput>): Expr<Projection>
 export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<ColorInput>): Expr<Color>
 export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<ExprLike<readonly number[]>>): Expr<readonly number[]>
-export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<ExprLike<readonly Color[]>>): Expr<readonly Color[]>
+export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<ColorArrayInput>): Expr<readonly Color[]>
 export function interpolate(type: Interpolation, input: NumberInput, stops: Stops<unknown>): Expr<unknown> {
   return op("interpolate", type, input, ...flattenStops("interpolate", stops))
 }
@@ -68,10 +72,15 @@ export function interpolate(type: Interpolation, input: NumberInput, stops: Stop
  * which avoids muddy midpoints between saturated hues.
  * MapLibre `interpolate-hcl`.
  *
+ * The style spec lists it as not yet supported in MapLibre Native; see
+ * https://github.com/maplibre/maplibre-native/issues/2784.
+ *
  * @example interpolateHcl(linear(), get("temp"), [[-10, "blue"], [35, "red"]])
  * @see https://maplibre.org/maplibre-style-spec/expressions/#interpolate-hcl
  */
-export function interpolateHcl(type: Interpolation, input: NumberInput, stops: Stops<ColorInput>): Expr<Color> {
+export function interpolateHcl(type: Interpolation, input: NumberInput, stops: Stops<ColorInput>): Expr<Color>
+export function interpolateHcl(type: Interpolation, input: NumberInput, stops: Stops<ColorArrayInput>): Expr<readonly Color[]>
+export function interpolateHcl(type: Interpolation, input: NumberInput, stops: Stops<unknown>): Expr<unknown> {
   return op("interpolate-hcl", type, input, ...flattenStops("interpolateHcl", stops))
 }
 
@@ -80,10 +89,15 @@ export function interpolateHcl(type: Interpolation, input: NumberInput, stops: S
  * space, which keeps perceived lightness changes even.
  * MapLibre `interpolate-lab`.
  *
+ * The style spec lists it as not yet supported in MapLibre Native; see
+ * https://github.com/maplibre/maplibre-native/issues/2784.
+ *
  * @example interpolateLab(linear(), get("score"), [[0, "#fff"], [100, "#08306b"]])
  * @see https://maplibre.org/maplibre-style-spec/expressions/#interpolate-lab
  */
-export function interpolateLab(type: Interpolation, input: NumberInput, stops: Stops<ColorInput>): Expr<Color> {
+export function interpolateLab(type: Interpolation, input: NumberInput, stops: Stops<ColorInput>): Expr<Color>
+export function interpolateLab(type: Interpolation, input: NumberInput, stops: Stops<ColorArrayInput>): Expr<readonly Color[]>
+export function interpolateLab(type: Interpolation, input: NumberInput, stops: Stops<unknown>): Expr<unknown> {
   return op("interpolate-lab", type, input, ...flattenStops("interpolateLab", stops))
 }
 

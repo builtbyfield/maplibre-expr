@@ -59,7 +59,7 @@
     "release": "changeset publish"
   },
   "peerDependencies": {
-    "@maplibre/maplibre-gl-style-spec": ">=26.0.0"
+    "@maplibre/maplibre-gl-style-spec": ">=26.3.0"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

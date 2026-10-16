@@ -2,10 +2,11 @@ import type {
   CircleLayerSpecification,
   ExpressionSpecification,
   FilterSpecification,
+  ProjectionSpecification,
   SymbolLayerSpecification,
 } from "@maplibre/maplibre-gl-style-spec"
 
-import type { Color, Expr, Formatted } from "../src"
+import type { Color, Expr, Formatted, Projection } from "../src"
 
 import { describe, expectTypeOf, it } from "vitest"
 
@@ -55,6 +56,9 @@ describe("output types", () => {
     expectTypeOf(step(zoom(), "a", [[5, "b"]])).toEqualTypeOf<Expr<string>>()
     expectTypeOf(byZoom([[0, 1], [10, 2]])).toEqualTypeOf<Expr<number>>()
     expectTypeOf(byZoom([[0, "#000"], [10, "#fff"]])).toEqualTypeOf<Expr<Color>>()
+    expectTypeOf(interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])).toEqualTypeOf<Expr<Projection>>()
+    expectTypeOf(byZoom([[10, "vertical-perspective"], [12, "mercator"]], linear())).toEqualTypeOf<Expr<Projection>>()
+    expectTypeOf(interpolate(linear(), zoom(), [[0, literal(["#000"])], [10, literal(["#fff"])]])).toEqualTypeOf<Expr<readonly Color[]>>()
   })
 
   it("infers branch outputs", () => {
@@ -80,6 +84,8 @@ describe("output types", () => {
     expectTypeOf(evaluate(add(1, 2))).toEqualTypeOf<number>()
     expectTypeOf(evaluate(rgb(1, 2, 3))).toEqualTypeOf<string>()
     expectTypeOf(evaluate(split("a", ","))).toEqualTypeOf<string[]>()
+    expectTypeOf(evaluate(interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])))
+      .toEqualTypeOf<{ from: string, to: string, transition: number }>()
   })
 })
 
@@ -148,6 +154,8 @@ describe("interoperates with MapLibre types", () => {
       source: "s",
       layout: { "text-field": format([get("name"), { "font-scale": 1.2 }]) },
     }
+    const projection: ProjectionSpecification = { type: byZoom([[10, "vertical-perspective"], [12, "mercator"]], linear()) }
+    expectTypeOf(projection).toExtend<ProjectionSpecification>()
     expectTypeOf(circle).toExtend<CircleLayerSpecification>()
     expectTypeOf(symbol).toExtend<SymbolLayerSpecification>()
   })

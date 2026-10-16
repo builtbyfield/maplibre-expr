@@ -203,6 +203,11 @@ export function floor(input: NumberInput): Expr<number> {
  * and MultiPolygon (and Features / FeatureCollections of them).
  * MapLibre `distance`.
  *
+ * MapLibre measures a MultiLineString feature as one line with its parts
+ * joined end to start, so the result can be smaller than the true distance.
+ *
+ * Requires MapLibre GL JS 4.2+.
+ *
  * @example lt(distance({ type: "Point", coordinates: [-73.98, 40.75] }), 1000)
  * @see https://maplibre.org/maplibre-style-spec/expressions/#distance
  */

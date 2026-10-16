@@ -96,6 +96,10 @@ export function length(input: StringInput | ArrayInput): Expr<number> {
  * Untyped by default, like {@link get}; pin the type with
  * `globalState<number>("threshold")`.
  *
+ * Requires MapLibre GL JS 5.6+. The style spec lists it as not yet supported
+ * in MapLibre Native; see
+ * https://github.com/maplibre/maplibre-native/issues/3302.
+ *
  * @example gt(get("population"), globalState("minPopulation"))
  * @see https://maplibre.org/maplibre-style-spec/expressions/#global-state
  */

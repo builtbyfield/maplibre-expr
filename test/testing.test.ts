@@ -2,7 +2,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 import { describe, expect, it } from "vitest"
 
-import { add, get, interpolate, linear, match, toSpec, zoom } from "../src"
+import { add, get, interpolate, linear, literal, match, toSpec, zoom } from "../src"
 import { evaluate, ExpressionError, validate } from "../src/testing"
 
 describe("validate", () => {
@@ -48,6 +48,11 @@ describe("evaluate", () => {
 
   it("retries as a color when the type is ambiguous", () => {
     expect(evaluate(interpolate(linear(), zoom(), [[0, "#000000"], [10, "#ffffff"]]), { zoom: 10 })).toBe("rgba(255,255,255,1)")
+  })
+
+  it("converts padding and number arrays", () => {
+    expect(evaluate(literal([1, 2]), { type: "padding" })).toEqual([1, 2, 1, 2])
+    expect(evaluate(literal([3, 4]), { type: "numberArray" })).toEqual([3, 4])
   })
 
   it("parses as the requested type", () => {
