@@ -3,15 +3,20 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>A month of earthquakes | maplibre-expr</title>
+    <title>maplibre-expr demo: typed MapLibre GL style expressions</title>
     <meta
       name="description"
-      content="A MapLibre map whose every filter, size and color is a typed expression built with @builtbyfield/maplibre-expr and tested with MapLibre's own engine."
+      content="A MapLibre GL JS map whose every filter, size and color is a typed TypeScript expression built with @builtbyfield/maplibre-expr and tested with MapLibre's own engine."
     />
-    <meta property="og:title" content="A month of earthquakes | maplibre-expr" />
+    <meta name="author" content="Built by Field" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf9f9" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#100f0f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="maplibre-expr" />
+    <meta property="og:title" content="maplibre-expr demo: typed MapLibre GL style expressions" />
     <meta
       property="og:description"
-      content="Typed MapLibre expressions, tested with MapLibre's own engine. 1,908 real earthquakes on an OpenFreeMap basemap."
+      content="Typed MapLibre expressions in TypeScript, tested with MapLibre's own engine. A month of real earthquakes on an OpenFreeMap globe."
     />
     <link
       rel="icon"
@@ -120,6 +125,7 @@
         display: none;
       }
       .title {
+        margin: 0;
         color: var(--ink-strong);
         font-size: 18px;
         line-height: 24px;
@@ -149,6 +155,14 @@
         flex-wrap: wrap;
         gap: 8px;
         margin-top: 4px;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
       }
       .credit {
         margin-top: 4px;
@@ -440,7 +454,7 @@
     <div id="map"></div>
     <details class="card about" id="about" open>
       <summary>
-        <span class="title">A month of earthquakes</span>
+        <h1 class="title">A month of earthquakes</h1>
         <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 13.17 16.95 8.22 18.36 9.64 12 16l-6.36-6.36 1.41-1.42z" />
         </svg>
@@ -465,7 +479,8 @@
         </div>
         <div class="credit">
           <a href="https://www.builtbyfield.com">
-            <svg viewBox="0 0 192 32" fill="currentColor" role="img" aria-label="Built by Field">
+            <span class="visually-hidden">Built by Field</span>
+            <svg viewBox="0 0 192 32" fill="currentColor" aria-hidden="true">
               <path
                 d="M15.0016 7.01441C12.6812 7.01441 9.59985 8.74553 7.138 14.2346L9.4208 1.07521H3.6352L0 23.8592C1.75845 24.9503 4.2911 25.6 6.9632 25.6C9.98697 25.6 12.7641 24.7556 14.9794 23.2781C17.7222 19.4779 18.6368 16.1357 18.6368 12.1948C18.6368 10.5414 18.461 9.34508 18.0386 7.93744C17.1947 7.33886 16.1618 7.01441 15.0016 7.01441ZM11.1117 20.9553C10.4437 21.2365 9.74034 21.3426 9.00157 21.3426C7.98187 21.3426 7.10267 21.1667 6.3639 20.8501C7.66464 15.8536 10.1618 12.476 12.1659 12.476C12.3417 12.476 12.5176 12.5113 12.6581 12.5467C12.6934 12.8633 12.6934 13.2152 12.6934 13.5671C12.6934 16.4168 12.1305 18.951 11.1108 20.9563L11.1117 20.9553Z"
               />
