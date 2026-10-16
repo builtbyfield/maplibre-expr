@@ -1,5 +1,11 @@
 # @builtbyfield/maplibre-expr
 
+## 0.3.1
+
+### Patch Changes
+
+- [#9](https://github.com/builtbyfield/maplibre-expr/pull/9) [`4f82280`](https://github.com/builtbyfield/maplibre-expr/commit/4f822802c1a90f09a5b8649bcc33d8593f308ca9) Thanks [@essejmclean](https://github.com/essejmclean)! - `evaluate` and `checkEquivalent` accept `properties`, `featureState` and `globalState` typed as interfaces (no index signature needed), so a feature's typed properties can be passed as is.
+
 ## 0.3.0
 
 ### Minor Changes
