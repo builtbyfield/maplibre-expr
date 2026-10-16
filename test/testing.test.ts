@@ -73,6 +73,16 @@ describe("evaluate", () => {
     expect(validate(true, { property: "filter" })).toEqual({ valid: true, errors: [] })
   })
 
+  it("doesn't retry other types when an explicit type fails", () => {
+    expect(() => evaluate(add(1, 2), { type: "color" })).toThrow(ExpressionError)
+  })
+
+  it("parses as a number array with type \"array\"", () => {
+    expect(evaluate(literal([1, 2]), { type: "array" })).toEqual([1, 2])
+    expect(validate(literal([1, 2]), { type: "array" }).valid).toBe(true)
+    expect(validate(literal(["a"]), { type: "array" }).valid).toBe(false)
+  })
+
   it("converts padding and number arrays", () => {
     expect(evaluate(literal([1, 2]), { type: "padding" })).toEqual([1, 2, 1, 2])
     expect(evaluate(literal([3, 4]), { type: "numberArray" })).toEqual([3, 4])
