@@ -86,6 +86,9 @@ try {
       const lib = require("@builtbyfield/maplibre-expr")
       const { evaluate } = require("@builtbyfield/maplibre-expr/testing")
       if (evaluate(lib.add(1, 2)) !== 3) throw new Error("require() of the package evaluated wrong")
+      for (const entry of ["@builtbyfield/maplibre-expr", "@builtbyfield/maplibre-expr/testing"]) {
+        if (!require.resolve(entry).endsWith(".cjs")) throw new Error(entry + " didn't resolve to the CommonJS build")
+      }
       console.log("  ok: require() works from CommonJS (Node " + process.versions.node + ")")
     `,
   })

@@ -31,7 +31,7 @@ const sections = [...packages].sort(([a], [b]) => a.localeCompare(b)).map(([name
 
 writeFileSync(join(root, "dist/THIRD_PARTY_NOTICES.md"), `# Third-party notices
 
-\`dist/testing.js\` bundles the following packages.
+\`dist/testing.js\` and \`dist/testing.cjs\` bundle the following packages.
 
 ${sections.join("\n\n")}
 `)

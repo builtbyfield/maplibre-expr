@@ -2,14 +2,14 @@ import { defineConfig } from "tsdown"
 
 export default defineConfig({
   entry: ["src/index.ts", "src/testing.ts"],
-  format: "esm",
+  format: ["esm", "cjs"],
   platform: "neutral",
   target: "es2022",
   dts: true,
   sourcemap: true,
   clean: true,
   publint: true,
-  attw: { profile: "esm-only" },
+  attw: true,
   // `/testing` ships its own copy of MapLibre's expression engine so it never
   // conflicts with the style-spec version an app (or maplibre-gl) uses.
   deps: { alwaysBundle: [/^@maplibre\/maplibre-gl-style-spec/] },

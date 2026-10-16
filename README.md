@@ -31,7 +31,7 @@ Also:
 npm install @builtbyfield/maplibre-expr
 ```
 
-No runtime dependencies, and it works with any maplibre-gl version, since the builders just emit style-spec JSON. TypeScript 5.4+ if you use TypeScript. ESM only.
+No runtime dependencies, and it works with any maplibre-gl version, since the builders just emit style-spec JSON. TypeScript 5.4+ if you use TypeScript. Ships ESM and CommonJS builds, so it also works in Jest without extra configuration.
 
 ## Usage
 
