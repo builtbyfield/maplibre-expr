@@ -30,6 +30,12 @@ try {
   if (out) {
     rmSync(out, { recursive: true, force: true })
     cpSync(join(app, "dist"), out, { recursive: true })
+    // The published demo's canonical URL, share image and structured data;
+    // kept out of the starter so copies of it don't point at our URL.
+    const index = join(out, "index.html")
+    const head = readFileSync(join(root, "scripts/demo/head.html"), "utf8")
+    writeFileSync(index, readFileSync(index, "utf8").replace("</head>", `${head}  </head>`))
+    cpSync(join(root, "scripts/demo/og.png"), join(out, "og.png"))
     console.log(`starter: built site copied to ${out}`)
   }
   console.log("\nstarter: typecheck, tests and build passed")

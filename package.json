@@ -21,10 +21,15 @@
   "keywords": [
     "maplibre",
     "maplibre-gl",
+    "maplibre-gl-js",
     "style-spec",
+    "style-expressions",
     "expressions",
     "typescript",
-    "typed"
+    "typed",
+    "maps",
+    "gis",
+    "vector-tiles"
   ],
   "sideEffects": false,
   "exports": {
