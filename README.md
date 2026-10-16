@@ -105,7 +105,7 @@ assertEquivalent(legacyFilter, rewrittenFilter)
 //   second: true
 ```
 
-Cases are generated from the expressions themselves: every property and state they read is set to one of the literals they compare against, a number just either side of one, a generic edge value (`-1`, `0.5`, `1234.5`, `""`, booleans), or left missing. That's what catches boundary bugs like `gt` versus `gte`. Use `checkEquivalent` for the result instead of a throw, and `samples`, `seed`, `values`, `zooms` and `geometries` to tune the cases.
+Cases are generated from the expressions themselves: every property and state they read is set to a literal it's compared against, matched to or used as a stop for, a number just either side of one, another literal from the expressions, a generic edge value (`-1`, `0.5`, `1234.5`, `""`, booleans), or left missing. That's what catches boundary bugs like `gt` versus `gte`. A failing case is shrunk to the properties and state that make the difference, so it's short enough to read. Use `checkEquivalent` for the result instead of a throw, and `samples`, `seed`, `values`, `zooms` and `geometries` to tune the cases.
 
 ### Validating against a property
 

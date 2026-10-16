@@ -1,9 +1,15 @@
+import type { LineString, Point } from "geojson"
+
+import type { Expr } from "../src"
+
 import { describe, expect, it } from "vitest"
 
 import {
+  all,
   any,
   byZoom,
   case_,
+  distance,
   eq,
   exponential,
   featureState,
@@ -14,6 +20,7 @@ import {
   ifFeatureState,
   isOneOf,
   linear,
+  lt,
   lte,
   not,
   numberFormat,
@@ -34,9 +41,50 @@ describe("checkEquivalent", () => {
     const result = checkEquivalent(gt(get("n"), 5), gte(get("n"), 5))
     expect(result.equivalent).toBe(false)
     if (!result.equivalent) {
-      expect(result.counterexample.properties).toEqual({ n: 5 })
+      // Only what the expressions read: no zoom, geometry or empty state.
+      expect(result.counterexample).toEqual({ properties: { n: 5 } })
       expect([result.a, result.b]).toEqual([false, true])
     }
+  })
+
+  it("finds a dropped match label even when the expression embeds geometry", () => {
+    const line: LineString = { type: "LineString", coordinates: Array.from({ length: 45 }, (_, i) => [-114.05 + i * 0.01, 51.04 + (i % 3) * 0.001]) }
+    const nearby: Point = { type: "Point", coordinates: [-113.9, 51.04] }
+    const classes = ["motorway", "trunk", "primary", "secondary", "tertiary", "minor", "service", "track", "path", "busway", "raceway", "rail"]
+    const roads = (list: string[]): Expr<boolean> => all(
+      isOneOf(get("class"), list),
+      not(eq(get("brunnel"), "tunnel")),
+      lt(distance(line), 2000),
+    )
+    const result = checkEquivalent(roads(classes), roads(classes.filter(c => c !== "trunk")), { geometries: [nearby] })
+    expect(result.equivalent).toBe(false)
+    if (!result.equivalent) {
+      // Shrunk to the properties that matter; coordinates and property names are never used as values.
+      expect(result.counterexample.properties).toEqual({ class: "trunk" })
+      expect(result.counterexample.geometry).toEqual(nearby)
+      expect(result.counterexample).not.toHaveProperty("zoom")
+    }
+  })
+
+  it("tries every value in a match label, including the first", () => {
+    expect(checkEquivalent(isOneOf(get("c"), ["a", "b"]), isOneOf(get("c"), ["b"])).equivalent).toBe(false)
+  })
+
+  it("still finds a difference behind many \"none of these\" branches", () => {
+    const flags = Array.from({ length: 12 }, (_, i) => eq(get(`flag${i}`), "on"))
+    expect(checkEquivalent(any(...flags, gt(get("n"), 5)), any(...flags, gte(get("n"), 5))).equivalent).toBe(false)
+  })
+
+  it("shrinks a counterexample to the properties that matter", () => {
+    // Twelve flags are read, but every branch gives the same answer, so only `n` matters.
+    const branches = (test: Expr<boolean>): Expr<boolean> => {
+      const [first, ...rest] = Array.from({ length: 12 }, (_, i) => [eq(get(`flag${i}`), "on"), test] as const)
+      return case_([first!, ...rest], test)
+    }
+    const result = checkEquivalent(branches(gt(get("n"), 5)), branches(gte(get("n"), 5)))
+    expect(result.equivalent).toBe(false)
+    if (!result.equivalent)
+      expect(result.counterexample).toEqual({ properties: { n: 5 } })
   })
 
   it("finds a ramp difference between stops", () => {

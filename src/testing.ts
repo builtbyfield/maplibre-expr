@@ -331,6 +331,9 @@ function toTileGeometry(geometry: Geometry): { x: number, y: number }[][] {
   }
 }
 
+type Source = "properties" | "featureState" | "globalState"
+const SOURCES = ["properties", "featureState", "globalState"] as const
+
 /** Options of {@link checkEquivalent} and {@link assertEquivalent}. */
 export interface EquivalenceOptions {
   /** How many random cases to try. Default `500`. */
@@ -360,11 +363,16 @@ export type EquivalenceResult
 
 /**
  * Checks that two expressions behave the same, by evaluating both on many
- * generated cases: every property, feature-state and global-state name they
- * read is set to one of the literals they compare against, a number just
- * either side of one, a few generic edge values (`-1`, `0.5`, `1234.5`, `""`,
- * booleans), or left missing. Useful when refactoring or
- * migrating a style: the JSON can change while the behavior stays the same.
+ * generated cases. Every property, feature-state and global-state name they
+ * read is set to a literal it's compared against (or matched, or used as a
+ * stop), a number just either side of one, another literal from the
+ * expressions, a generic edge value (`-1`, `0.5`, `1234.5`, `""`, booleans),
+ * or left missing. Coordinates inside `distance` and `within` are not used
+ * as values. Useful when refactoring or migrating a style: the JSON can
+ * change while the behavior stays the same.
+ *
+ * A counterexample is shrunk to the properties and state that matter, and
+ * leaves out zoom and geometry when neither expression reads them.
  *
  * Errors, `null` and `NaN` count as the same outcome, since MapLibre falls
  * back to the property's default for all three. Throws an
@@ -376,37 +384,82 @@ export function checkEquivalent(a: Input<unknown>, b: Input<unknown>, options: E
   const { samples = 500, seed = 1, type } = options
   const parsedA = parseOrThrow(a, type)
   const parsedB = parseOrThrow(b, type)
-  const found = { properties: new Set<string>(), featureState: new Set<string>(), globalState: new Set<string>(), strings: new Set<string>(), numbers: new Set<number>() }
+  const found: Found = { reads: { properties: new Map(), featureState: new Map(), globalState: new Map() }, dynamic: new Set(), strings: new Set(), numbers: new Set(), zoom: false, geometry: false }
   collect(a, found)
   collect(b, found)
 
-  const near = [...found.numbers].flatMap(n => [n, n - 1, n + 1, n - 0.001, n + 0.001])
   // Generic edge values too: negative, fractional and large numbers, and the empty string.
-  const values = [...new Set<unknown>([...found.strings, ...near, true, false, 0, 1, -1, 0.5, 1234.5, "", ...(options.values ?? [])])]
-  const zooms = options.zooms ?? [...new Set([0, 24, ...near.filter(n => n >= 0 && n <= 24)])]
+  const values = [...new Set<unknown>([...found.strings, ...near(found.numbers), true, false, 0, 1, -1, 0.5, 1234.5, "", ...(options.values ?? [])])]
+  const zooms = options.zooms ?? [...new Set([0, 24, ...near(found.numbers).filter(n => n >= 0 && n <= 24)])]
   const geometries = options.geometries ?? [{ type: "Point", coordinates: [0, 0] } as Geometry]
   const random = mulberry32(seed)
   const pick = <T>(list: readonly T[]): T => list[Math.floor(random() * list.length)]!
-  const fill = (names: Set<string>): Record<string, unknown> => {
+  const fill = (reads: Map<string, unknown[]>, focus: number): Record<string, unknown> => {
     const object: Record<string, unknown> = {}
-    for (const name of names) {
-      // About one in five is left missing.
+    for (const [name, choices] of reads) {
+      // About one in five is left missing; of the rest, a `focus` share use what the name is compared against.
       if (random() >= 0.2)
-        object[name] = pick(values)
+        object[name] = choices.length > 0 && random() < focus ? pick(choices) : pick(values)
     }
     return object
   }
-
-  for (let i = 0; i < samples; i++) {
-    const testCase: EquivalenceCase = i === 0
-      ? { properties: {}, featureState: {}, globalState: {}, zoom: pick(zooms), geometry: geometries[0]! }
-      : { properties: fill(found.properties), featureState: fill(found.featureState), globalState: fill(found.globalState), zoom: pick(zooms), geometry: pick(geometries) }
+  const sources = SOURCES.filter(source => found.reads[source].size > 0 || found.dynamic.has(source))
+  // Per name: the literals it's compared against, and numbers just either side of them.
+  const choices = Object.fromEntries(SOURCES.map(source => [source, new Map([...found.reads[source]].map(([name, compared]) => [name, [...new Set([...compared, ...near(compared)])]]))]))
+  const makeCase = (empty: boolean): EquivalenceCase => {
+    const testCase: EquivalenceCase = {}
+    // Varies per case: focused cases hit specific comparisons; unfocused ones (a third, picking
+    // from all values) leave most comparisons unmet, which is what "none of these" branches need.
+    const focus = random() < 1 / 3 ? 0 : random()
+    for (const source of sources)
+      testCase[source] = empty ? {} : fill(choices[source]!, focus)
+    if (found.zoom)
+      testCase.zoom = pick(zooms)
+    if (found.geometry)
+      testCase.geometry = empty ? geometries[0]! : pick(geometries)
+    return testCase
+  }
+  const differ = (testCase: EquivalenceCase): [unknown, unknown] | undefined => {
     const resultA = outcome(parsedA, testCase)
     const resultB = outcome(parsedB, testCase)
-    if (JSON.stringify(resultA) !== JSON.stringify(resultB))
-      return { equivalent: false, cases: i + 1, counterexample: testCase, a: resultA, b: resultB }
+    return JSON.stringify(resultA) === JSON.stringify(resultB) ? undefined : [resultA, resultB]
+  }
+
+  for (let i = 0; i < samples; i++) {
+    const testCase = makeCase(i === 0)
+    const difference = differ(testCase)
+    if (difference) {
+      const [counterexample, [resultA, resultB]] = shrink(testCase, difference, differ)
+      return { equivalent: false, cases: i + 1, counterexample, a: resultA, b: resultB }
+    }
   }
   return { equivalent: true, cases: samples }
+}
+
+/** Removes properties and state from a failing case, one at a time, while the two results still differ. */
+function shrink(testCase: EquivalenceCase, difference: [unknown, unknown], differ: (testCase: EquivalenceCase) => [unknown, unknown] | undefined): [EquivalenceCase, [unknown, unknown]] {
+  let smaller = true
+  while (smaller) {
+    smaller = false
+    for (const source of SOURCES) {
+      for (const name of Object.keys(testCase[source] ?? {})) {
+        const rest = Object.fromEntries(Object.entries(testCase[source]!).filter(([key]) => key !== name))
+        const candidate = { ...testCase, [source]: rest }
+        const still = differ(candidate)
+        if (still) {
+          testCase = candidate
+          difference = still
+          smaller = true
+        }
+      }
+    }
+  }
+  return [testCase, difference]
+}
+
+/** Each number among the values, and numbers just either side of it. */
+function near(values: Iterable<unknown>): number[] {
+  return [...values].filter(v => typeof v === "number").flatMap(n => [n, n - 1, n + 1, n - 0.001, n + 0.001])
 }
 
 /**
@@ -439,38 +492,117 @@ function outcome(expression: StyleExpression, options: EvaluateOptions): unknown
 }
 
 interface Found {
-  properties: Set<string>
-  featureState: Set<string>
-  globalState: Set<string>
+  /** Each name read, with the literals it's compared against. */
+  reads: Record<Source, Map<string, Set<unknown>>>
+  /** Sources read with a computed name, or as a whole (`properties`). */
+  dynamic: Set<Source>
   strings: Set<string>
   numbers: Set<number>
+  zoom: boolean
+  geometry: boolean
 }
 
+const ACCESSORS: Record<string, Source> = { "get": "properties", "has": "properties", "properties": "properties", "feature-state": "featureState", "global-state": "globalState" }
+const COMPARISONS = new Set(["==", "!=", "<", "<=", ">", ">="])
+
 function collect(value: unknown, found: Found): void {
-  if (Array.isArray(value)) {
-    const [head, name] = value
-    if (typeof name === "string") {
-      if ((head === "get" || head === "has") && value.length === 2)
-        found.properties.add(name)
-      else if (head === "feature-state")
-        found.featureState.add(name)
-      else if (head === "global-state")
-        found.globalState.add(name)
-    }
-    value.forEach((item, i) => {
-      if (i > 0 || typeof item !== "string")
+  if (!Array.isArray(value)) {
+    collectLiteral(value, found)
+    return
+  }
+  const [head, ...args] = value
+  if (typeof head !== "string") {
+    value.forEach(item => collect(item, found))
+    return
+  }
+  if (head === "literal") {
+    collectLiteral(args[0], found)
+    return
+  }
+  if (head === "zoom")
+    found.zoom = true
+  if (head === "geometry-type" || head === "distance" || head === "within") {
+    // The GeoJSON argument is a shape to measure against, not a value any property takes.
+    found.geometry = true
+    return
+  }
+  if (head === "var")
+    return
+  const source = ACCESSORS[head]
+  if (source) {
+    if (typeof args[0] === "string" && head !== "properties")
+      readsOf(found, source, args[0])
+    else
+      found.dynamic.add(source)
+    args.slice(typeof args[0] === "string" ? 1 : 0).forEach(item => collect(item, found))
+    return
+  }
+  if (head === "let") {
+    // ["let", name, value, name, value, ..., body]: the names aren't values.
+    args.forEach((item, i) => {
+      if (i % 2 === 1 || i === args.length - 1)
         collect(item, found)
     })
+    return
   }
-  else if (typeof value === "string") {
+  compared(head, args, found)
+  args.forEach(item => collect(item, found))
+}
+
+function collectLiteral(value: unknown, found: Found): void {
+  if (typeof value === "string")
     found.strings.add(value)
-  }
-  else if (typeof value === "number" && Number.isFinite(value)) {
+  else if (typeof value === "number" && Number.isFinite(value))
     found.numbers.add(value)
+  else if (value !== null && typeof value === "object")
+    Object.values(value).forEach(item => collectLiteral(item, found))
+}
+
+/** Records the literals each read is compared against, matched to, or used as a stop for. */
+function compared(head: string, args: unknown[], found: Found): void {
+  const pairs: [unknown, unknown[]][] = []
+  if (COMPARISONS.has(head))
+    pairs.push([args[0], literals(args[1])], [args[1], literals(args[0])])
+  else if (head === "in")
+    pairs.push([args[0], literals(args[1])])
+  else if (head === "match")
+    pairs.push([args[0], args.slice(1, -1).filter((_, i) => i % 2 === 0).flatMap(label => Array.isArray(label) && label[0] !== "literal" ? label : literals(label))])
+  else if (head === "step")
+    pairs.push([args[0], args.slice(2).filter((_, i) => i % 2 === 0).flatMap(literals)])
+  else if (head.startsWith("interpolate"))
+    pairs.push([args[1], args.slice(2).filter((_, i) => i % 2 === 0).flatMap(literals)])
+  for (const [input, values] of pairs) {
+    if (values.length === 0)
+      continue
+    for (const [source, name] of readsIn(input))
+      values.forEach(v => readsOf(found, source, name).add(v))
   }
-  else if (value !== null && typeof value === "object") {
-    for (const item of Object.values(value)) collect(item, found)
-  }
+}
+
+function readsOf(found: Found, source: Source, name: string): Set<unknown> {
+  const reads = found.reads[source]
+  if (!reads.has(name))
+    reads.set(name, new Set())
+  return reads.get(name)!
+}
+
+/** The literal values in an operand: a primitive, or a `literal` of one or of an array of them. */
+function literals(value: unknown): unknown[] {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean")
+    return [value]
+  if (Array.isArray(value) && value[0] === "literal")
+    return Array.isArray(value[1]) ? value[1].filter(v => v === null || typeof v !== "object") : literals(value[1])
+  return []
+}
+
+/** Every property and state name read inside an expression. */
+function readsIn(value: unknown): [Source, string][] {
+  if (!Array.isArray(value))
+    return []
+  const [head, name] = value
+  const source = typeof head === "string" ? ACCESSORS[head] : undefined
+  const own: [Source, string][] = source && typeof name === "string" && head !== "properties" ? [[source, name]] : []
+  return [...own, ...value.slice(1).flatMap(readsIn)]
 }
 
 /** A small seeded PRNG, so generated cases are reproducible. */
