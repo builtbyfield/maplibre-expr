@@ -291,6 +291,10 @@ function widthRamp(stops: Stops<NumberInput>): Expr<number> {
 
 Every operator is tested by evaluating it with MapLibre's engine, not by comparing array shapes. A test fails if the style spec gains an operator without a wrapper, and a weekly CI job runs the suite against the latest spec. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the code layout, the type design rules and how releases work.
 
+## About
+
+Built and maintained by [Built by Field](https://www.builtbyfield.com), a design and technology studio. We use it in the map-heavy apps we build, and fix what we find along the way. Need help with a MapLibre project? [Get in touch](https://www.builtbyfield.com/contact).
+
 ## License
 
-MIT. Built and maintained by [Built by Field](https://www.builtbyfield.com).
+MIT
