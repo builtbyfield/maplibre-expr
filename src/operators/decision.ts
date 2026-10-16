@@ -180,7 +180,9 @@ export function coalesce<T>(...inputs: [Input<T> | null, ...(Input<NoInfer<T>> |
 
 /**
  * `true` if the evaluated feature lies entirely inside the given Polygon or
- * MultiPolygon (or a LineString/Point inside it). MapLibre `within`.
+ * MultiPolygon (or a Feature/FeatureCollection of them). Only Point and
+ * LineString features (and their Multi* forms) are evaluated; touching the
+ * boundary counts as outside. MapLibre `within`.
  *
  * @example within({ type: "Polygon", coordinates: [[[0, 0], [0, 5], [5, 5], [5, 0], [0, 0]]] })
  * @see https://maplibre.org/maplibre-style-spec/expressions/#within

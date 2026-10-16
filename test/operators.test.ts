@@ -206,6 +206,69 @@ describe("decision", () => {
   })
 })
 
+describe("geometry", () => {
+  // A ~1.1 km square near the equator (counterclockwise, as RFC 7946 prescribes)
+  const square = { type: "Polygon" as const, coordinates: [[[0, 0], [0.01, 0], [0.01, 0.01], [0, 0.01], [0, 0]]] }
+  const squareWithHole = {
+    type: "Polygon" as const,
+    coordinates: [
+      [[0, 0], [0.01, 0], [0.01, 0.01], [0, 0.01], [0, 0]],
+      [[0.004, 0.004], [0.004, 0.006], [0.006, 0.006], [0.006, 0.004], [0.004, 0.004]],
+    ],
+  }
+
+  it("within: lines must lie entirely inside", () => {
+    const inside = { type: "LineString" as const, coordinates: [[0.002, 0.002], [0.008, 0.008]] }
+    const crossing = { type: "LineString" as const, coordinates: [[0.002, 0.002], [0.02, 0.008]] }
+    expect(evaluate(within(square), { geometry: inside })).toBe(true)
+    expect(evaluate(within(square), { geometry: crossing })).toBe(false)
+    expect(evaluate(within(square), { geometry: { type: "MultiLineString", coordinates: [inside.coordinates, crossing.coordinates] } })).toBe(false)
+  })
+
+  it("within: every point of a MultiPoint must be inside", () => {
+    expect(evaluate(within(square), { geometry: { type: "MultiPoint", coordinates: [[0.002, 0.002], [0.008, 0.008]] } })).toBe(true)
+    expect(evaluate(within(square), { geometry: { type: "MultiPoint", coordinates: [[0.002, 0.002], [0.02, 0.008]] } })).toBe(false)
+  })
+
+  it("within: the boundary and holes count as outside", () => {
+    expect(evaluate(within(square), { geometry: { type: "Point", coordinates: [0, 0.005] } })).toBe(false)
+    expect(evaluate(within(squareWithHole), { geometry: { type: "Point", coordinates: [0.005, 0.005] } })).toBe(false)
+    expect(evaluate(within(squareWithHole), { geometry: { type: "Point", coordinates: [0.002, 0.002] } })).toBe(true)
+  })
+
+  it("within: polygon features aren't evaluated", () => {
+    const small = { type: "Polygon" as const, coordinates: [[[0.002, 0.002], [0.003, 0.002], [0.003, 0.003], [0.002, 0.003], [0.002, 0.002]]] }
+    expect(evaluate(within(square), { geometry: small })).toBe(false)
+  })
+
+  it("distance from line and polygon features", () => {
+    const target = distance({ type: "Point", coordinates: [0.01, 0.005] })
+    // 0.01 degrees of longitude at the equator is ~1113 m
+    expect(evaluate(target, { geometry: { type: "LineString", coordinates: [[0, 0], [0, 0.01]] } })).toBeCloseTo(1113, -1)
+    expect(evaluate(target, { geometry: { type: "MultiLineString", coordinates: [[[0, 0], [0, 0.004]], [[0, 0.006], [0, 0.01]]] } })).toBeCloseTo(1113.4, -1)
+    // A point inside a polygon feature is at distance 0
+    expect(evaluate(distance({ type: "Point", coordinates: [0.005, 0.005] }), { geometry: square })).toBe(0)
+    expect(evaluate(distance({ type: "Point", coordinates: [0.005, 0.005] }), { geometry: { type: "MultiPolygon", coordinates: [square.coordinates] } })).toBe(0)
+  })
+
+  it("upstream quirk: MultiLineString features are measured as one connected line", () => {
+    // MapLibre flattens the parts, adding a segment from the end of one part to
+    // the start of the next. Here that segment passes through the target.
+    const parts = { type: "MultiLineString" as const, coordinates: [[[0, 0], [0, 0.01]], [[0.02, 0], [0.02, 0.01]]] }
+    expect(evaluate(distance({ type: "Point", coordinates: [0.01, 0.005] }), { geometry: parts })).toBeLessThan(1)
+  })
+
+  it("geometryType for each geometry", () => {
+    expect(evaluate(geometryType(), { geometry: { type: "MultiPoint", coordinates: [[0, 0], [1, 1]] } })).toBe("Point")
+    expect(evaluate(geometryType(), { geometry: { type: "LineString", coordinates: [[0, 0], [1, 1]] } })).toBe("LineString")
+    expect(evaluate(geometryType(), { geometry: square })).toBe("Polygon")
+  })
+
+  it("rejects GeometryCollection features", () => {
+    expect(() => evaluate(geometryType(), { geometry: { type: "GeometryCollection", geometries: [] } })).toThrow(TypeError)
+  })
+})
+
 describe("lookup", () => {
   it("get and has, on the feature and on objects", () => {
     const props = { properties: { name: "Oslo", address: { city: "Bergen" } } }
@@ -229,6 +292,11 @@ describe("lookup", () => {
     expect(evaluate(indexOf("a", list, 1))).toBe(-1)
     expect(evaluate(slice(list, 1))).toEqual(["b", "c"])
     expect(evaluate(length(list))).toBe(3)
+  })
+
+  it("numbers in arrays", () => {
+    expect(evaluate(in_(get("n"), literal([1, 2, 3])), { properties: { n: 2 } })).toBe(true)
+    expect(evaluate(indexOf(3, literal([1, 2, 3])))).toBe(2)
   })
 
   it("strings", () => {
@@ -290,6 +358,18 @@ describe("ramps", () => {
     expect(evaluate(interpolate(linear(), zoom(), [[0, literal([0, 0])], [10, literal([10, 20])]]), { zoom: 5 })).toEqual([5, 10])
   })
 
+  it("interpolate projections", () => {
+    const projection = interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])
+    expect(evaluate(projection, { zoom: 11 })).toEqual({ from: "vertical-perspective", to: "mercator", transition: 0.5 })
+    expect(evaluate(projection, { zoom: 11, type: "projectionDefinition" })).toEqual({ from: "vertical-perspective", to: "mercator", transition: 0.5 })
+  })
+
+  it("interpolate color arrays", () => {
+    const colors = interpolate(linear(), zoom(), [[0, literal(["#000000", "#ff0000"])], [10, literal(["#ffffff", "#0000ff"])]])
+    expect(evaluate(colors, { zoom: 5 })).toEqual(["rgba(128,128,128,1)", "rgba(128,0,128,1)"])
+    expect(evaluate(interpolateHcl(linear(), zoom(), [[0, literal(["#ff0000"])], [10, literal(["#0000ff"])]]), { zoom: 5, type: "colorArray" })).toHaveLength(1)
+  })
+
   it("hcl and lab color spaces", () => {
     const stops = [[0, "#ff0000"], [1, "#0000ff"]] as const
     expect(evaluate(interpolateHcl(linear(), 0.5, stops))).toMatch(/^rgba\(/)
@@ -347,11 +427,19 @@ describe("types", () => {
     expect(evaluate(toBoolean(""))).toBe(false)
     expect(evaluate(toBoolean("x"))).toBe(true)
     expect(evaluate(toColor(get("c"), "#000"), { properties: { c: "not a color" } })).toBe("rgba(0,0,0,1)")
+    expect(evaluate(toColor(literal([255, 0, 0])))).toBe("rgba(255,0,0,1)")
+    expect(evaluate(toColor(literal([0, 128, 0, 1])))).toBe("rgba(0,128,0,1)")
+  })
+
+  it("upstream quirk: toColor reads [r, g, b, a] arrays as premultiplied", () => {
+    expect(evaluate(toColor(literal([255, 0, 0, 0.5])))).toBe("rgba(510,0,0,0.5)")
+    expect(evaluate(toColor(literal([127.5, 0, 0, 0.5])))).toBe("rgba(255,0,0,0.5)")
   })
 
   it("numberFormat with currency and unit", () => {
     expect(evaluate(numberFormat(1234.5, { locale: "en-US", currency: "USD" }))).toBe("$1,234.50")
     expect(evaluate(numberFormat(12.34, { "locale": "en-US", "unit": "kilometer", "max-fraction-digits": 1 }))).toBe("12.3 km")
+    expect(evaluate(numberFormat(5, { "locale": "en-US", "min-fraction-digits": 2 }))).toBe("5.00")
   })
 
   it("format with overrides, wrapping plain font stacks in literal", () => {

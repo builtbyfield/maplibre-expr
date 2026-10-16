@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs"
+import { readdirSync, readFileSync } from "node:fs"
 import { createRequire } from "node:module"
+import process from "node:process"
 
 import { describe, expect, it } from "vitest"
 
@@ -100,7 +101,7 @@ const WRAPPERS: Record<string, keyof typeof lib> = {
 
 // The runtime `latest` export strips expression docs; the JSON file keeps them.
 const spec = createRequire(import.meta.url)("@maplibre/maplibre-gl-style-spec/dist/latest.json") as {
-  expression_name: { values: Record<string, unknown> }
+  expression_name: { values: Record<string, { "sdk-support"?: Record<string, Record<string, string>> }> }
 }
 const specOperators = Object.keys(spec.expression_name.values).sort()
 
@@ -123,6 +124,26 @@ describe("spec coverage", () => {
   it("keeps the internal operator-name list in sync with the spec", () => {
     expect([...OPERATOR_NAMES].sort()).toEqual(specOperators)
   })
+  // The notes follow the newest spec's support table; the oldest-supported-spec CI job skips this.
+  it.skipIf(process.env.MIN_SPEC)("notes GL JS minimums and MapLibre Native gaps from the spec's support table", () => {
+    const sources = readdirSync(new URL("../src/operators", import.meta.url))
+      .map(file => readFileSync(new URL(`../src/operators/${file}`, import.meta.url), "utf8"))
+      .join("\n")
+    const problems: string[] = []
+    for (const [op, fn] of Object.entries(WRAPPERS)) {
+      const doc = sources.match(new RegExp(`/\\*\\*((?:(?!\\*/)[\\s\\S])*)\\*/\\nexport function ${fn.replace("$", "\\$")}\\b`))?.[1]?.replace(/[\t\v\f\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]*\n\s*\* ?/g, " ") ?? ""
+      const support = spec.expression_name.values[op]?.["sdk-support"]?.["basic functionality"] ?? {}
+      const js = /^(\d+)\.(\d+)/.exec(support.js ?? "")
+      const needsJs = js && Number(js[1]) >= 4 ? `Requires MapLibre GL JS ${js[1]}.${js[2]}+.` : undefined
+      const nativeIssue = support.android?.startsWith("http") ? support.android : undefined
+      if (needsJs ? !doc.includes(needsJs) : doc.includes("Requires MapLibre GL JS"))
+        problems.push(`${fn}: expected ${needsJs ?? "no GL JS version note"}`)
+      if (nativeIssue ? !doc.includes(nativeIssue) : doc.includes("MapLibre Native"))
+        problems.push(`${fn}: expected ${nativeIssue ? `a Native note linking ${nativeIssue}` : "no Native note"}`)
+    }
+    expect(problems).toEqual([])
+  })
+
   it("lists every operator in the README table", () => {
     const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8")
     const table = readme.slice(readme.indexOf("## Operators"), readme.indexOf("## Development"))

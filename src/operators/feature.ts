@@ -20,6 +20,9 @@ export function properties(): Expr<Record<string, unknown>> {
  * Untyped by default, like {@link get}; pin the type with
  * `featureState<boolean>("hover")`.
  *
+ * The style spec lists it as not yet supported in MapLibre Native; see
+ * https://github.com/maplibre/maplibre-native/issues/1698.
+ *
  * @example case_([[boolean(featureState("hover"), false), "#f00"]], "#888")
  * @see https://maplibre.org/maplibre-style-spec/expressions/#feature-state
  */
@@ -96,6 +99,8 @@ export function heatmapDensity(): Expr<number> {
 /**
  * Terrain elevation in meters at the current pixel. Only allowed in
  * `color-relief-color`. MapLibre `elevation`.
+ *
+ * Requires MapLibre GL JS 5.6+.
  *
  * @example interpolate(linear(), elevation(), [[0, "#0a0"], [3000, "#fff"]])
  * @see https://maplibre.org/maplibre-style-spec/expressions/#elevation

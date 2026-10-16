@@ -1,4 +1,4 @@
-import type { Color, ColorInput, Expr, Input, NumberInput, StringInput } from "./expr"
+import type { Color, ColorInput, Expr, Input, NumberInput, Projection, ProjectionInput, StringInput } from "./expr"
 import type { Interpolation, Stops } from "./operators/ramps"
 
 import { op } from "./internal"
@@ -24,10 +24,14 @@ import { let_ } from "./operators/variables"
  * byZoom([[10, 1], [18, 8]])
  * @example
  * byZoom([[5, "#ccc"], [12, "#333"]], linear())
+ * @example
+ * // projection.type: globe when zoomed out, flat from zoom 12
+ * byZoom([[10, "vertical-perspective"], [12, "mercator"]], linear())
  */
 export function byZoom(stops: Stops<NumberInput>, curve?: Interpolation): Expr<number>
+export function byZoom(stops: Stops<ProjectionInput>, curve?: Interpolation): Expr<Projection>
 export function byZoom(stops: Stops<ColorInput>, curve?: Interpolation): Expr<Color>
-export function byZoom(stops: Stops<NumberInput> | Stops<ColorInput>, curve: Interpolation = exponential(1.5)): Expr<number | Color> {
+export function byZoom(stops: Stops<NumberInput> | Stops<ProjectionInput> | Stops<ColorInput>, curve: Interpolation = exponential(1.5)): Expr<number | Projection | Color> {
   return interpolate(curve, zoom(), stops as Stops<NumberInput>)
 }
 
@@ -56,6 +60,9 @@ export function metersToPixels(meters: NumberInput, latitude: NumberInput): Expr
 /**
  * Picks a value by a boolean feature state, treating an unset state as
  * `false`. The usual hover/selected pattern.
+ *
+ * Uses `feature-state`, which the style spec lists as not yet supported in
+ * MapLibre Native; see https://github.com/maplibre/maplibre-native/issues/1698.
  *
  * @example "fill-color": ifFeatureState("hover", "#f80", "#888")
  * @example "line-width": ifFeatureState("selected", 4, 1)
@@ -158,7 +165,9 @@ export function withAlpha(color: ColorInput, alpha: NumberInput): Expr<Color> {
 
 /**
  * Blends two colors: `ratio` 0 gives `from`, 1 gives `to`. Blends in RGB by
- * default; `"hcl"` or `"lab"` give perceptually smoother mixes.
+ * default; `"hcl"` or `"lab"` give perceptually smoother mixes. The style
+ * spec lists HCL and Lab as not yet supported in MapLibre Native; see
+ * https://github.com/maplibre/maplibre-native/issues/2784.
  *
  * @example mixColors("#fff", get("color"), 0.25) // a tint of the feature's color
  */
