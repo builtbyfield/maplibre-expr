@@ -1,6 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs"
 import { createRequire } from "node:module"
-import process from "node:process"
 
 import { describe, expect, it } from "vitest"
 
@@ -100,7 +99,7 @@ const WRAPPERS: Record<string, keyof typeof lib> = {
 }
 
 // The runtime `latest` export strips expression docs; the JSON file keeps them.
-const spec = createRequire(import.meta.url)("@maplibre/maplibre-gl-style-spec/dist/latest.json") as {
+const spec = createRequire(import.meta.url)("@maplibre/maplibre-gl-style-spec/dist/latest.json") as Record<string, unknown> & {
   expression_name: { values: Record<string, { "sdk-support"?: Record<string, Record<string, string>> }> }
 }
 const specOperators = Object.keys(spec.expression_name.values).sort()
@@ -124,8 +123,7 @@ describe("spec coverage", () => {
   it("keeps the internal operator-name list in sync with the spec", () => {
     expect([...OPERATOR_NAMES].sort()).toEqual(specOperators)
   })
-  // The notes follow the newest spec's support table; the oldest-supported-spec CI job skips this.
-  it.skipIf(process.env.MIN_SPEC)("notes GL JS minimums and MapLibre Native gaps from the spec's support table", () => {
+  it("notes GL JS minimums and MapLibre Native gaps from the spec's support table", () => {
     const sources = readdirSync(new URL("../src/operators", import.meta.url))
       .map(file => readFileSync(new URL(`../src/operators/${file}`, import.meta.url), "utf8"))
       .join("\n")
@@ -142,6 +140,14 @@ describe("spec coverage", () => {
         problems.push(`${fn}: expected ${nativeIssue ? `a Native note linking ${nativeIssue}` : "no Native note"}`)
     }
     expect(problems).toEqual([])
+  })
+
+  it("keeps the generated style property names in sync with the spec", () => {
+    const source = readFileSync(new URL("../src/style-properties.ts", import.meta.url), "utf8")
+    const union = source.slice(source.indexOf("export type StylePropertyName"))
+    const listed = [...union.matchAll(/"([^"]+)"/g)].map(m => m[1]).sort()
+    const fromSpec = [...new Set(Object.entries(spec).filter(([key]) => /^(?:paint|layout)_/.test(key)).flatMap(([, props]) => Object.keys(props as object)))].sort()
+    expect(listed).toEqual(fromSpec)
   })
 
   it("lists every operator in the README table", () => {

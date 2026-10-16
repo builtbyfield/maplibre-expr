@@ -67,6 +67,12 @@ describe("evaluate", () => {
     expect(evaluate(interpolate(linear(), zoom(), [[0, "#000000"], [10, "#ffffff"]]), { zoom: 10 })).toBe("rgba(255,255,255,1)")
   })
 
+  it("accepts plain values as well as expressions", () => {
+    expect(evaluate(5)).toBe(5)
+    expect(evaluate("#f00", { type: "color" })).toBe("rgba(255,0,0,1)")
+    expect(validate(true, { property: "filter" })).toEqual({ valid: true, errors: [] })
+  })
+
   it("converts padding and number arrays", () => {
     expect(evaluate(literal([1, 2]), { type: "padding" })).toEqual([1, 2, 1, 2])
     expect(evaluate(literal([3, 4]), { type: "numberArray" })).toEqual([3, 4])

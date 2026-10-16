@@ -436,6 +436,9 @@ describe("types", () => {
   it("typeof_", () => {
     expect(evaluate(typeof_(get("n")), { properties: { n: 1 } })).toBe("number")
     expect(evaluate(typeof_(get("missing")))).toBe("null")
+    expect(evaluate(typeof_(get("a")), { properties: { a: [1, 2] } })).toBe("array<number, 2>")
+    expect(evaluate(typeof_(rgb(1, 2, 3)))).toBe("color")
+    expect(evaluate(typeof_(image("x")))).toBe("resolvedImage")
   })
 
   it("conversions", () => {

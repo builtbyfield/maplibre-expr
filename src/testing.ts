@@ -11,8 +11,6 @@
  * @module
  */
 import type {
-  AllLayoutProperties,
-  AllPaintProperties,
   Feature,
   GlobalProperties,
   ICanonicalTileID,
@@ -23,7 +21,9 @@ import type {
 
 import type { Geometry, Position } from "geojson"
 
-import type { Color as ColorValue, ExprLike, Formatted as FormattedValue, Projection as ProjectionValue, ResolvedImage as ResolvedImageValue } from "./expr"
+import type { Color as ColorValue, ExprLike, Formatted as FormattedValue, Input, Projection as ProjectionValue, ResolvedImage as ResolvedImageValue } from "./expr"
+
+import type { StylePropertyName } from "./style-properties"
 
 import { Color, ColorArray, createExpression, createPropertyExpression, Formatted, latest, NumberArray, Padding, ProjectionDefinition, ResolvedImage, validateStyleMin } from "@maplibre/maplibre-gl-style-spec"
 
@@ -141,8 +141,7 @@ const CANONICAL_ZOOM = 20
 const WORLD_SIZE = EXTENT * 2 ** CANONICAL_ZOOM
 const CANONICAL = { z: CANONICAL_ZOOM, x: 0, y: 0, key: "canonical" } as ICanonicalTileID
 
-/** A layer property name such as `"circle-radius"`, or `"filter"`. */
-export type StylePropertyName = keyof AllPaintProperties | keyof AllLayoutProperties | "filter"
+export type { StylePropertyName } from "./style-properties"
 
 /** Options of {@link validate}. */
 export interface ValidateOptions {
@@ -153,7 +152,7 @@ export interface ValidateOptions {
    * them, `zoom` outside a top-level ramp, and `feature-state` in filters
    * and layout properties.
    */
-  property?: StylePropertyName
+  property?: StylePropertyName | "filter"
   /** Check the expression as producing this type. Ignored if `property` is given. */
   type?: ExpectedType
 }
@@ -167,7 +166,7 @@ export interface ValidateOptions {
  * @example validate(add(get("a"), "x")) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
  * @example validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
  */
-export function validate(expression: ExprLike, options: ValidateOptions = {}): ValidationResult {
+export function validate(expression: Input<unknown>, options: ValidateOptions = {}): ValidationResult {
   if (options.property !== undefined)
     return validateAsProperty(expression, options.property)
   if (options.type !== undefined) {
@@ -191,7 +190,10 @@ export function validate(expression: ExprLike, options: ValidateOptions = {}): V
  * evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 }) // "rgba(128,128,128,1)"
  * evaluate(eq(geometryType(), "Polygon"), { geometry: { type: "MultiPolygon", coordinates: [] } }) // true
  */
-export function evaluate<T>(expression: ExprLike<T>, options: EvaluateOptions = {}): Evaluated<T> {
+export function evaluate<T>(expression: ExprLike<T>, options?: EvaluateOptions): Evaluated<T>
+export function evaluate<T extends string | number | boolean | null>(value: T, options?: EvaluateOptions): T
+export function evaluate<T>(expression: Input<T>, options?: EvaluateOptions): Evaluated<T>
+export function evaluate(expression: unknown, options: EvaluateOptions = {}): unknown {
   const parsed = parse(expression, options.type)
   if (!parsed.ok)
     throw new ExpressionError("Invalid expression", parsed.errors)
@@ -219,7 +221,7 @@ export function evaluate<T>(expression: ExprLike<T>, options: EvaluateOptions = 
   catch (error) {
     throw new ExpressionError("Expression failed to evaluate", [error instanceof Error ? error.message : String(error)])
   }
-  return toPlain(value) as Evaluated<T>
+  return toPlain(value)
 }
 
 type Parsed = { ok: true, expression: StyleExpression } | { ok: false, errors: string[] }
@@ -238,7 +240,7 @@ function parse(expression: unknown, type: ExpectedType | undefined): Parsed {
   return { ok: false, errors: result.value.map(formatError) }
 }
 
-function validateAsProperty(expression: unknown, property: StylePropertyName): ValidationResult {
+function validateAsProperty(expression: unknown, property: StylePropertyName | "filter"): ValidationResult {
   let layer: Record<string, unknown>
   if (property === "filter") {
     layer = { id: "layer", type: "circle", source: "source", filter: expression }

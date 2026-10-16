@@ -68,15 +68,37 @@ export function array(...args: unknown[]): Expr<readonly unknown[]> {
 }
 
 /**
- * The type of `value` as a string: `"string"`, `"number"`, `"boolean"`,
- * `"color"`, `"object"`, `"array"`, `"null"`, etc. MapLibre `typeof`.
+ * What {@link typeof_} can return. Arrays include their item type and
+ * length, e.g. `"array<number, 3>"` or `"array<value, 0>"`.
+ */
+export type TypeName
+  = | "null"
+    | "number"
+    | "string"
+    | "boolean"
+    | "color"
+    | "object"
+    | "formatted"
+    | "resolvedImage"
+    | "padding"
+    | "numberArray"
+    | "colorArray"
+    | "projectionDefinition"
+    | "variableAnchorOffsetCollection"
+    | "array"
+    | `array<${string}>`
+
+/**
+ * The type of `value` as a string, e.g. `"number"`, `"null"` or
+ * `"array<number, 3>"`; see {@link TypeName}. Comparing against a misspelled
+ * name is a type error. MapLibre `typeof`.
  *
  * Named `typeof_` because `typeof` is a reserved word.
  *
  * @example eq(typeof_(get("height")), "number")
  * @see https://maplibre.org/maplibre-style-spec/expressions/#typeof
  */
-export function typeof_(value: AnyInput): Expr<string> {
+export function typeof_(value: AnyInput): Expr<TypeName> {
   return op("typeof", value)
 }
 
