@@ -1,0 +1,24 @@
+{
+  "name": "maplibre-expr-starter",
+  "type": "module",
+  "private": true,
+  "description": "A typed MapLibre style built with @builtbyfield/maplibre-expr: an OpenFreeMap basemap and a month of earthquakes.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@builtbyfield/maplibre-expr": "^0.3.0",
+    "maplibre-gl": "^6.14.0"
+  },
+  "devDependencies": {
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^24.0.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

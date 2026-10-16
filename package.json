@@ -84,7 +84,8 @@
     "check:links": "node scripts/check-links.mjs",
     "changeset": "changeset",
     "release": "changeset publish",
-    "generate": "node scripts/generate.mjs"
+    "generate": "node scripts/generate.mjs",
+    "check:starter": "node scripts/check-starter.mjs"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"
