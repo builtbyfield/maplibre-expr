@@ -1,5 +1,11 @@
 # @builtbyfield/maplibre-expr
 
+## 0.3.2
+
+### Patch Changes
+
+- [#11](https://github.com/builtbyfield/maplibre-expr/pull/11) [`d23cf94`](https://github.com/builtbyfield/maplibre-expr/commit/d23cf9464d6a831784090e3207cbad53be7e1f3d) Thanks [@essejmclean](https://github.com/essejmclean)! - `checkEquivalent`/`assertEquivalent` find differences more reliably and report them more readably. Each property and state tries the literals it's actually compared against more often; coordinates inside `distance`/`within` and property names are no longer used as values; and the first item of a `match` label array is no longer skipped. A counterexample is shrunk to the properties and state that matter, and leaves out zoom, geometry and state the expressions don't read.
+
 ## 0.3.1
 
 ### Patch Changes

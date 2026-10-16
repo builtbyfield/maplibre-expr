@@ -1,7 +1,7 @@
 {
   "name": "@builtbyfield/maplibre-expr",
   "type": "module",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "packageManager": "pnpm@10.34.7",
   "description": "Typed builders for MapLibre style expressions. Wrong compositions fail to compile, output is plain spec JSON.",
   "author": {
