@@ -1,5 +1,5 @@
 import type { GeoJSON } from "geojson"
-import type { BooleanInput, Collator, Expr, ExprLike, Input, NumberInput, StringInput } from "../expr"
+import type { BooleanInput, Collator, Color, ColorInput, Expr, ExprLike, Input, NumberInput, StringInput } from "../expr"
 
 import { assertMatchLabels, assertNotLegacyComparison, op } from "../internal"
 
@@ -127,7 +127,8 @@ export type CaseBranch<T> = readonly [condition: BooleanInput, output: Input<T>]
 /**
  * Returns the output of the first branch whose condition is true, or
  * `fallback`. All outputs must have the type of the first one (as in
- * MapLibre). MapLibre `case`.
+ * MapLibre), except that CSS color strings and color expressions mix
+ * freely. MapLibre `case`.
  *
  * Named `case_` because `case` is a reserved word.
  *
@@ -139,7 +140,9 @@ export type CaseBranch<T> = readonly [condition: BooleanInput, output: Input<T>]
  * // ["case", ["==", ["feature-state", "hover"], true], "#f00", [">", ["get", "rank"], 5], "#fa0", "#888"]
  * @see https://maplibre.org/maplibre-style-spec/expressions/#case
  */
-export function case_<T>(branches: readonly [CaseBranch<T>, ...CaseBranch<NoInfer<T>>[]], fallback: Input<NoInfer<T>>): Expr<T> {
+export function case_<T>(branches: readonly [CaseBranch<T>, ...CaseBranch<NoInfer<T>>[]], fallback: Input<NoInfer<T>>): Expr<T>
+export function case_(branches: readonly [readonly [BooleanInput, ColorInput], ...(readonly [BooleanInput, ColorInput])[]], fallback: ColorInput): Expr<Color>
+export function case_(branches: readonly (readonly [unknown, unknown])[], fallback: unknown): Expr<unknown> {
   return op("case", ...branches.flat(), fallback)
 }
 
@@ -168,7 +171,13 @@ export function match<L extends string | number, T>(
   input: Input<L>,
   branches: readonly [readonly [MatchLabel<NoInfer<L>>, Input<T>], ...(readonly [MatchLabel<NoInfer<L>>, Input<NoInfer<T>>])[]],
   fallback: Input<NoInfer<T>>,
-): Expr<T> {
+): Expr<T>
+export function match<L extends string | number>(
+  input: Input<L>,
+  branches: readonly [readonly [MatchLabel<NoInfer<L>>, ColorInput], ...(readonly [MatchLabel<NoInfer<L>>, ColorInput])[]],
+  fallback: ColorInput,
+): Expr<Color>
+export function match(input: unknown, branches: readonly (readonly [unknown, unknown])[], fallback: unknown): Expr<unknown> {
   assertMatchLabels("match", branches.map(([label]) => label))
   return op("match", input, ...branches.flat(), fallback)
 }
@@ -180,7 +189,9 @@ export function match<L extends string | number, T>(
  * @example coalesce(get("name_en"), get("name"), "Unnamed")
  * @see https://maplibre.org/maplibre-style-spec/expressions/#coalesce
  */
-export function coalesce<T>(...inputs: [Input<T> | null, ...(Input<NoInfer<T>> | null)[]]): Expr<T> {
+export function coalesce<T>(...inputs: [Input<T> | null, ...(Input<NoInfer<T>> | null)[]]): Expr<T>
+export function coalesce(...inputs: [ColorInput | null, ...(ColorInput | null)[]]): Expr<Color>
+export function coalesce(...inputs: unknown[]): Expr<unknown> {
   return op("coalesce", ...inputs)
 }
 

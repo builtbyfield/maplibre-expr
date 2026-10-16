@@ -47,6 +47,9 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): Int
  *
  * Throws if stop inputs aren't in strictly ascending order.
  *
+ * Stops whose outputs are all untyped (e.g. `get("color")`) are typed as
+ * numbers; for a color ramp from data, use `toColor(get("color"))`.
+ *
  * Colors blend without premultiplying alpha, so fading to `"transparent"`
  * (transparent *black*) darkens on the way. Fade to the same color at
  * alpha 0 instead, e.g. `"rgba(255, 0, 0, 0)"`, or ramp the layer's opacity.
@@ -107,7 +110,8 @@ export function interpolateLab(type: Interpolation, input: NumberInput, stops: S
 
 /**
  * Discrete steps: returns `base` below the first stop, then each stop's
- * output from its input upward. Works for any output type.
+ * output from its input upward. Works for any output type; CSS color strings
+ * and color expressions mix freely.
  * MapLibre `step`.
  *
  * Throws if stop inputs aren't in strictly ascending order.
@@ -117,7 +121,9 @@ export function interpolateLab(type: Interpolation, input: NumberInput, stops: S
  * step(get("point_count"), 10, [[100, 20], [750, 30]])
  * @see https://maplibre.org/maplibre-style-spec/expressions/#step
  */
-export function step<T>(input: NumberInput, base: Input<T>, stops: Stops<Input<NoInfer<T>>>): Expr<T> {
+export function step<T>(input: NumberInput, base: Input<T>, stops: Stops<Input<NoInfer<T>>>): Expr<T>
+export function step(input: NumberInput, base: ColorInput, stops: Stops<ColorInput>): Expr<Color>
+export function step(input: NumberInput, base: unknown, stops: Stops<unknown>): Expr<unknown> {
   return op("step", input, base, ...flattenStops("step", stops))
 }
 

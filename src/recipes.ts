@@ -140,7 +140,8 @@ export interface CompactNumberOptions {
 /**
  * Formats a number compactly, e.g. `1234` becomes `"1.2k"`.
  * Useful for cluster counts. (MapLibre's `number-format` has no compact
- * notation.)
+ * notation.) The `locale` sets digit grouping and the decimal separator; the
+ * k/M/B suffixes are always English.
  *
  * @example "text-field": compactNumber(get("point_count"))
  */

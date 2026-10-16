@@ -163,7 +163,7 @@ export interface ValidateOptions {
  * property (where `zoom` and `feature-state` may appear, whether feature data
  * is allowed) aren't checked.
  *
- * @example validate(add(get("a"), "x")) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
+ * @example validate(["+", ["get", "a"], "x"]) // { valid: false, errors: ["[2]: Expected number but found string instead."] }
  * @example validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
  */
 export function validate(expression: Input<unknown>, options: ValidateOptions = {}): ValidationResult {
@@ -253,7 +253,7 @@ function validateAsProperty(expression: unknown, property: StylePropertyName | "
     layer = { id: "layer", type, ...(type !== "background" && { source: "source" }), [kind]: { [property]: expression } }
   }
   const style = { version: 8, sources: { source: sourceFor(layer.type as string) }, layers: [layer] } as unknown as StyleSpecification
-  const errors = validateStyleMin(style).map(error => error.message.replace(/^layers\[0\]\.(?:paint\.|layout\.)?/, ""))
+  const errors = validateStyleMin(style).map(error => error.message.replace(/^layers\[0\](?:\.(?:paint|layout)\.|: )?/, ""))
   return errors.length === 0 ? { valid: true, errors: [] } : { valid: false, errors }
 }
 
@@ -263,7 +263,8 @@ function sourceFor(layerType: string): object {
     return { type: "raster", tiles }
   if (layerType === "hillshade" || layerType === "color-relief")
     return { type: "raster-dem", tiles }
-  return { type: "geojson", data: { type: "FeatureCollection", features: [] } }
+  // lineMetrics is required by line-gradient
+  return { type: "geojson", data: { type: "FeatureCollection", features: [] }, lineMetrics: true }
 }
 
 function formatError(error: { key: string, message: string }): string {

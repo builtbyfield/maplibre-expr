@@ -134,7 +134,7 @@ place.getOr("rank", 0) // the property, or 0 if missing or not a number
 gt(get("ends_at"), app.get("nwo")) // compile error
 ```
 
-The accessors emit the same `["get", …]`, `["has", …]`, `["feature-state", …]` and `["global-state", …]` arrays as the untyped functions. Declare the type a property has _when present_; a missing property is still `null` at runtime.
+The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", ...]` and `["global-state", ...]` arrays as the untyped functions. Declare the type a property has _when present_; a missing property is still `null` at runtime.
 
 Some mistakes are caught when the expression is built:
 
@@ -208,7 +208,7 @@ const stop = syncGlobalState(map, "now", Date.now())
 Setting it by hand with `map.setGlobalStateProperty` has three pitfalls, which `syncGlobalState` handles:
 
 - **It throws before the style loads** ("Style is not done loading"), e.g. in a React effect on first mount. `syncGlobalState` applies it on the first `styledata` event instead.
-- **A full style reload clears global state.** `setStyle(…, { diff: true })` keeps it; a reload without `diff` starts empty. `syncGlobalState` re-applies after every `styledata`.
+- **A full style reload clears global state.** `setStyle(..., { diff: true })` keeps it; a reload without `diff` starts empty. `syncGlobalState` re-applies after every `styledata`.
 - **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (e.g. from devtools) is put back on the next `styledata`. Stop the sync first.
 
 To change the value, stop and sync again. In React: `useEffect(() => syncGlobalState(map, "now", now), [map, now])`.
@@ -256,9 +256,11 @@ function widthRamp(stops: Stops<NumberInput>): Expr<number> {
 ```sh
 pnpm install
 pnpm test          # unit + type tests (watch mode)
-pnpm check         # lint, typecheck, tests, build, and a smoke test of the packed tarball
+pnpm check         # generated files, lint, typecheck, tests, build, and a smoke test of the packed tarball
 pnpm check:links   # verify every @see link into the spec docs (needs network)
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the layout and the type design rules.
 
 Every operator is tested by evaluating it with MapLibre's engine, not by comparing array shapes. `test/coverage.test.ts` fails if the installed style spec has an operator without a wrapper. A weekly CI job runs the suite against the latest spec.
 
@@ -268,7 +270,8 @@ Releases are managed with [Changesets](https://github.com/changesets/changesets)
 
 1. In a PR that changes behavior, run `pnpm changeset`, pick patch/minor/major (while on 0.x, breaking changes are minor) and describe the change. Commit the generated file.
 2. After merging to `main`, the Release workflow opens a "version packages" PR that bumps the version and updates `CHANGELOG.md`.
-3. Merging that PR publishes to npm (trusted publishing, with provenance) and creates the GitHub release.
+3. GitHub doesn't run CI on PRs opened by Actions until a maintainer clicks **Approve workflows to run** on the version PR. Approve, wait for the checks, then merge.
+4. Merging that PR publishes to npm (trusted publishing, with provenance) and creates the GitHub release.
 
 ## License
 

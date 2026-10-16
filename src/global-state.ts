@@ -16,6 +16,9 @@ export interface GlobalStateMap {
  *   (here the first `styledata` event applies it instead);
  * - a full style reload (`setStyle` without `diff`) starts with empty state.
  *
+ * A `value` of `null` resets the property to its default from the style's
+ * `state` section, as `setGlobalStateProperty` does.
+ *
  * Returns a function that stops syncing. To change the value, stop and sync
  * again (in React, call it from an effect that depends on the value).
  *

@@ -2,7 +2,7 @@ import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 import { describe, expect, it } from "vitest"
 
-import { add, byZoom, elevation, eq, featureState, get, interpolate, linear, literal, match, toSpec, zoom } from "../src"
+import { add, byZoom, elevation, eq, featureState, get, image, interpolate, linear, lineProgress, literal, match, toSpec, zoom } from "../src"
 import { evaluate, ExpressionError, validate } from "../src/testing"
 
 describe("validate", () => {
@@ -31,6 +31,12 @@ describe("validate", () => {
     expect(validate(byZoom([[0, 0], [10, 1]]), { property: "raster-opacity" }).valid).toBe(true)
     expect(validate(interpolate(linear(), elevation(), [[0, "#000"], [100, "#fff"]]), { property: "color-relief-color" }).valid).toBe(true)
     expect(validate(byZoom([[0, "#000"], [10, "#fff"]]), { property: "background-color" }).valid).toBe(true)
+  })
+
+  it("sets up the source each property needs (line-gradient needs lineMetrics)", () => {
+    expect(validate(interpolate(linear(), lineProgress(), [[0, "#000"], [1, "#fff"]]), { property: "line-gradient" })).toEqual({ valid: true, errors: [] })
+    expect(validate(get("name"), { property: "text-field" }).valid).toBe(true)
+    expect(validate(image("pin"), { property: "icon-image" }).valid).toBe(true)
   })
 
   it("rejects unknown properties", () => {

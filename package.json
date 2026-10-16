@@ -33,6 +33,13 @@
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "testing": [
+        "./dist/testing.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],
@@ -51,12 +58,13 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build && pnpm smoke",
+    "check": "node scripts/generate.mjs --check && pnpm lint && pnpm typecheck && pnpm test:run && pnpm build && pnpm smoke",
     "smoke": "node scripts/smoke.mjs",
     "prepublishOnly": "pnpm check",
     "check:links": "node scripts/check-links.mjs",
     "changeset": "changeset",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "generate": "node scripts/generate.mjs"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

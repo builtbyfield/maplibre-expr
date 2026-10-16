@@ -18,6 +18,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm add -D @maplibre/maplibre-gl-style-spec@latest
+      - name: Generated files match the latest spec
+        run: node scripts/generate.mjs --check
       - run: pnpm typecheck
       - run: pnpm test:run
       - run: pnpm check:links

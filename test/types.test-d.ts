@@ -33,6 +33,7 @@ import {
   rgb,
   split,
   step,
+  toColor,
   toRgba,
   typedFeatureState,
   typedGlobalState,
@@ -63,6 +64,16 @@ describe("output types", () => {
     expectTypeOf(interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])).toEqualTypeOf<Expr<Projection>>()
     expectTypeOf(byZoom([[10, "vertical-perspective"], [12, "mercator"]], linear())).toEqualTypeOf<Expr<Projection>>()
     expectTypeOf(interpolate(linear(), zoom(), [[0, literal(["#000"])], [10, literal(["#fff"])]])).toEqualTypeOf<Expr<readonly Color[]>>()
+  })
+
+  it("mixes CSS color strings and color expressions in branches", () => {
+    expectTypeOf(case_([[gt(get("n"), 1), "#f00"], [gt(get("n"), 2), rgb(0, 0, 255)]], "#000")).toEqualTypeOf<Expr<Color>>()
+    expectTypeOf(case_([[gt(get("n"), 1), rgb(0, 0, 255)]], "#000")).toEqualTypeOf<Expr<Color>>()
+    expectTypeOf(match(get("t"), [["a", rgb(1, 2, 3)]], "#fff")).toEqualTypeOf<Expr<Color>>()
+    expectTypeOf(step(zoom(), "#000", [[5, rgb(1, 2, 3)]])).toEqualTypeOf<Expr<Color>>()
+    expectTypeOf(coalesce(toColor(get("c")), "#000")).toEqualTypeOf<Expr<Color>>()
+    // all-string outputs stay strings
+    expectTypeOf(case_([[true, "a"]], "b")).toEqualTypeOf<Expr<string>>()
   })
 
   it("infers branch outputs", () => {
