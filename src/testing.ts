@@ -44,7 +44,7 @@ export type ExpectedType
 /** The feature and map state to evaluate against. All fields are optional. */
 export interface EvaluateOptions {
   /** The feature's properties, read by `get`/`has`/`properties`. */
-  properties?: Record<string, unknown>
+  properties?: object
   /** The feature's id, read by `id`. */
   id?: string | number
   /**
@@ -55,9 +55,9 @@ export interface EvaluateOptions {
   /** Current zoom level. Default `0`. */
   zoom?: number
   /** The feature's state, read by `feature-state`. */
-  featureState?: Record<string, unknown>
+  featureState?: object
   /** The style's global state, read by `global-state`. */
-  globalState?: Record<string, unknown>
+  globalState?: object
   /** Value of `heatmap-density`. */
   heatmapDensity?: number
   /** Value of `line-progress`. */

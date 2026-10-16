@@ -105,6 +105,10 @@ describe("output types", () => {
     expectTypeOf(evaluate(flag)).toEqualTypeOf<boolean>()
     const size = 1 as NumberInput
     expectTypeOf(evaluate(size)).toEqualTypeOf<number>()
+    // a feature's typed properties (an interface, no index signature) can be passed as is
+    interface Quake { mag: number, place: string }
+    const quake: Quake = { mag: 5, place: "x" }
+    expectTypeOf(evaluate(gt(get("mag"), 4), { properties: quake, featureState: quake, globalState: quake })).toEqualTypeOf<boolean>()
     expectTypeOf(evaluate(interpolate(linear(), zoom(), [[10, "vertical-perspective"], [12, "mercator"]])))
       .toEqualTypeOf<{ from: string, to: string, transition: number }>()
   })
