@@ -14,6 +14,7 @@
 
 **Changed**
 
+- Ships a CommonJS build alongside ESM, so `require()` and Jest work without extra configuration.
 - `/testing` bundles its own copy of MapLibre's expression engine. The package no longer has a peer dependency on `@maplibre/maplibre-gl-style-spec`, so it installs alongside any style-spec or maplibre-gl version.
 - `toSpec` returns `readonly [OperatorName, ...unknown[]]` instead of MapLibre's `ExpressionSpecification`.
 - Builders throw for mistakes MapLibre would reject or misread: comparing a string literal to a literal (read as legacy filter syntax in filters; the error suggests `geometryType()` or `id()` for `"$type"` and `"$id"`), non-integer or empty `match`/`isOneOf` labels, and out-of-range literal `rgb`/`rgba` components.
