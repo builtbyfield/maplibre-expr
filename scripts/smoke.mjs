@@ -54,7 +54,7 @@ try {
   tarball = readdirSync(work).find(f => f.endsWith(".tgz"))
 
   step("bare project: no maplibre or style-spec installed")
-  const bare = project("bare", ["typescript@^7"], {
+  const bare = project("bare", ["typescript@^7", "ts54@npm:typescript@~5.4.0"], {
     "runtime.mjs": `
       import { add, get, interpolate, linear, zoom } from "@builtbyfield/maplibre-expr"
       import { evaluate, validate } from "@builtbyfield/maplibre-expr/testing"
@@ -71,12 +71,32 @@ try {
       export const n: number = evaluate(add(get<number>("a"), 1), { properties: { a: 1 } })
     `,
     "tsconfig.json": tsconfig(false),
+    // Older setups resolve with moduleResolution "node", which ignores `exports`
+    // (TypeScript 7 removed that mode, so this is checked with 5.4).
+    "node10.ts": `
+      import { add, get } from "@builtbyfield/maplibre-expr"
+      import { evaluate } from "@builtbyfield/maplibre-expr/testing"
+      export const n: number = evaluate(add(get<number>("a"), 1), { properties: { a: 1 } })
+    `,
+    "tsconfig.node10.json": JSON.stringify({
+      compilerOptions: { target: "ES2022", module: "ESNext", moduleResolution: "node", strict: true, noEmit: true, skipLibCheck: false },
+      files: ["node10.ts"],
+    }),
+    "require.cjs": `
+      const lib = require("@builtbyfield/maplibre-expr")
+      const { evaluate } = require("@builtbyfield/maplibre-expr/testing")
+      if (evaluate(lib.add(1, 2)) !== 3) throw new Error("require() of the package evaluated wrong")
+      console.log("  ok: require() works from CommonJS (Node " + process.versions.node + ")")
+    `,
   })
   if (existsSync(join(bare, "node_modules/@maplibre")))
     throw new Error("installing the package pulled in @maplibre packages")
   process.stdout.write(run("node", ["runtime.mjs"], bare))
   run("node", ["node_modules/typescript/bin/tsc", "-p", "."], bare)
   console.log("  ok: the package's own types check without skipLibCheck")
+  run("node", ["node_modules/ts54/bin/tsc", "-p", "tsconfig.node10.json"], bare)
+  console.log("  ok: types resolve with moduleResolution \"node\" (TypeScript 5.4)")
+  process.stdout.write(run("node", ["require.cjs"], bare))
 
   step("maplibre-gl 6: TypeScript 7, 6 and the minimum supported 5.4")
   const gl6 = project("gl6", ["maplibre-gl@^6", "typescript@^7", "ts6@npm:@typescript/typescript6@^6", "ts54@npm:typescript@~5.4.0", "esbuild"], {

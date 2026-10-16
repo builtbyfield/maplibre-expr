@@ -202,7 +202,11 @@ describe("decision", () => {
   })
 
   it("rejects comparing a string literal to a literal (legacy-filter trap)", () => {
-    expect(() => eq("class", "park")).toThrow(/use get\("class"\)/)
+    expect(() => eq("class", "park")).toThrow(/Use get\("class"\) instead/)
+    // Legacy filters' special keys point to their expression equivalents
+    expect(() => eq("$type", "Polygon")).toThrow(/Use geometryType\(\) instead/)
+    expect(() => eq("$id", "5")).toThrow(/Use id\(\) instead/)
+    expect(() => in_("$type", literal(["Point"]))).not.toThrow()
     expect(() => neq("class", "road")).toThrow(RangeError)
     expect(() => lt("a", "b")).toThrow(RangeError)
     expect(() => gte("a", "b")).toThrow(RangeError)
