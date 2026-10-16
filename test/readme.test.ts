@@ -5,7 +5,6 @@ import type { Expr, GlobalStateMap, NumberInput, Stops } from "../src"
 import { describe, expect, it } from "vitest"
 
 import {
-  add,
   all,
   byZoom,
   case_,
@@ -26,17 +25,18 @@ import {
   syncGlobalState,
   typedGlobalState,
   typedProperties,
-  upcase,
   zoom,
 } from "../src"
 import { evaluate, validate } from "../src/testing"
 
 describe("rEADME examples", () => {
   it("intro", () => {
-    expect(interpolate(linear(), zoom(), [[10, 1], [16, add(get("lanes"), 2)]]))
-      .toEqual(["interpolate", ["linear"], ["zoom"], 10, 1, 16, ["+", ["get", "lanes"], 2]])
+    const road = typedProperties<{ class: "motorway" | "trunk" | "primary" | "minor" }>()
+    const isMajor = isOneOf(road.get("class"), ["motorway", "trunk", "primary"])
+    expect(isMajor).toEqual(["match", ["get", "class"], ["motorway", "trunk", "primary"], true, false])
     // @ts-expect-error the README's compile error
-    add(upcase(get("name")), 1)
+    isOneOf(road.get("class"), ["motorway", "primray"])
+    expect(evaluate(isMajor, { properties: { class: "minor" } })).toBe(false)
   })
 
   it("usage: layers type-check and validate", () => {

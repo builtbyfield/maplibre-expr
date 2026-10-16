@@ -2,12 +2,14 @@
 
 ```sh
 pnpm install
-pnpm test       # unit and type tests, watch mode
-pnpm check      # everything CI runs: generated files, lint, typecheck, tests, build, smoke test
-pnpm generate   # regenerate files derived from the style spec and the JSDoc examples
+pnpm test          # unit and type tests, watch mode
+pnpm check         # everything CI runs: generated files, lint, typecheck, tests, build, smoke test
+pnpm generate      # regenerate files derived from the style spec and the JSDoc examples
+pnpm check:links   # verify every @see link into the spec docs (needs network)
+pnpm check:starter # type-check, test and build examples/starter against this commit
 ```
 
-Add a changeset (`pnpm changeset`) to any PR that changes behavior. See [Releasing](README.md#releasing).
+Add a changeset (`pnpm changeset`) to any PR that changes behavior. See [Releasing](#releasing).
 
 ## Layout
 
@@ -43,3 +45,12 @@ These keep type-checking fast and the types honest. Breaking them tends to look 
 3. Add it to `WRAPPERS` in `test/coverage.test.ts` and to the README's operator table.
 4. Add an evaluation test in `test/operators.test.ts`.
 5. If the spec lists platform limits for it, add the note; the coverage test says what's expected.
+
+## Releasing
+
+Releases are managed with [Changesets](https://github.com/changesets/changesets):
+
+1. In a PR that changes behavior, run `pnpm changeset`, pick patch/minor/major (while on 0.x, breaking changes are minor) and describe the change. Commit the generated file.
+2. After merging to `main`, the Release workflow opens a "version packages" PR that bumps the version and updates `CHANGELOG.md`.
+3. GitHub doesn't run CI on PRs opened by Actions until a maintainer clicks **Approve workflows to run** on the version PR. Approve, wait for the checks, then merge.
+4. Merging that PR publishes to npm (trusted publishing, with provenance) and creates the GitHub release.

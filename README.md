@@ -1,35 +1,43 @@
 # @builtbyfield/maplibre-expr
 
-[![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr)
+[![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr) [![CI](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml/badge.svg)](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml)
 
-Typed builders for [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/), and a test harness that runs them through MapLibre's own engine. Wrong compositions fail to compile; the output is plain style-spec JSON.
+Type-safe [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/) for TypeScript. A broken expression doesn't throw: features quietly disappear, or a paint property falls back to its default. With this package, typos and type mismatches fail to compile, and a test harness runs your expressions on MapLibre's own engine. The output is plain style JSON.
+
+**[Live demo](https://builtbyfield.github.io/maplibre-expr/)** | **[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** | [Example source](examples/starter)
 
 ```ts
-import { add, get, interpolate, linear, upcase, zoom } from "@builtbyfield/maplibre-expr"
+import { isOneOf, typedProperties } from "@builtbyfield/maplibre-expr"
+import { evaluate } from "@builtbyfield/maplibre-expr/testing"
 
-const width = interpolate(linear(), zoom(), [[10, 1], [16, add(get("lanes"), 2)]])
-// ["interpolate", ["linear"], ["zoom"], 10, 1, 16, ["+", ["get", "lanes"], 2]]
+const road = typedProperties<{ class: "motorway" | "trunk" | "primary" | "minor" }>()
 
-add(upcase(get("name")), 1)
-//  ~~~~~~~~~~~~~~~~~~~~ Argument of type 'Expr<string>' is not assignable to parameter of type 'NumberInput'.
+const isMajor = isOneOf(road.get("class"), ["motorway", "trunk", "primary"])
+// ["match", ["get", "class"], ["motorway", "trunk", "primary"], true, false]
+
+isOneOf(road.get("class"), ["motorway", "primray"])
+//                                      ~~~~~~~~~ Type '"primray"' is not assignable to type '"minor" | "motorway" | "primary" | "trunk"'. Did you mean '"primary"'?
+
+evaluate(isMajor, { properties: { class: "minor" } }) // false
 ```
 
-MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, and a broken expression doesn't error at render time: features just don't show up, or a property quietly falls back to its default. This package attacks that from two sides:
+MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, so raw arrays get no help from the compiler. This package attacks that from two sides:
 
-- **Types.** Every builder records what its expression evaluates to (`Expr<number>`, `Expr<string>`, `Expr<Color>`, and so on), so wrong compositions are compile errors. With [typed feature data](#typed-feature-data), so are misspelled property names.
-- **Tests.** `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would fail silently, so you can unit-test a filter against sample features.
+- **Types.** Every builder records what its expression evaluates to (`Expr<number>`, `Expr<string>`, `Expr<Color>`, and so on), so wrong compositions are compile errors. With [typed feature data](#typed-feature-data), so are misspelled property names and values.
+- **Tests.** `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would fail silently, so you can unit-test a filter against sample features, and [check that a rewrite behaves the same](#checking-a-rewrite).
 
 Also:
 
 - **All 88 operators** of the style spec (v26), each with JSDoc, a link to its spec entry, and platform notes where a renderer lacks it.
 - **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts, and mix freely with existing hand-written expressions. Importing one function adds about 170 bytes.
 - **A few recipes** for jobs that are fiddly to get right by hand: zoom ramps, meters-to-pixels radii, compact number labels, hover states, global state.
+- **The [gotchas](#gotchas), written down:** MapLibre behaviors that surprise people, with builders that throw for the ones they can detect.
 
 ## Example
 
-**[Live demo](https://builtbyfield.github.io/maplibre-expr/)** | **[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** | [Source](examples/starter)
+[![A globe of the Pacific dotted with a month of earthquakes, with a time slider and a depth legend](https://builtbyfield.github.io/maplibre-expr/og.png)](https://builtbyfield.github.io/maplibre-expr/)
 
-A small, complete app: a typed basemap on OpenFreeMap tiles and a month of real earthquakes with a time slider, plus tests that check every expression with MapLibre's engine. In StackBlitz, misspell a road class to see the compile error, or break the time filter and run `npm test`. To start a project from it: `npx degit builtbyfield/maplibre-expr/examples/starter my-map`.
+A small, complete app: a typed basemap on OpenFreeMap tiles and a month of real earthquakes with a time slider, plus tests that check every expression with MapLibre's engine. [Try the live demo](https://builtbyfield.github.io/maplibre-expr/), or [open it in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter) and misspell a road class to see the compile error, or break the time filter and run `npm test`. To start a project from it: `npx degit builtbyfield/maplibre-expr/examples/starter my-map`.
 
 ## Install
 
@@ -119,14 +127,18 @@ Pass `property` (any layer property name, or `"filter"`) to check an expression 
 
 ## For AI coding agents
 
-A broken expression produces no error at render time, only missing features, so check expressions instead of eyeballing them:
+A broken expression produces no error at render time, only missing features, so an agent can't see its own mistakes by looking at the map. Paste this into your project's `AGENTS.md` or `CLAUDE.md`:
 
-1. Build expressions with these functions, not raw arrays, and run the type checker.
-2. For any filter or data-driven property, write a test that calls `evaluate()` on a few sample features, including ones that should be excluded and ones with missing properties.
-3. Run `validate(expr, { property })` with the property it will be used in.
-4. Break the expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
+```md
+## MapLibre expressions
 
-If the data's properties are known, declare them with [`typedProperties`](#typed-feature-data) so a misremembered property name is a compile error rather than a silently empty layer.
+- Build style expressions with `@builtbyfield/maplibre-expr`, not raw arrays, and run the type checker.
+- Declare the properties of each source layer once with `typedProperties<...>()` and read them through it.
+- For every filter and data-driven property, write a test that calls `evaluate()` from `@builtbyfield/maplibre-expr/testing` on sample features, including ones that should be excluded and ones with missing properties.
+- Check each expression where it's used with `validate(expr, { property })`.
+- Break an expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
+- When rewriting an existing expression, show the behavior is unchanged with `assertEquivalent(before, after)`.
+```
 
 ## What the types check
 
@@ -275,29 +287,10 @@ function widthRamp(stops: Stops<NumberInput>): Expr<number> {
 | Color Relief          | `elevation`                                                                                                                                                                                                                                                               |
 | String                | `is-supported-script` (`isSupportedScript`), `upcase`, `downcase`, `concat`, `resolved-locale` (`resolvedLocale`), `split`, `join`                                                                                                                                        |
 
-## Development
+## Contributing
 
-```sh
-pnpm install
-pnpm test          # unit + type tests (watch mode)
-pnpm check         # generated files, lint, typecheck, tests, build, and a smoke test of the packed tarball
-pnpm check:links   # verify every @see link into the spec docs (needs network)
-pnpm check:starter # type-check, test and build examples/starter against this commit
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the layout and the type design rules.
-
-Every operator is tested by evaluating it with MapLibre's engine, not by comparing array shapes. `test/coverage.test.ts` fails if the installed style spec has an operator without a wrapper. A weekly CI job runs the suite against the latest spec.
-
-## Releasing
-
-Releases are managed with [Changesets](https://github.com/changesets/changesets):
-
-1. In a PR that changes behavior, run `pnpm changeset`, pick patch/minor/major (while on 0.x, breaking changes are minor) and describe the change. Commit the generated file.
-2. After merging to `main`, the Release workflow opens a "version packages" PR that bumps the version and updates `CHANGELOG.md`.
-3. GitHub doesn't run CI on PRs opened by Actions until a maintainer clicks **Approve workflows to run** on the version PR. Approve, wait for the checks, then merge.
-4. Merging that PR publishes to npm (trusted publishing, with provenance) and creates the GitHub release.
+Every operator is tested by evaluating it with MapLibre's engine, not by comparing array shapes. A test fails if the style spec gains an operator without a wrapper, and a weekly CI job runs the suite against the latest spec. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the code layout, the type design rules and how releases work.
 
 ## License
 
-MIT
+MIT. Built and maintained by [Built by Field](https://www.builtbyfield.com).
