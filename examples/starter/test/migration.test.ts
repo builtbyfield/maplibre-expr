@@ -40,13 +40,13 @@ const filter = (id: string): unknown => layer(id).filter
 
 describe("migration from the legacy JSON", () => {
   it("roads: same filters and widths", () => {
-    assertEquivalent(legacy["roads-major"].filter as never, filter("roads-major") as never)
-    assertEquivalent(legacy["roads-major"].width as never, paint("roads-major")["line-width"] as never)
-    assertEquivalent(legacy["roads-minor"].filter as never, filter("roads-minor") as never)
+    assertEquivalent(legacy["roads-major"].filter, filter("roads-major"))
+    assertEquivalent(legacy["roads-major"].width, paint("roads-major")["line-width"])
+    assertEquivalent(legacy["roads-minor"].filter, filter("roads-minor"))
   })
 
   it("labels: same text", () => {
-    assertEquivalent(legacy["place-labels"].textField as never, layout("place-labels")["text-field"] as never)
+    assertEquivalent(legacy["place-labels"].textField, layout("place-labels")["text-field"])
   })
 
   it("labels: the rewrite deliberately handles a missing or non-numeric rank, where the legacy expression failed", () => {
@@ -54,7 +54,7 @@ describe("migration from the legacy JSON", () => {
     // or isn't a number. The legacy \`>=\` fails there, so MapLibre fell back to
     // the default text size; the rewrite reads getOr("rank", 10), so such a
     // place is sized like a minor one (11).
-    const result = checkEquivalent(legacy["place-labels"].textSize as never, layout("place-labels")["text-size"] as never)
+    const result = checkEquivalent(legacy["place-labels"].textSize, layout("place-labels")["text-size"])
     expect(result.equivalent).toBe(false)
     if (!result.equivalent) {
       expect(typeof (result.counterexample.properties as { rank?: unknown }).rank).not.toBe("number")
