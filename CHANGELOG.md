@@ -1,5 +1,11 @@
 # @builtbyfield/maplibre-expr
 
+## 0.3.3
+
+### Patch Changes
+
+- [#25](https://github.com/builtbyfield/maplibre-expr/pull/25) [`2999db3`](https://github.com/builtbyfield/maplibre-expr/commit/2999db38b48612cac4d5ba61927fcee7b9958c37) Thanks [@essejmclean](https://github.com/essejmclean)! - `validate(expr, { property: "filter" })` rejects filters that aren't booleans, like `add(1, 2)`. MapLibre's style validator accepts them, but maplibre-gl throws when it creates the layer, and a style that contains one never finishes loading. Filter errors are also reported under `filter` instead of `.filter`.
+
 ## 0.3.2
 
 ### Patch Changes
