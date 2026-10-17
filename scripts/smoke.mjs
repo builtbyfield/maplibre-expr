@@ -117,6 +117,49 @@ try {
   run("node", ["node_modules/typescript/bin/tsc", "-p", "."], gl5)
   console.log("  ok: layer types and syncGlobalState(map) check against maplibre-gl 5.24")
 
+  step("react-map-gl 8 with maplibre-gl 6")
+  const rmgl = project("rmgl", ["react-map-gl@^8", "maplibre-gl@^6", "react@^19", "react-dom@^19", "@types/react@^19", "typescript@^7"], {
+    "consumer.tsx": `
+      import { Layer } from "react-map-gl/maplibre"
+      import { byZoom, get, globalState, gt, ifFeatureState, isOneOf, match } from "@builtbyfield/maplibre-expr"
+
+      // The README's example
+      export const parks = (
+        <Layer
+          id="parks"
+          type="fill"
+          source="landuse"
+          filter={isOneOf(get("class"), ["park", "garden"])}
+          paint={{ "fill-opacity": byZoom([[8, 0.2], [14, 0.8]]) }}
+        />
+      )
+      export const quakes = (
+        <Layer
+          id="quakes"
+          type="circle"
+          source="quakes"
+          filter={gt(get("time"), globalState("now"))}
+          layout={{ "circle-sort-key": get("mag") }}
+          paint={{
+            "circle-radius": byZoom([[1, 2], [8, 10]]),
+            "circle-color": match(get("kind"), [["a", "#f00"]], "#888"),
+            "circle-stroke-width": ifFeatureState("hover", 2, 0.5),
+          }}
+        />
+      )
+      export const bad = (
+        // @ts-expect-error the props are typed: a string isn't an opacity
+        <Layer id="bad" type="circle" source="quakes" paint={{ "circle-opacity": "high" }} />
+      )
+    `,
+    "tsconfig.json": JSON.stringify({
+      compilerOptions: { target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", jsx: "react-jsx", strict: true, noEmit: true, skipLibCheck: true },
+      files: ["consumer.tsx"],
+    }),
+  })
+  run("node", ["node_modules/typescript/bin/tsc", "-p", "."], rmgl)
+  console.log("  ok: builders type-check as <Layer> filter, layout and paint props")
+
   step("tree-shaking")
   writeFileSync(join(gl6, "entry.mjs"), `import { add } from "@builtbyfield/maplibre-expr"; console.log(add(1, 2))`)
   const bundle = run("npx", ["esbuild", "entry.mjs", "--bundle", "--minify", "--format=esm", "--platform=neutral"], gl6)
