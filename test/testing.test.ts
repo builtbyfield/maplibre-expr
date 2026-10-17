@@ -1,8 +1,9 @@
-import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec"
+import type { ExpressionSpecification, StyleSpecification } from "@maplibre/maplibre-gl-style-spec"
 
+import { featureFilter, validateStyleMin } from "@maplibre/maplibre-gl-style-spec"
 import { describe, expect, it } from "vitest"
 
-import { add, byZoom, elevation, eq, featureState, get, image, interpolate, linear, lineProgress, literal, match, toSpec, zoom } from "../src"
+import { add, all, byZoom, elevation, eq, featureState, get, has, image, interpolate, linear, lineProgress, literal, match, toSpec, upcase, zoom } from "../src"
 import { evaluate, ExpressionError, validate } from "../src/testing"
 
 describe("validate", () => {
@@ -41,6 +42,56 @@ describe("validate", () => {
 
   it("rejects unknown properties", () => {
     expect(() => validate(get("x"), { property: "nope" as never })).toThrow(TypeError)
+  })
+
+  it("rejects filters that aren't booleans, like maplibre-gl does", () => {
+    expect(validate(add(1, 2), { property: "filter" })).toEqual({ valid: false, errors: ["filter: Expected boolean but found number instead."] })
+    expect(validate(upcase("x"), { property: "filter" })).toEqual({ valid: false, errors: ["filter: Expected boolean but found string instead."] })
+    // Checked at runtime, as in maplibre-gl
+    expect(validate(get("visible"), { property: "filter" }).valid).toBe(true)
+    expect(validate(all(eq(get("a"), 1), has("b")), { property: "filter" }).valid).toBe(true)
+    // Legacy filters are left to the style validator
+    expect(validate(["==", "class", "park"] as never, { property: "filter" }).valid).toBe(true)
+    expect(validate(["in", "class", "park", "garden"] as never, { property: "filter" }).valid).toBe(true)
+  })
+
+  it("accepts exactly the filters maplibre-gl's featureFilter accepts", () => {
+    const filters: unknown[] = [
+      true,
+      add(1, 2),
+      upcase("x"),
+      get("visible"),
+      ["to-string", ["get", "x"]],
+      ["case", ["has", "a"], 1, 0],
+      ["coalesce", ["get", "a"], false],
+      eq(get("a"), 1),
+      ["==", "class", "park"],
+      ["in", "class", "park", "garden"],
+    ]
+    for (const filter of filters) {
+      let accepted = true
+      try {
+        featureFilter(filter as never, "filter")
+      }
+      catch {
+        accepted = false
+      }
+      expect(validate(filter as never, { property: "filter" }).valid, JSON.stringify(filter)).toBe(accepted)
+    }
+  })
+
+  it("reports filter errors under \"filter\"", () => {
+    expect(validate(eq(featureState("x"), true), { property: "filter" }).errors).toEqual(["filter: \"feature-state\" data expressions are not supported with filters."])
+  })
+
+  it("upstream quirk: the style validator accepts a filter that isn't a boolean, which maplibre-gl then rejects", () => {
+    const style = (filter: unknown): StyleSpecification => ({
+      version: 8,
+      sources: { s: { type: "geojson", data: { type: "FeatureCollection", features: [] } } },
+      layers: [{ id: "l", type: "circle", source: "s", filter: filter as never }],
+    })
+    expect(validateStyleMin(style(["+", 1, 2]))).toEqual([])
+    expect(() => featureFilter(["+", 1, 2] as never, "filter")).toThrow(/Expected boolean but found number/)
   })
 
   it("enforces property-level rules when a type is given", () => {

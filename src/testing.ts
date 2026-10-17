@@ -25,7 +25,7 @@ import type { Color as ColorValue, ExprLike, Formatted as FormattedValue, Input,
 
 import type { StylePropertyName } from "./style-properties"
 
-import { Color, ColorArray, createExpression, createPropertyExpression, Formatted, latest, NumberArray, Padding, ProjectionDefinition, ResolvedImage, validateStyleMin } from "@maplibre/maplibre-gl-style-spec"
+import { Color, ColorArray, createExpression, createPropertyExpression, expression as expressionApi, Formatted, latest, NumberArray, Padding, ProjectionDefinition, ResolvedImage, validateStyleMin } from "@maplibre/maplibre-gl-style-spec"
 
 /** The value type MapLibre should parse the expression as. */
 export type ExpectedType
@@ -149,8 +149,8 @@ export interface ValidateOptions {
    * Check the expression as the value of this layer property (or as a layer
    * `filter`), with MapLibre's style validator. This is the most complete
    * check: it also catches data expressions in properties that don't support
-   * them, `zoom` outside a top-level ramp, and `feature-state` in filters
-   * and layout properties.
+   * them, `zoom` outside a top-level ramp, `feature-state` in filters
+   * and layout properties, and filters that aren't booleans.
    */
   property?: StylePropertyName | "filter"
   /** Check the expression as producing this type. Ignored if `property` is given. */
@@ -260,8 +260,33 @@ function validateAsProperty(expression: unknown, property: StylePropertyName | "
     layer = { id: "layer", type, ...(type !== "background" && { source: "source" }), [kind]: { [property]: expression } }
   }
   const style = { version: 8, sources: { source: sourceFor(layer.type as string) }, layers: [layer] } as unknown as StyleSpecification
-  const errors = validateStyleMin(style).map(error => error.message.replace(/^layers\[0\](?:\.(?:paint|layout)\.|: )?/, ""))
+  const errors = validateStyleMin(style).map(error => error.message.replace(/^layers\[0\](?:\.(?:paint|layout)\.|\.|: )?/, ""))
+  if (errors.length === 0 && property === "filter")
+    errors.push(...filterTypeErrors(expression))
   return errors.length === 0 ? { valid: true, errors: [] } : { valid: false, errors }
+}
+
+// The spec maplibre-gl compiles layer filters with (`featureFilter`).
+const FILTER_SPEC = {
+  "type": "boolean",
+  "default": false,
+  "transition": false,
+  "property-type": "data-driven",
+  "expression": { interpolated: false, parameters: ["zoom", "feature"] },
+} as StylePropertySpecification
+
+/**
+ * MapLibre's style validator doesn't check that an expression filter is a
+ * boolean (it passes `{ value: "boolean" }` where it means `{ type: ... }`),
+ * but maplibre-gl does when it creates the layer, and throws. Compile the
+ * filter the way maplibre-gl does to catch that. Legacy filters are fully
+ * checked by the validator.
+ */
+function filterTypeErrors(expression: unknown): string[] {
+  if (!expressionApi.isExpressionFilter(expression))
+    return []
+  const result = createExpression(expression, "filter", FILTER_SPEC)
+  return result.result === "success" ? [] : result.value.map(error => `filter${error.key}: ${error.message}`)
 }
 
 function sourceFor(layerType: string): object {
