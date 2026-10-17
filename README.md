@@ -181,7 +181,8 @@ Some mistakes are caught when the expression is built:
 
 - **Untyped feature data.** Plain `get`, `featureState`, `globalState` and `var_` accept any name and produce values accepted anywhere; MapLibre checks them at runtime. Use [typed feature data](#typed-feature-data), or pin one value's type with `get<number>("population")`.
 - **Raw arrays are an escape hatch.** You can pass `["get", "x"]` or any existing `ExpressionSpecification` value. Only the operator name is checked, not the arguments.
-- **Where an expression is allowed.** For example, `zoom()` must be the input of a top-level `interpolate`/`step`, and `featureState` isn't allowed in filters or layout properties. `validate(expr, { property })` (below) catches these.
+- **Where an expression is allowed.** For example, `zoom()` must be the input of a top-level `interpolate`/`step`, and `featureState` isn't allowed in filters or layout properties. [`validate(expr, { property })`](#validating-against-a-property) catches these.
+- **Whether an expression fits its property.** Layer properties accept any `Expr`, so `"fill-opacity": upcase("x")`, `"fill-color": gt(get("n"), 1)` and `filter: add(1, 2)` compile (see the note on `Expr` below). [`validate(expr, { property })`](#validating-against-a-property) catches these too.
 
 The `Expr` type is deliberately opaque: statically it presents as a single member of the spec union, which keeps type-checking fast. Use `toSpec(expr)` if you need to inspect the array.
 
