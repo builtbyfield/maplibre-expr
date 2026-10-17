@@ -63,6 +63,7 @@ try {
       const color = evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 })
       if (color !== "rgba(128,128,128,1)") throw new Error("unexpected color " + color)
       if (validate(get("w"), { property: "heatmap-intensity" }).valid) throw new Error("validate should reject data expressions in heatmap-intensity")
+      if (validate(add(1, 2), { property: "filter" }).valid) throw new Error("validate should reject a filter that isn't a boolean")
       console.log("  ok: evaluate and validate run on the bundled engine")
     `,
     "consumer.ts": `
