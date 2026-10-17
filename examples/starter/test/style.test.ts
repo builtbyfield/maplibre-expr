@@ -23,7 +23,7 @@ describe.each([["light", LIGHT], ["dark", DARK]] as const)("%s style", (_, palet
   it.each(style.layers.flatMap(layer => expressions(layer).map(([property, value]) => [`${layer.id} ${property}`, property, value] as const)))(
     "%s is valid where it's used",
     (_, property, value) => {
-      expect(validate(value as never, { property })).toEqual({ valid: true, errors: [] })
+      expect(validate(value, { property })).toEqual({ valid: true, errors: [] })
     },
   )
 })
