@@ -83,6 +83,18 @@ const layers: LayerSpecification[] = [
 
 Function names follow the spec: kebab-case becomes camelCase (`index-of` becomes `indexOf`), symbolic operators get names (`==` is `eq`, `+` is `add`), and reserved words get a trailing underscore (`case_`, `in_`, `let_`, `var_`, `typeof_`). See the [operator table](#operators).
 
+With react-map-gl, builders go straight into `<Layer>` props (checked with react-map-gl 8):
+
+```tsx
+<Layer
+  id="parks"
+  type="fill"
+  source="landuse"
+  filter={isOneOf(get("class"), ["park", "garden"])}
+  paint={{ "fill-opacity": byZoom([[8, 0.2], [14, 0.8]]) }}
+/>
+```
+
 ## Testing expressions
 
 `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's own engine. Unlike MapLibre at render time, it throws instead of silently falling back to a default:
@@ -287,6 +299,10 @@ function widthRamp(stops: Stops<NumberInput>): Expr<number> {
 | Heatmap               | `heatmap-density` (`heatmapDensity`)                                                                                                                                                                                                                                      |
 | Color Relief          | `elevation`                                                                                                                                                                                                                                                               |
 | String                | `is-supported-script` (`isSupportedScript`), `upcase`, `downcase`, `concat`, `resolved-locale` (`resolvedLocale`), `split`, `join`                                                                                                                                        |
+
+## Compared to other tools
+
+The other tools we know of are small languages that compile to expressions, like [Expressive](https://github.com/falseinput/expressive) and Mapbox's [expression-jamsession](https://github.com/mapbox/expression-jamsession). This package is plain TypeScript instead: there's no new syntax to learn, autocomplete and the type checker work as usual, builders mix with hand-written arrays, and the output is the same style JSON you'd write by hand.
 
 ## Contributing
 
