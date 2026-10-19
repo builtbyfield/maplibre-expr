@@ -8,21 +8,27 @@ import {
   all,
   byZoom,
   case_,
+  coalesce,
   compactNumber,
+  concat,
   divide,
   eq,
   featureState,
   get,
   globalState,
   gt,
+  image,
+  in_,
   interpolate,
   isOneOf,
   let_,
   linear,
+  localizedName,
   lte,
   match,
   numberFormat,
   syncGlobalState,
+  toString,
   typedGlobalState,
   typedProperties,
   zoom,
@@ -114,5 +120,40 @@ describe("rEADME examples", () => {
     }
     expect(evaluate(isOpenAt(12), { properties: { opens: 9, closes: 17 } })).toBe(true)
     expect(evaluate(widthRamp([[10, 1], [20, 3]]), { zoom: 15 })).toBe(2)
+  })
+
+  it("labels in the reader's language", () => {
+    const layout = { "text-field": localizedName([globalState("lang"), "en"], { secondLine: "name" }) }
+    expect(evaluate(layout["text-field"], { properties: { "name": "München", "name:en": "Munich" }, globalState: { lang: "de-x" } })).toBe("Munich\nMünchen")
+  })
+
+  it("compact numbers in any locale", () => {
+    const at = (n: number, options?: Parameters<typeof compactNumber>[1]): unknown => evaluate(compactNumber(get("n"), options), { properties: { n } })
+    expect([at(1234), at(56_789)]).toEqual(["1.2K", "57K"])
+    expect(at(1_234_567, { locale: "de" })).toBe("1,2\u00A0Mio.")
+    expect(at(1_234_567, { locale: "en-IN", currency: "INR" })).toBe("₹12L")
+    expect(at(9876, { minimum: 10_000 })).toBe("9,876")
+    expect(at(1536, { scales: [[1024, " KB"], [1024 ** 2, " MB"]] })).toBe("1.5 KB")
+  })
+
+  it("gotcha: icons missing from the sprite", () => {
+    const icon = coalesce(image(get("subclass")), image(get("class")))
+    const properties = { subclass: "furniture", class: "shop" }
+    expect(evaluate(icon, { properties, availableImages: ["shop"] })).toBe("shop")
+    expect(evaluate(icon, { properties, availableImages: ["shop", "furniture"] })).toBe("furniture")
+    expect(evaluate(icon, { properties, availableImages: [] })).toBe("furniture")
+  })
+
+  it("global state for selections and sliders", () => {
+    expect(evaluate(eq(get("route_id"), globalState("route")), { properties: { route_id: "A" } })).toBe(false)
+    expect(evaluate(in_(get("id"), globalState("selected")), { properties: { id: 2 }, globalState: { selected: [1, 2] } })).toBe(true)
+    expect(evaluate(in_(get("id"), globalState("selected")), { properties: { id: 2 } })).toBe(false)
+    expect(() => evaluate(lte(get("start"), globalState("time")), { properties: { start: 5 } })).toThrow()
+  })
+
+  it("gotcha: numbers in text", () => {
+    expect(evaluate(concat(toString(get("height")), " m"), { properties: { height: 0.07 * 100 } })).toBe("7.000000000000001 m")
+    expect(evaluate(concat(toString(get("height")), " m"), { properties: {} })).toBe(" m")
+    expect(evaluate(numberFormat(get("height"), { "unit": "meter", "max-fraction-digits": 1 }), { properties: { height: 0.07 * 100 } })).toBe("7 m")
   })
 })

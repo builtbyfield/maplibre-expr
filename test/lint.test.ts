@@ -2,7 +2,7 @@ import type { LayerSpecification } from "@maplibre/maplibre-gl-style-spec"
 
 import { describe, expect, it } from "vitest"
 
-import { add, byZoom, case_, eq, get, interpolate, isOneOf, linear, zoom } from "../src"
+import { add, byZoom, byZoomMatch, case_, classify, colorOr, compactNumber, contrastText, eq, get, globalState, ifFeatureState, interpolate, isNoneOf, isOneOf, linear, localizedName, zoom } from "../src"
 import { evaluate, lintStyle } from "../src/testing"
 
 function style(...layers: unknown[]): object {
@@ -168,5 +168,18 @@ describe("lintStyle", () => {
       circle("second", { paint: { "circle-radius": "big" } }),
     ))
     expect(issues.map(issue => issue.layer)).toEqual(["first", "second"])
+  })
+
+  it("passes every recipe", () => {
+    expect(lintStyle(style(
+      { id: "roads", type: "line", source: "s", filter: isNoneOf(get("class"), ["path"]), paint: {
+        "line-width": byZoomMatch(get("class"), [["motorway", [[5, 1], [18, 20]]]], [[10, 0.5], [18, 4]]),
+        "line-color": colorOr(get("color"), "#888", { hashlessHex: true }),
+        "line-opacity": ifFeatureState([["selected", 1], ["hover", 0.8]], 0.6),
+      } },
+      { id: "areas", type: "fill", source: "s", paint: { "fill-color": classify(get("density"), [10, 50], ["#fee", "#f86", "#c21"], "#ccc"), "fill-opacity": byZoom([[4, 0.4], [12, 0.8]], linear()) } },
+      { id: "labels", type: "symbol", source: "s", layout: { "text-field": localizedName([globalState("lang"), "en"], { secondLine: "name" }) }, paint: { "text-color": contrastText(get("bg")) } },
+      { id: "counts", type: "symbol", source: "s", layout: { "text-field": compactNumber(get("point_count"), { locale: "de" }) } },
+    ))).toEqual([])
   })
 })
