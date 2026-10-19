@@ -1,5 +1,11 @@
 # @builtbyfield/maplibre-expr
 
+## 0.4.1
+
+### Patch Changes
+
+- [#37](https://github.com/builtbyfield/maplibre-expr/pull/37) [`c63d7e4`](https://github.com/builtbyfield/maplibre-expr/commit/c63d7e4ce73b0dfd8b57bb5168f21ca93849f7dc) Thanks [@essejmclean](https://github.com/essejmclean)! - Reworded the README, the package description and the JSDoc so they read more plainly. No code changes.
+
 ## 0.4.0
 
 ### Minor Changes
