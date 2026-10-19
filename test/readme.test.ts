@@ -8,6 +8,7 @@ import {
   all,
   byZoom,
   case_,
+  coalesce,
   compactNumber,
   divide,
   eq,
@@ -15,6 +16,7 @@ import {
   get,
   globalState,
   gt,
+  image,
   interpolate,
   isOneOf,
   let_,
@@ -129,5 +131,13 @@ describe("rEADME examples", () => {
     expect(at(1_234_567, { locale: "en-IN", currency: "INR" })).toBe("₹12L")
     expect(at(9876, { minimum: 10_000 })).toBe("9,876")
     expect(at(1536, { scales: [[1024, " KB"], [1024 ** 2, " MB"]] })).toBe("1.5 KB")
+  })
+
+  it("gotcha: icons missing from the sprite", () => {
+    const icon = coalesce(image(get("subclass")), image(get("class")))
+    const properties = { subclass: "furniture", class: "shop" }
+    expect(evaluate(icon, { properties, availableImages: ["shop"] })).toBe("shop")
+    expect(evaluate(icon, { properties, availableImages: ["shop", "furniture"] })).toBe("furniture")
+    expect(evaluate(icon, { properties, availableImages: [] })).toBe("furniture")
   })
 })

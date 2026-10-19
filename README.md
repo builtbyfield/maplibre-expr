@@ -220,6 +220,7 @@ MapLibre behaviors that surprise people. The builders throw for the ones they ca
 - **Comparing two literals in a filter.** `eq("class", "park")` reads as old-style filter syntax (property `class` is `"park"`) in a filter, and as a constant `false` anywhere else. The comparison builders throw for it; write `eq(get("class"), "park")`.
 - **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0.
 - **Odd conversions.** `toNumber("")` is `0`, `toBoolean("false")` is `true`, and `sqrt(-1)` and `0 / 0` give `NaN`, which MapLibre replaces with the property's default.
+- **Icons missing from the sprite.** `"icon-image": get("subclass")` shows nothing when the sprite has no image of that name. `coalesce(image(get("subclass")), image(get("class")))` falls back to the next image that exists (if none does, it returns the first name, so `styleimagemissing` still fires for it). That beats keeping a list of the names your sprite has, which goes stale.
 - **Names aren't paths.** `get("a.b")` reads a property literally named `"a.b"`; use `get("b", object(get("a")))`.
 - **Colors.** `oklch()`, `lab()` and `color()` aren't supported; hex, `rgb()`, `hsl()` and named colors are.
 - **Upstream bugs this library works around or documents:**
