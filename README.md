@@ -24,7 +24,7 @@ evaluate(isMajor, { properties: { class: "minor" } }) // false
 MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, so raw arrays get no help from the compiler. This package attacks that from two sides:
 
 - **Types.** Every builder records what its expression evaluates to (`Expr<number>`, `Expr<string>`, `Expr<Color>`, and so on), so wrong compositions are compile errors. With [typed feature data](#typed-feature-data), so are misspelled property names and values.
-- **Tests.** `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would fail silently, so you can unit-test a filter against sample features, and [check that a rewrite behaves the same](#checking-a-rewrite).
+- **Tests.** `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would fail silently, so you can unit-test a filter against sample features, [check that a rewrite behaves the same](#checking-a-rewrite), and [lint a whole style](#linting-a-whole-style).
 
 Also:
 
@@ -137,6 +137,24 @@ Pass `property` (any layer property name, or `"filter"`) to check an expression 
 
 `evaluate` and `validate` accept plain values as well as expressions, so helpers typed to return `BooleanInput` or `NumberInput` can be tested directly.
 
+### Linting a whole style
+
+`lintStyle` checks a complete style, such as a `style.json` you already have, so you can start using it before you write a single builder:
+
+```ts
+import { lintStyle } from "@builtbyfield/maplibre-expr/testing"
+
+expect(lintStyle(style)).toEqual([])
+// or, when something's wrong:
+// [{ rule: "constant-comparison", layer: "parks", property: "fill-color", message: '[1]: ["==","class","park"] compares two literals, so it's constant. ...' }]
+```
+
+It runs MapLibre's style validator over the whole style (the `"spec"` rule; maplibre-gl runs the same one when it loads a style), and reports each problem by layer id and property. It also runs three checks the validator doesn't:
+
+- `"filter-type"`: an expression filter that isn't a boolean. maplibre-gl throws when it creates the layer.
+- `"constant-comparison"`: `["==", "class", "park"]` in a paint or layout property compares two strings, so it's always `false`. In a filter it's valid legacy syntax, and the validator already catches it mixed into an expression filter. The comparison builders refuse to build it.
+- `"transparent-fade"`: a ramp from `"#fff"` to `"transparent"` is grey halfway, because `"transparent"` is transparent _black_ and MapLibre blends the color channels too. It suggests the same color at alpha 0. Transparent stops with a color, like a heatmap starting at `rgba(33,102,172,0)`, blend hues on purpose and aren't reported.
+
 ## For AI coding agents
 
 A broken expression produces no error at render time, only missing features, so an agent can't see its own mistakes by looking at the map. Paste this into your project's `AGENTS.md` or `CLAUDE.md`:
@@ -150,6 +168,7 @@ A broken expression produces no error at render time, only missing features, so 
 - Check each expression where it's used with `validate(expr, { property })`.
 - Break an expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
 - When rewriting an existing expression, show the behavior is unchanged with `assertEquivalent(before, after)`.
+- Test the finished style with `expect(lintStyle(style)).toEqual([])`.
 ```
 
 ## What the types check
@@ -207,7 +226,7 @@ The builders emit standard style-spec JSON, so they work wherever MapLibre style
   - `split`, `join` and the `unit` option of `numberFormat` need 5.20+;
   - `globalState` and `elevation` need 5.6+;
   - `distance` needs 4.2+.
-- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe and `mixColors` in HCL/Lab. Several of the linked tracking issues are closed, so check your Native version.
+- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe. Several of the linked tracking issues are closed, so check your Native version.
 
 Each of these functions' docs carries the same note, with a link to the tracking issue.
 
@@ -218,7 +237,7 @@ MapLibre behaviors that surprise people. The builders throw for the ones they ca
 - **Missing properties break math.** `get` returns `null` for a missing property, most operators fail on `null`, and MapLibre then silently uses the property's default. Use `getOr("height", 0)` or `coalesce`.
 - **No type coercion.** A property holding `"1"` doesn't equal or match `1`, and `lt(get("n"), 5)` fails at runtime if `n` is a string; vector tiles often store numbers as strings. Convert with `toNumber`.
 - **Comparing two literals in a filter.** `eq("class", "park")` reads as old-style filter syntax (property `class` is `"park"`) in a filter, and as a constant `false` anywhere else. The comparison builders throw for it; write `eq(get("class"), "park")`.
-- **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0.
+- **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0; [`lintStyle`](#linting-a-whole-style) flags this.
 - **Odd conversions.** `toNumber("")` is `0`, `toBoolean("false")` is `true`, and `sqrt(-1)` and `0 / 0` give `NaN`, which MapLibre replaces with the property's default.
 - **Icons missing from the sprite.** `"icon-image": get("subclass")` shows nothing when the sprite has no image of that name. `coalesce(image(get("subclass")), image(get("class")))` falls back to the next image that exists (if none does, it returns the first name, so `styleimagemissing` still fires for it). That beats keeping a list of the names your sprite has, which goes stale.
 - **Numbers in text.** `concat(toString(get("height")), " m")` shows float noise (`"7.000000000000001 m"`) and `" m"` when the value is missing. `numberFormat(get("height"), { "unit": "meter", "max-fraction-digits": 1 })` gives `"7 m"`, and no label when the value is missing.
