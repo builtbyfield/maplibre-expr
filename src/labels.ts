@@ -156,15 +156,11 @@ export function compactNumber(input: NumberInput, options: CompactNumberOptions 
  * @example firstNonEmpty(get("name:en"), get("name"), "Unnamed")
  */
 export function firstNonEmpty(...values: [AnyInput, ...AnyInput[]]): Expr<string> {
-  const pick = (i: number): Expr<string> | string => {
-    if (i === values.length)
-      return ""
-    return let_({ [`v${i}`]: toString(values[i]) }, (refs) => {
-      const value = refs[`v${i}`] as Expr<string>
-      return case_([[gt(length(value), 0), value]], pick(i + 1))
-    })
-  }
-  return pick(0) as Expr<string>
+  // A `case` per value, not a `let`: MapLibre's parser takes time exponential in the depth of nested `let`s
+  return values.reduceRight<Expr<string> | string>((rest, value) => {
+    const text = toString(value)
+    return case_([[gt(length(text), 0), text]], rest)
+  }, "") as Expr<string>
 }
 
 /** Options of {@link localizedName}. */

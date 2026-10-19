@@ -133,10 +133,11 @@ describe("localizedName", () => {
   })
 
   it("is valid as a text-field, even with many languages", () => {
-    const many = ["fr", "de", "es", "it", "pt", "nl", "pl", "ru", "ja", "zh", "ko", "ar", "he", "hi", "tr", "sv", "fi", "da", "no", "cs"]
-    expect(validate(localizedName(many, { secondLine: "name" }), { property: "text-field" })).toEqual({ valid: true, errors: [] })
+    // 40 languages: with a `let` per value (as before), MapLibre's parser would take time exponential in that
+    const many = Array.from({ length: 40 }, (_, i) => `l${i}`)
+    expect(validate(localizedName(many, { secondLine: ["name:nonlatin", "name"] }), { property: "text-field" })).toEqual({ valid: true, errors: [] })
     expect(validate(localizedName([globalState("lang"), "en"], { secondLine: "name" }), { property: "text-field" })).toEqual({ valid: true, errors: [] })
-  })
+  }, 2000)
 
   it("rejects a field without {lang}", () => {
     expect(() => localizedName(["en"], { field: "name_en" })).toThrow(RangeError)
