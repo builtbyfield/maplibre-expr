@@ -226,7 +226,7 @@ The builders emit standard style-spec JSON, so they work wherever MapLibre style
   - `split`, `join` and the `unit` option of `numberFormat` need 5.20+;
   - `globalState` and `elevation` need 5.6+;
   - `distance` needs 4.2+.
-- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe and `mixColors` in HCL/Lab. Several of the linked tracking issues are closed, so check your Native version.
+- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe. Several of the linked tracking issues are closed, so check your Native version.
 
 Each of these functions' docs carries the same note, with a link to the tracking issue.
 
