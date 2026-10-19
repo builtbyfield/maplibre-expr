@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.4.0",
   "packageManager": "pnpm@10.34.7",
-  "description": "Type-safe MapLibre style expressions for TypeScript. Typos and type mismatches fail to compile, a test harness runs expressions on MapLibre's own engine, and the output is plain style JSON.",
+  "description": "Type-safe MapLibre style expressions for TypeScript, so a broken expression shows up in your editor or your tests, not as a missing layer on the map.",
   "author": {
     "name": "Jesse McLean",
     "email": "jesse@builtbyfield.com",
