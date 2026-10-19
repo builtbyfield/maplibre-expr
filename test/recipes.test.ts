@@ -4,6 +4,7 @@ import {
   byZoom,
   byZoomMatch,
   classify,
+  colorOr,
   contrastText,
   geometryType,
   get,
@@ -237,5 +238,33 @@ describe("isNoneOf", () => {
     expect(evaluate(filter, { properties: { class: "primary" } })).toBe(true)
     expect(evaluate(filter, { properties: {} })).toBe(true)
     expect(() => isNoneOf(get("x"), [])).toThrow(RangeError)
+  })
+})
+
+describe("colorOr", () => {
+  const color = (c: unknown, hashlessHex?: boolean): unknown =>
+    evaluate(colorOr(get("c"), "#3388ff", hashlessHex ? { hashlessHex } : {}), { properties: c === undefined ? {} : { c }, type: "color" })
+  const fallback = "rgba(51,136,255,1)"
+
+  it("falls back for values coalesce passes through, which MapLibre draws black", () => {
+    for (const c of [undefined, "", "nope", "FF0000", 123, true])
+      expect(color(c), JSON.stringify(c)).toBe(fallback)
+    expect(() => evaluate(["coalesce", ["get", "c"], "#3388ff"], { properties: { c: "nope" }, type: "color" })).toThrow()
+    expect(color("#f00")).toBe("rgba(255,0,0,1)")
+    expect(color("teal")).toBe("rgba(0,128,128,1)")
+    expect(color("rgb(0, 128, 0)")).toBe("rgba(0,128,0,1)")
+  })
+
+  it("reads hex without # when asked", () => {
+    expect(color("FF0000", true)).toBe("rgba(255,0,0,1)")
+    expect(color("f00", true)).toBe("rgba(255,0,0,1)")
+    expect(color("nope", true)).toBe(fallback)
+    expect(color(123, true)).toBe(fallback)
+    // Why it's opt-in: some words are hex
+    expect(color("bad", true)).toBe("rgba(187,170,221,1)")
+  })
+
+  it("is valid as a line-color", () => {
+    expect(validate(colorOr(get("route_color"), "#38f", { hashlessHex: true }), { property: "line-color" })).toEqual({ valid: true, errors: [] })
   })
 })

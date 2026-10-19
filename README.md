@@ -221,6 +221,7 @@ MapLibre behaviors that surprise people. The builders throw for the ones they ca
 - **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0.
 - **Odd conversions.** `toNumber("")` is `0`, `toBoolean("false")` is `true`, and `sqrt(-1)` and `0 / 0` give `NaN`, which MapLibre replaces with the property's default.
 - **Icons missing from the sprite.** `"icon-image": get("subclass")` shows nothing when the sprite has no image of that name. `coalesce(image(get("subclass")), image(get("class")))` falls back to the next image that exists (if none does, it returns the first name, so `styleimagemissing` still fires for it). That beats keeping a list of the names your sprite has, which goes stale.
+- **Numbers in text.** `concat(toString(get("height")), " m")` shows float noise (`"7.000000000000001 m"`) and `" m"` when the value is missing. `numberFormat(get("height"), { "unit": "meter", "max-fraction-digits": 1 })` gives `"7 m"`, and no label when the value is missing.
 - **Names aren't paths.** `get("a.b")` reads a property literally named `"a.b"`; use `get("b", object(get("a")))`.
 - **Colors.** `oklch()`, `lab()` and `color()` aren't supported; hex, `rgb()`, `hsl()` and named colors are.
 - **Upstream bugs this library works around or documents:**
@@ -232,20 +233,21 @@ MapLibre behaviors that surprise people. The builders throw for the ones they ca
 
 Each recipe handles something that's easy to get wrong by hand. The JSDoc of each one says what.
 
-| Recipe                                              | What it does                                                                                                             |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `byZoom(stops, curve?)`                             | A value that changes with zoom: `exponential(1.5)` for sizes, `linear()` for colors.                                     |
-| `byZoomMatch(input, branches, fallback, curve?)`    | A different zoom ramp per category, e.g. road width by class. The obvious `match` of zoom ramps is rejected by MapLibre. |
-| `metersToPixels(meters, latitude)`                  | A size in pixels that stays a fixed real-world distance at every zoom, e.g. a 500 m `circle-radius`.                     |
-| `classify(input, breaks, outputs, noData)`          | Choropleth classes. Missing and non-numeric values get `noData` instead of the property's default.                       |
-| `ifFeatureState(state, whenTrue, whenFalse)`        | Hover/selected styling via feature state; an unset state counts as false. Takes a priority list too.                     |
-| `getOr(property, fallback)`                         | A property, or the fallback if it's missing _or has the wrong type_.                                                     |
-| `isOneOf(input, values)`, `isNoneOf(input, values)` | Membership tests that compile to a fast `match`; no `literal` to forget.                                                 |
-| `localizedName(languages, options?)`                | The name in the first available language, optionally with the local name on a second line.                               |
-| `firstNonEmpty(...values)`                          | Like `coalesce`, but also skips `""`.                                                                                    |
-| `compactNumber(input, options?)`                    | `1234` becomes `"1.2K"`, in any locale: `"1,2 Mio."`, `"12L"`, `"123万"`, with currencies and units.                     |
-| `contrastText(background, options?)`                | Black or white text, whichever reads better on a data-driven background (WCAG 2).                                        |
-| `withAlpha(color, alpha)`                           | The same color with a different opacity.                                                                                 |
+| Recipe                                              | What it does                                                                                                                                                         |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `byZoom(stops, curve?)`                             | A value that changes with zoom: `exponential(1.5)` for sizes, `linear()` for colors.                                                                                 |
+| `byZoomMatch(input, branches, fallback, curve?)`    | A different zoom ramp per category, e.g. road width by class. The obvious `match` of zoom ramps is rejected by MapLibre.                                             |
+| `metersToPixels(meters, latitude)`                  | A size in pixels that stays a fixed real-world distance at every zoom, e.g. a 500 m `circle-radius`.                                                                 |
+| `classify(input, breaks, outputs, noData)`          | Choropleth classes. Missing and non-numeric values get `noData` instead of the property's default.                                                                   |
+| `ifFeatureState(state, whenTrue, whenFalse)`        | Hover/selected styling via feature state; an unset state counts as false. Takes a priority list too.                                                                 |
+| `getOr(property, fallback)`                         | A property, or the fallback if it's missing _or has the wrong type_.                                                                                                 |
+| `isOneOf(input, values)`, `isNoneOf(input, values)` | Membership tests that compile to a fast `match`; no `literal` to forget.                                                                                             |
+| `localizedName(languages, options?)`                | The name in the first available language, optionally with the local name on a second line.                                                                           |
+| `firstNonEmpty(...values)`                          | Like `coalesce`, but also skips `""`.                                                                                                                                |
+| `compactNumber(input, options?)`                    | `1234` becomes `"1.2K"`, in any locale: `"1,2 Mio."`, `"12L"`, `"123万"`, with currencies and units.                                                                 |
+| `contrastText(background, options?)`                | Black or white text, whichever reads better on a data-driven background (WCAG 2).                                                                                    |
+| `colorOr(value, fallback, options?)`                | A color from feature data, with a fallback for missing, empty and invalid values (`coalesce` only covers missing ones). Reads GTFS-style hex without `#` on request. |
+| `withAlpha(color, alpha)`                           | The same color with a different opacity.                                                                                                                             |
 
 ### Labels in the reader's language
 
@@ -267,7 +269,7 @@ The second line shows the local name only when it's there and differs from the f
 MapLibre's `number-format` has no compact notation. `compactNumber` reads the locale's abbreviations from `Intl.NumberFormat` when it builds the expression, and its output matches `Intl` (the tests check this in 12 locales):
 
 ```ts
-compactNumber(get("count")) // 1234 → "1.2K", 56789 → "57K"
+compactNumber(get("point_count")) // 1234 → "1.2K", 56789 → "57K"; point_count_abbreviated is English only
 compactNumber(get("population"), { locale: "de" }) // 1234567 → "1,2 Mio." (thousands aren't abbreviated in German)
 compactNumber(get("sales"), { locale: "en-IN", currency: "INR" }) // 1234567 → "₹12L"
 compactNumber(get("count"), { minimum: 10_000 }) // 9876 → "9,876"
@@ -293,6 +295,8 @@ Setting it by hand with `map.setGlobalStateProperty` has three pitfalls, which `
 - **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (e.g. from devtools) is put back on the next `styledata`. Stop the sync first.
 
 To change the value, stop and sync again. In React: `useEffect(() => syncGlobalState(map, "now", now), [map, now])`.
+
+The same goes for selections and sliders: instead of rebuilding a filter on every click or slider input, compare against global state, e.g. `eq(get("route_id"), globalState("route"))` or `in_(get("id"), globalState("selected"))` with an array. An unset value makes `eq` and `in_` false, but makes number comparisons like `lte(get("start"), globalState("time"))` fail, which hides every feature until the value is set; `syncGlobalState` sets it as soon as the style loads.
 
 Global state doesn't make re-filtering free: when the value changes, MapLibre still re-evaluates the layers that read it. What you save is rebuilding and re-applying filters. Global state needs maplibre-gl 5.6+ (see [platform support](#platform-support)).
 

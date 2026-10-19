@@ -10,6 +10,7 @@ import {
   case_,
   coalesce,
   compactNumber,
+  concat,
   divide,
   eq,
   featureState,
@@ -17,6 +18,7 @@ import {
   globalState,
   gt,
   image,
+  in_,
   interpolate,
   isOneOf,
   let_,
@@ -26,6 +28,7 @@ import {
   match,
   numberFormat,
   syncGlobalState,
+  toString,
   typedGlobalState,
   typedProperties,
   zoom,
@@ -139,5 +142,18 @@ describe("rEADME examples", () => {
     expect(evaluate(icon, { properties, availableImages: ["shop"] })).toBe("shop")
     expect(evaluate(icon, { properties, availableImages: ["shop", "furniture"] })).toBe("furniture")
     expect(evaluate(icon, { properties, availableImages: [] })).toBe("furniture")
+  })
+
+  it("global state for selections and sliders", () => {
+    expect(evaluate(eq(get("route_id"), globalState("route")), { properties: { route_id: "A" } })).toBe(false)
+    expect(evaluate(in_(get("id"), globalState("selected")), { properties: { id: 2 }, globalState: { selected: [1, 2] } })).toBe(true)
+    expect(evaluate(in_(get("id"), globalState("selected")), { properties: { id: 2 } })).toBe(false)
+    expect(() => evaluate(lte(get("start"), globalState("time")), { properties: { start: 5 } })).toThrow()
+  })
+
+  it("gotcha: numbers in text", () => {
+    expect(evaluate(concat(toString(get("height")), " m"), { properties: { height: 0.07 * 100 } })).toBe("7.000000000000001 m")
+    expect(evaluate(concat(toString(get("height")), " m"), { properties: {} })).toBe(" m")
+    expect(evaluate(numberFormat(get("height"), { "unit": "meter", "max-fraction-digits": 1 }), { properties: { height: 0.07 * 100 } })).toBe("7 m")
   })
 })

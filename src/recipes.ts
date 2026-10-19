@@ -1,4 +1,4 @@
-import type { Color, ColorInput, Expr, Input, NumberInput, Projection, ProjectionInput, StringInput } from "./expr"
+import type { AnyInput, Color, ColorInput, Expr, Input, NumberInput, Projection, ProjectionInput, StringInput } from "./expr"
 import type { MatchLabel } from "./operators/decision"
 import type { Interpolation, Stops } from "./operators/ramps"
 
@@ -9,6 +9,7 @@ import { featureState, zoom } from "./operators/feature"
 import { at, get } from "./operators/lookup"
 import { add, cos, divide, max, min, multiply, pi, pow } from "./operators/math"
 import { exponential, interpolate, linear } from "./operators/ramps"
+import { concat } from "./operators/string"
 import { boolean, typeof_ } from "./operators/types"
 import { let_ } from "./operators/variables"
 
@@ -140,6 +141,31 @@ export function isNoneOf<L extends string | number>(input: Input<L>, values: rea
   const unique = [...new Set(values)]
   assertMatchLabels("isNoneOf", [unique])
   return op("match", input, unique, false, true)
+}
+
+/** Options of {@link colorOr}. */
+export interface ColorOrOptions {
+  /**
+   * Also read hex colors written without `#`, like GTFS `route_color`
+   * (`"FF0000"`). Off by default, because it turns some words into colors:
+   * `"bad"` would become `#bad`.
+   */
+  hashlessHex?: boolean
+}
+
+/**
+ * A color from feature data, or `fallback` if the value is missing, empty or
+ * not a color. `coalesce(get("color"), fallback)` only covers missing
+ * values: for `""`, `"FF0000"` or `"nope"` it fails, and MapLibre draws the
+ * property's default, usually black.
+ *
+ * @example "line-color": colorOr(get("route_color"), "#3388ff", { hashlessHex: true }) // GTFS colors
+ * @example "fill-color": colorOr(get("color"), "#ccc")
+ */
+export function colorOr(value: AnyInput, fallback: ColorInput, options: ColorOrOptions = {}): Expr<Color> {
+  return let_({ value }, ({ value }) => case_([
+    [eq(typeof_(value), "string"), op<Color>("to-color", value, ...(options.hashlessHex ? [concat("#", value)] : []), fallback)],
+  ], fallback))
 }
 
 /**
