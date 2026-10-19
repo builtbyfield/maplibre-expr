@@ -3,11 +3,11 @@ import type { Interpolation, Stops } from "./operators/ramps"
 
 import { assertMatchLabels, op } from "./internal"
 import { rgba, toRgba } from "./operators/color"
-import { all, case_, gte, lte } from "./operators/decision"
+import { case_, gte } from "./operators/decision"
 import { featureState, zoom } from "./operators/feature"
 import { at, get } from "./operators/lookup"
 import { abs, cos, divide, multiply, pi } from "./operators/math"
-import { exponential, interpolate, interpolateHcl, interpolateLab, linear } from "./operators/ramps"
+import { exponential, interpolate } from "./operators/ramps"
 import { concat } from "./operators/string"
 import { boolean, numberFormat } from "./operators/types"
 import { let_ } from "./operators/variables"
@@ -103,32 +103,6 @@ export function isOneOf<L extends string | number>(input: Input<L>, values: read
   return op("match", input, unique, true, false)
 }
 
-/**
- * `true` if `min <= input <= max`.
- *
- * @example filter: between(get("year"), 1900, 1999)
- */
-export function between(input: NumberInput, min: NumberInput, max: NumberInput): Expr<boolean> {
-  return let_({ value: input }, ({ value }) => all(gte(value, min), lte(value, max)))
-}
-
-/**
- * {@link match} from a plain object: each key is a label, each value its
- * output. Handy for category-to-color palettes. Keys are strings, so
- * `input` must evaluate to a string.
- *
- * Throws if `record` is empty.
- *
- * @example
- * "fill-color": matchRecord(get("landuse"), { park: "#9c6", water: "#7bd", residential: "#eee" }, "#ccc")
- */
-export function matchRecord<T>(input: StringInput, record: Readonly<Record<string, Input<T>>>, fallback: Input<NoInfer<T>>): Expr<T> {
-  const entries = Object.entries(record)
-  if (entries.length === 0)
-    throw new RangeError("matchRecord: record must not be empty")
-  return op("match", input, ...entries.flat(), fallback)
-}
-
 /** Options of {@link compactNumber}. */
 export interface CompactNumberOptions {
   /** BCP 47 language tag for digit grouping and decimal separator. */
@@ -166,18 +140,4 @@ export function compactNumber(input: NumberInput, options: CompactNumberOptions 
  */
 export function withAlpha(color: ColorInput, alpha: NumberInput): Expr<Color> {
   return let_({ c: toRgba(color) }, ({ c }) => rgba(at(0, c), at(1, c), at(2, c), alpha))
-}
-
-/**
- * Blends two colors: `ratio` 0 gives `from`, 1 gives `to`. Blends in RGB by
- * default; `"hcl"` or `"lab"` give perceptually smoother mixes. The style
- * spec lists HCL and Lab as not yet supported in MapLibre Native; see
- * https://github.com/maplibre/maplibre-native/issues/2784. Alpha isn't
- * premultiplied: mixing with `"transparent"` mixes in black.
- *
- * @example mixColors("#fff", get("color"), 0.25) // a tint of the feature's color
- */
-export function mixColors(from: ColorInput, to: ColorInput, ratio: NumberInput, space: "rgb" | "hcl" | "lab" = "rgb"): Expr<Color> {
-  const blend = { rgb: interpolate, hcl: interpolateHcl, lab: interpolateLab }[space] as typeof interpolateLab
-  return blend(linear(), ratio, [[0, from], [1, to]])
 }

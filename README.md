@@ -187,7 +187,7 @@ The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", .
 Some mistakes are caught when the expression is built:
 
 - `interpolate` and `step` throw if stops aren't in ascending order.
-- `let_`, `isOneOf` and `matchRecord` throw when given nothing to work with.
+- `let_` and `isOneOf` throw when given nothing to work with.
 
 ### What they don't check
 
@@ -236,11 +236,8 @@ MapLibre behaviors that surprise people. The builders throw for the ones they ca
 | `ifFeatureState(state, whenTrue, whenFalse)` | Hover/selected styling via feature state; an unset state counts as false.                            |
 | `getOr(property, fallback)`                  | A property, or the fallback if it's missing _or has the wrong type_.                                 |
 | `isOneOf(input, values)`                     | Membership test that compiles to a fast `match`; no `literal` to forget.                             |
-| `between(input, min, max)`                   | Inclusive range test.                                                                                |
-| `matchRecord(input, record, fallback)`       | `match` from a plain object, e.g. a category-to-color palette.                                       |
 | `compactNumber(input, options?)`             | `1234` becomes `"1.2k"`, `5600000` becomes `"5.6M"`, e.g. for cluster counts.                        |
 | `withAlpha(color, alpha)`                    | The same color with a different opacity.                                                             |
-| `mixColors(from, to, ratio, space?)`         | Blend two colors in RGB, HCL or Lab.                                                                 |
 
 ## Global state
 
