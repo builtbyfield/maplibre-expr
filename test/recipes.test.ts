@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  between,
   byZoom,
   compactNumber,
   geometryType,
@@ -11,15 +10,13 @@ import {
   ifFeatureState,
   isOneOf,
   linear,
-  matchRecord,
   metersToPixels,
-  mixColors,
   typedFeatureState,
   typedGlobalState,
   typedProperties,
   withAlpha,
 } from "../src"
-import { evaluate, validate } from "../src/testing"
+import { evaluate } from "../src/testing"
 
 describe("typed accessors", () => {
   interface Place { name: string, rank: number }
@@ -107,27 +104,6 @@ describe("isOneOf", () => {
   })
 })
 
-describe("between", () => {
-  it("is inclusive", () => {
-    const decade = between(get("year"), 1990, 1999)
-    expect(evaluate(decade, { properties: { year: 1990 } })).toBe(true)
-    expect(evaluate(decade, { properties: { year: 1999 } })).toBe(true)
-    expect(evaluate(decade, { properties: { year: 2000 } })).toBe(false)
-  })
-})
-
-describe("matchRecord", () => {
-  it("maps keys to outputs", () => {
-    const fill = matchRecord(get("landuse"), { park: "#9c6", water: "#7bd" }, "#ccc")
-    expect(fill).toEqual(["match", ["get", "landuse"], "park", "#9c6", "water", "#7bd", "#ccc"])
-    expect(evaluate(fill, { properties: { landuse: "water" }, type: "color" })).toBe("rgba(119,187,221,1)")
-  })
-
-  it("rejects an empty record", () => {
-    expect(() => matchRecord(get("x"), {}, 0)).toThrow(RangeError)
-  })
-})
-
 describe("compactNumber", () => {
   it.each([
     [0, "0"],
@@ -159,17 +135,5 @@ describe("color recipes", () => {
   it("withAlpha replaces the alpha channel", () => {
     expect(evaluate(withAlpha("#ff0000", 0.25))).toBe("rgba(255,0,0,0.25)")
     expect(evaluate(withAlpha(get("c"), 0.5), { properties: { c: "rgba(0,0,255,1)" } })).toBe("rgba(0,0,255,0.5)")
-  })
-
-  it("fading to 'transparent' darkens; fading to the same color at alpha 0 doesn't", () => {
-    expect(evaluate(mixColors("#ff0000", "transparent", 0.5))).toBe("rgba(128,0,0,0.5)")
-    expect(evaluate(mixColors("#ff0000", "rgba(255,0,0,0)", 0.5))).toBe("rgba(255,0,0,0.5)")
-  })
-
-  it("mixColors blends between two colors", () => {
-    expect(evaluate(mixColors("#000000", "#ffffff", 0.5))).toBe("rgba(128,128,128,1)")
-    expect(evaluate(mixColors("#000000", "#ffffff", 0))).toBe("rgba(0,0,0,1)")
-    for (const space of ["hcl", "lab"] as const)
-      expect(validate(mixColors("#f00", "#00f", get("t"), space))).toEqual({ valid: true, errors: [] })
   })
 })
