@@ -1,5 +1,7 @@
 # Contributing
 
+Before starting on an issue, comment on it so we can agree on the approach. PRs for issues nobody has discussed may be closed.
+
 ```sh
 pnpm install
 pnpm test          # unit and type tests, watch mode
