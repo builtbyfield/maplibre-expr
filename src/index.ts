@@ -1,6 +1,7 @@
 export * from "./accessors"
 export * from "./expr"
 export * from "./global-state"
+export * from "./labels"
 export type { OperatorName } from "./operator-names"
 export * from "./operators/color"
 export * from "./operators/decision"

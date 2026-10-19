@@ -19,6 +19,7 @@ import {
   isOneOf,
   let_,
   linear,
+  localizedName,
   lte,
   match,
   numberFormat,
@@ -114,5 +115,19 @@ describe("rEADME examples", () => {
     }
     expect(evaluate(isOpenAt(12), { properties: { opens: 9, closes: 17 } })).toBe(true)
     expect(evaluate(widthRamp([[10, 1], [20, 3]]), { zoom: 15 })).toBe(2)
+  })
+
+  it("labels in the reader's language", () => {
+    const layout = { "text-field": localizedName([globalState("lang"), "en"], { secondLine: "name" }) }
+    expect(evaluate(layout["text-field"], { properties: { "name": "München", "name:en": "Munich" }, globalState: { lang: "de-x" } })).toBe("Munich\nMünchen")
+  })
+
+  it("compact numbers in any locale", () => {
+    const at = (n: number, options?: Parameters<typeof compactNumber>[1]): unknown => evaluate(compactNumber(get("n"), options), { properties: { n } })
+    expect([at(1234), at(56_789)]).toEqual(["1.2K", "57K"])
+    expect(at(1_234_567, { locale: "de" })).toBe("1,2\u00A0Mio.")
+    expect(at(1_234_567, { locale: "en-IN", currency: "INR" })).toBe("₹12L")
+    expect(at(9876, { minimum: 10_000 })).toBe("9,876")
+    expect(at(1536, { scales: [[1024, " KB"], [1024 ** 2, " MB"]] })).toBe("1.5 KB")
   })
 })
