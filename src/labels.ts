@@ -157,7 +157,8 @@ export function compactNumber(input: NumberInput, options: CompactNumberOptions 
  * @example firstNonEmpty(get("name:en"), get("name"), "Unnamed")
  */
 export function firstNonEmpty(...values: [AnyInput, ...AnyInput[]]): Expr<string> {
-  // A `case` per value, not a `let`: MapLibre's parser takes time exponential in the depth of nested `let`s
+  // A `case` per value, not a `let`: when maplibre-gl loads a style, nested `let`s (and `coalesce`s) take
+  // time exponential in their depth (maplibre/maplibre-style-spec#1933)
   return values.reduceRight<Expr<string> | string>((rest, value) => {
     const text = toString(value)
     return case_([[gt(length(text), 0), text]], rest)
