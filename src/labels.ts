@@ -178,10 +178,10 @@ export interface LocalizedNameOptions {
    * Properties for a second line, e.g. `"name"` for the local name under a
    * translated one (`"Munich"` / `"München"`), or `"name:nonlatin"` with
    * OpenMapTiles. The first non-empty one is shown when it differs from the
-   * first line and `is-supported-script` accepts it. maplibre-gl 5 and
-   * earlier reject right-to-left text without the RTL text plugin and
-   * scripts that need complex shaping (e.g. Devanagari), which they would
-   * draw wrongly; maplibre-gl 6 accepts everything.
+   * first line and `is-supported-script` accepts it. maplibre-gl before 6.9
+   * rejects right-to-left text without the RTL text plugin and scripts that
+   * need complex shaping (e.g. Devanagari), which it would draw wrongly;
+   * 6.9 and later accept everything.
    */
   secondLine?: string | readonly string[]
 }
