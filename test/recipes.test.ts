@@ -152,6 +152,14 @@ describe("byZoomMatch", () => {
     expect(evaluate(roads, { zoom: 18, properties: { class: "trunk" } })).toBe(20)
   })
 
+  it("holds a class's last value past its last stop, and resamples linear ramps exactly", () => {
+    const widths = byZoomMatch(get("c"), [["short", [[5, 1], [10, 4]]]], [[0, 0], [20, 10]], linear())
+    for (let z = 0; z <= 22; z += 0.5) {
+      expect(evaluate(widths, { zoom: z, properties: { c: "short" } })).toBeCloseTo(evaluate(interpolate(linear(), zoom(), [[5, 1], [10, 4]]), { zoom: z }) as number, 9)
+      expect(evaluate(widths, { zoom: z, properties: { c: "other" } })).toBeCloseTo(Math.min(z, 20) / 2, 9)
+    }
+  })
+
   it("supports linear ramps and collapses stops where every class agrees", () => {
     const widths = byZoomMatch(get("c"), [["a", [[0, 1], [10, 5]]]], [[0, 1], [10, 2]], linear())
     expect(widths).toEqual(["interpolate", ["linear"], ["zoom"], 0, 1, 10, ["match", ["get", "c"], "a", 5, 2]])
@@ -227,6 +235,12 @@ describe("ifFeatureState with priorities", () => {
     expect(color({ hover: true })).toBe("rgba(255,136,0,1)")
     expect(color({ selected: false })).toBe("rgba(136,136,136,1)")
     expect(color({})).toBe("rgba(136,136,136,1)")
+  })
+})
+
+describe("ifFeatureState errors", () => {
+  it("rejects an empty list", () => {
+    expect(() => ifFeatureState([] as never, 0)).toThrow(RangeError)
   })
 })
 

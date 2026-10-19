@@ -136,7 +136,8 @@ export function compactNumber(input: NumberInput, options: CompactNumberOptions 
         positive === negative ? positive : case_([[lt(n, 0), negative]], positive)
       const number = numberFormat(value, { "locale": locale, "max-fraction-digits": digits })
       const parts = [affix(scale.prefix), number, affix(scale.suffix)].filter(part => part !== "")
-      return parts.length === 1 ? number : concat(...parts as [StringInput, StringInput])
+      // There's always a sign or affix around the number, so there are at least two parts
+      return concat(...parts as [StringInput, StringInput])
     }
     const used = scales.map((scale, i) => ({ scale, i, start: starts[i]! })).filter(({ i, start }) => i === 0 || start < (starts[i + 1] ?? Infinity))
     const [first, ...rest] = used

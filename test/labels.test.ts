@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { compactNumber, firstNonEmpty, get, globalState, localizedName } from "../src"
 import { evaluate, validate } from "../src/testing"
@@ -58,6 +58,22 @@ describe("compactNumber", () => {
     expect(format(12_345, { minimum: 10_000 })).toBe("12K")
     expect(format(5_000_000, { minimum: 2e7 })).toBe("5,000,000")
     expect(format(25_000_000, { minimum: 2e7 })).toBe("25M")
+  })
+
+  it("abbreviates nothing below `minimum`, or with no scales", () => {
+    expect(format(1_234_567, { minimum: 1e30 })).toBe("1,234,567")
+    expect(format(-1_234_567, { scales: [] })).toBe("-1,234,567")
+  })
+
+  it("throws where Intl has no compact notation, e.g. older React Native engines", () => {
+    const spy = vi.spyOn(Intl.NumberFormat.prototype, "formatToParts").mockImplementation((n?: number | bigint) => [{ type: "integer", value: String(n) }])
+    try {
+      expect(() => compactNumber(get("n"))).toThrow(/no compact notation/)
+      expect(evaluate(compactNumber(get("n"), { scales: [[1000, "k"]] }), { properties: { n: 1500 } })).toBe("1.5k")
+    }
+    finally {
+      spy.mockRestore()
+    }
   })
 
   it("takes custom scales", () => {
