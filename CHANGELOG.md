@@ -1,5 +1,33 @@
 # @builtbyfield/maplibre-expr
 
+## 0.4.0
+
+### Minor Changes
+
+- [#31](https://github.com/builtbyfield/maplibre-expr/pull/31) [`a4185b8`](https://github.com/builtbyfield/maplibre-expr/commit/a4185b8cd2c6f2d1e7e5d00edc897d567b5c5092) Thanks [@essejmclean](https://github.com/essejmclean)! - Remove the `between`, `matchRecord` and `mixColors` recipes. Each was a thin wrapper with no pitfall to protect against, so it didn't earn a place in the API. Write them with the operators instead:
+  
+  - `between(x, min, max)` → `all(gte(x, min), lte(x, max))`, or `let_` if `x` is expensive
+  - `matchRecord(input, { a: 1, b: 2 }, 0)` → `match(input, Object.entries({ a: 1, b: 2 }), 0)`
+  - `mixColors(from, to, ratio)` → `interpolate(linear(), ratio, [[0, from], [1, to]])` (`interpolateHcl` or `interpolateLab` for the other color spaces)
+
+- [#30](https://github.com/builtbyfield/maplibre-expr/pull/30) [`027c907`](https://github.com/builtbyfield/maplibre-expr/commit/027c90722d676469f511b242007c2405989a510e) Thanks [@essejmclean](https://github.com/essejmclean)! - Add `lintStyle(style)` to `/testing`. It runs MapLibre's style validator over a whole style and reports each problem by layer id and property, plus three checks the validator doesn't do: expression filters that aren't booleans (maplibre-gl throws for these), comparisons of two literals in paint and layout properties (always constant), and color ramps that fade to `"transparent"` (they pass through grey).
+
+- [#33](https://github.com/builtbyfield/maplibre-expr/pull/33) [`e3e35ab`](https://github.com/builtbyfield/maplibre-expr/commit/e3e35ab8955e95569b4c34a38ec65504a5a833e4) Thanks [@essejmclean](https://github.com/essejmclean)! - New recipes, each checked against MapLibre's engine and patterns in 39 real styles:
+  
+  - `byZoomMatch(input, branches, fallback, curve?)`: a different zoom ramp per category, e.g. road width by class. MapLibre rejects the obvious `match` of zoom ramps; this builds the single ramp it accepts, with every category's ramp exact.
+  - `classify(input, breaks, outputs, noData)`: choropleth classes, with missing and non-numeric values sent to `noData` instead of the property's default.
+  - `localizedName(languages, options?)`: the name in the first available language, falling back to `name`. A language can be `globalState("lang")` to switch language at runtime, and `secondLine` adds the local name under a translation when it differs.
+  - `firstNonEmpty(...values)`: like `coalesce`, but also skips `""`.
+  - `contrastText(background, options?)`: black or white text, whichever has more contrast with a data-driven background (WCAG 2).
+  - `toColorOr(value, fallback, options?)`: a color from feature data with a fallback for missing, empty and invalid values, which `coalesce` draws black; `hashlessHex` reads GTFS-style `"FF0000"`.
+  - `isNoneOf(input, values)`: the negation of `isOneOf`, true for missing values like legacy `!in`.
+  - `ifFeatureState([[state, value], ...], fallback)`: several states in priority order.
+  
+  Breaking changes:
+  
+  - `compactNumber` reads abbreviations from `Intl.NumberFormat` for the locale, and its output now matches `Intl`'s compact notation: `"1.2K"` (was `"1.2k"`), `"57K"` (was `"56.8k"`), `"1,2 Mio."` in German, `"12L"` in Indian English. `locale` defaults to `"en"` (it was the device's locale for separators). New options: `currency`, `unit`, `minimum` and custom `scales`; `maxFractionDigits` still gives fixed decimals.
+  - `byZoom` uses `linear()` by default when a stop is a color or projection string. `exponential(1.5)` remains the default for numbers. Pass `exponential(1.5)` to keep the old color fades.
+
 ## 0.3.3
 
 ### Patch Changes
