@@ -26,6 +26,12 @@ export function assertNotLegacyComparison(fn: string, a: unknown, b: unknown): v
   }
 }
 
+/** The JSON a literal first operand of a comparison was probably meant as, for messages about raw expressions. */
+export function legacyComparisonFix(a: string): string {
+  const instead = a === "$type" ? `["geometry-type"]` : a === "$id" ? `["id"]` : JSON.stringify(["get", a])
+  return `If ${JSON.stringify(a)} is meant to be read from the feature, use ${instead}.`
+}
+
 /** Throws for `match` labels MapLibre rejects: duplicates, non-integer numbers and empty groups. */
 export function assertMatchLabels(fn: string, labels: readonly unknown[]): void {
   const seen = new Set<unknown>()

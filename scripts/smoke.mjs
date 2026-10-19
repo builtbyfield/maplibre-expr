@@ -57,14 +57,16 @@ try {
   const bare = project("bare", ["typescript@^7", "ts54@npm:typescript@~5.4.0"], {
     "runtime.mjs": `
       import { add, get, interpolate, linear, zoom } from "@builtbyfield/maplibre-expr"
-      import { evaluate, validate } from "@builtbyfield/maplibre-expr/testing"
+      import { evaluate, lintStyle, validate } from "@builtbyfield/maplibre-expr/testing"
       const value = evaluate(add(get("a"), interpolate(linear(), zoom(), [[0, 0], [10, 10]])), { properties: { a: 1 }, zoom: 5 })
       if (value !== 6) throw new Error("unexpected result " + value)
       const color = evaluate(interpolate(linear(), zoom(), [[0, "#000"], [10, "#fff"]]), { zoom: 5 })
       if (color !== "rgba(128,128,128,1)") throw new Error("unexpected color " + color)
       if (validate(get("w"), { property: "heatmap-intensity" }).valid) throw new Error("validate should reject data expressions in heatmap-intensity")
       if (validate(add(1, 2), { property: "filter" }).valid) throw new Error("validate should reject a filter that isn't a boolean")
-      console.log("  ok: evaluate and validate run on the bundled engine")
+      const issues = lintStyle({ version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": ["interpolate", ["linear"], ["zoom"], 0, "#fff", 10, "transparent"] } }] })
+      if (issues.length !== 1 || issues[0].rule !== "transparent-fade") throw new Error("unexpected lintStyle result " + JSON.stringify(issues))
+      console.log("  ok: evaluate, validate and lintStyle run on the bundled engine")
     `,
     "consumer.ts": `
       import { add, get } from "@builtbyfield/maplibre-expr"
