@@ -164,7 +164,7 @@ function transparentFades(value: unknown): string[] {
       const [r, g, b] = colors[neighbor]!.rgb.map(channel => Math.round(channel * 255))
       const fix = `rgba(${r},${g},${b},0)`
       const where = path.startsWith(".") ? `${path}[${i}][1]` : `${path}[${4 + 2 * i}]`
-      found.push(`${where}: fades ${JSON.stringify(outputs[neighbor])} to ${JSON.stringify(outputs[i])}, which also blends the color, e.g. from white through grey. Fade to ${JSON.stringify(fix)} instead.`)
+      found.push(`${where}: fades ${JSON.stringify(outputs[neighbor])} to ${JSON.stringify(outputs[i])}, which also blends the color toward black. Fade to ${JSON.stringify(fix)} instead.`)
     })
   }
   return found
