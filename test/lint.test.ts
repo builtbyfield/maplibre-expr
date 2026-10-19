@@ -148,6 +148,15 @@ describe("lintStyle", () => {
     ])
   })
 
+  it("handles odd shapes: no layers, array layers, a whole-property comparison, malformed legacy stops", () => {
+    expect(lintStyle({ version: 8, sources: {} })).toEqual([{ rule: "spec", message: "missing required property \"layers\"" }])
+    expect(lintStyle(style([]))).toEqual([{ rule: "spec", message: "layer must be an object, got an array" }])
+    const issues = lintStyle(style({ id: "f", type: "fill", source: "s", paint: { "fill-antialias": ["==", "a", "b"], "fill-color": { stops: [[0, "#fff"], "x"] } } }))
+    expect(issues.filter(issue => issue.rule !== "spec")).toEqual([
+      { rule: "constant-comparison", layer: "f", property: "fill-antialias", message: "[\"==\",\"a\",\"b\"] compares two literals, so it's constant. If \"a\" is meant to be read from the feature, use [\"get\",\"a\"]." },
+    ])
+  })
+
   it("suggests id() for a constant comparison on $id", () => {
     const [issue] = lintStyle(style(circle("a", { paint: { "circle-radius": ["case", ["==", "$id", "home"], 2, 1] } })))
     expect(issue?.message).toMatch(/use \["id"\]\.$/)
