@@ -153,7 +153,7 @@ It runs MapLibre's style validator over the whole style (the `"spec"` rule; mapl
 
 - `"filter-type"`: an expression filter that isn't a boolean. maplibre-gl throws when it creates the layer.
 - `"constant-comparison"`: `["==", "class", "park"]` in a paint or layout property compares two strings, so it's always `false`. In a filter it's valid legacy syntax, and the validator already catches it mixed into an expression filter. The comparison builders refuse to build it.
-- `"transparent-fade"`: a ramp from `"#fff"` to `"transparent"` is grey halfway, because MapLibre blends the color channels too. It suggests the same color at alpha 0.
+- `"transparent-fade"`: a ramp from `"#fff"` to `"transparent"` is grey halfway, because `"transparent"` is transparent _black_ and MapLibre blends the color channels too. It suggests the same color at alpha 0. Transparent stops with a color, like a heatmap starting at `rgba(33,102,172,0)`, blend hues on purpose and aren't reported.
 
 ## For AI coding agents
 
