@@ -131,6 +131,12 @@ Cases are generated from the expressions themselves: every property and state th
 
 Pass `property` (any layer property name, or `"filter"`) to check an expression where it will be used. That runs MapLibre's own style validator, which also catches data expressions in properties that don't support them, `zoom` outside a top-level ramp, and `feature-state` in filters and layout properties. For a filter it also checks that the result is a boolean: the validator misses that, but maplibre-gl throws when it creates the layer.
 
+`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
+
+`evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
+
+`evaluate` and `validate` accept plain values as well as expressions, so helpers typed to return `BooleanInput` or `NumberInput` can be tested directly.
+
 ### Linting a whole style
 
 `lintStyle` checks a complete style, such as a `style.json` you already have, so you can start using it before you write a single builder:
@@ -148,12 +154,6 @@ It runs MapLibre's style validator over the whole style (the `"spec"` rule; mapl
 - `"filter-type"`: an expression filter that isn't a boolean. maplibre-gl throws when it creates the layer.
 - `"constant-comparison"`: `["==", "class", "park"]` in a paint or layout property compares two strings, so it's always `false`. In a filter it's valid legacy syntax, and the validator already catches it mixed into an expression filter. The comparison builders refuse to build it.
 - `"transparent-fade"`: a ramp from `"#fff"` to `"transparent"` is grey halfway, because MapLibre blends the color channels too. It suggests the same color at alpha 0.
-
-`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
-
-`evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
-
-`evaluate` and `validate` accept plain values as well as expressions, so helpers typed to return `BooleanInput` or `NumberInput` can be tested directly.
 
 ## For AI coding agents
 

@@ -85,8 +85,8 @@ describe("lintStyle", () => {
         },
       }),
     ))).toEqual([
-      { rule: "transparent-fade", layer: "a", property: "circle-color", message: "[6]: fades \"#ffffff\" to \"transparent\", which also blends the color, e.g. from white through grey. Fade to \"rgba(255,255,255,0)\" instead." },
-      { rule: "transparent-fade", layer: "a", property: "circle-stroke-color", message: ".stops[0][1]: fades \"hsl(0, 100%, 50%)\" to \"transparent\", which also blends the color, e.g. from white through grey. Fade to \"rgba(255,0,0,0)\" instead." },
+      { rule: "transparent-fade", layer: "a", property: "circle-color", message: "[6]: fades \"#ffffff\" to \"transparent\", which also blends the color toward black. Fade to \"rgba(255,255,255,0)\" instead." },
+      { rule: "transparent-fade", layer: "a", property: "circle-stroke-color", message: ".stops[0][1]: fades \"hsl(0, 100%, 50%)\" to \"transparent\", which also blends the color toward black. Fade to \"rgba(255,0,0,0)\" instead." },
     ])
   })
 
