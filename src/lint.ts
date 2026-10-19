@@ -72,7 +72,7 @@ export function lintStyle(style: object): LintIssue[] {
       continue
     }
     const [, position, property, path, text] = match as unknown as [string, string, string | undefined, string, string]
-    const index = objects[Number(position)]?.index ?? Number(position)
+    const index = objects[Number(position)]!.index
     if (property === "filter")
       invalidFilters.add(index)
     add(index, "spec", property, path ? `${path}: ${text}` : text)
