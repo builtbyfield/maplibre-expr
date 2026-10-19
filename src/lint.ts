@@ -37,8 +37,9 @@ export interface LintIssue {
  *   property compares two strings, so it's always `false`. (In a filter it's
  *   valid legacy syntax.)
  * - `"transparent-fade"`: a color ramp from `"#fff"` to `"transparent"` is
- *   grey halfway, because MapLibre blends the color channels too. Fade to
- *   `"rgba(255,255,255,0)"` instead.
+ *   grey halfway, because `"transparent"` is transparent black and MapLibre
+ *   blends the color channels too. Fade to `"rgba(255,255,255,0)"` instead.
+ *   Colored transparent stops (`"rgba(33,102,172,0)"`) aren't reported.
  *
  * Returns the problems in layer order, or `[]` for a clean style.
  *
@@ -134,7 +135,7 @@ function constantComparisons(value: unknown, path: string): string[] {
   return found
 }
 
-/** Ramps that interpolate between a color and a transparent one of a different color. */
+/** Ramps that interpolate between a color and transparent black. */
 function transparentFades(value: unknown): string[] {
   const ramps: { path: string, outputs: unknown[] }[] = []
   // Legacy function: { stops: [[input, output], ...] }, interpolated unless "interval" or "categorical"
@@ -156,7 +157,9 @@ function transparentFades(value: unknown): string[] {
   for (const { path, outputs } of ramps) {
     const colors = outputs.map(output => (typeof output === "string" ? Color.parse(output) : undefined))
     colors.forEach((color, i) => {
-      if (color === undefined || color.a !== 0)
+      // Only transparent *black* ("transparent", rgba(0,0,0,0)) is a mistake; a colored transparent stop,
+      // e.g. a heatmap starting at rgba(33,102,172,0), blends hues on purpose
+      if (color === undefined || color.a !== 0 || color.rgb.slice(0, 3).some(channel => channel > 0))
         return
       const neighbor = [i - 1, i + 1].find(j => colors[j] !== undefined && colors[j]!.a > 0 && !sameRgb(colors[j]!, color))
       if (neighbor === undefined)
@@ -164,7 +167,7 @@ function transparentFades(value: unknown): string[] {
       const [r, g, b] = colors[neighbor]!.rgb.map(channel => Math.round(channel * 255))
       const fix = `rgba(${r},${g},${b},0)`
       const where = path.startsWith(".") ? `${path}[${i}][1]` : `${path}[${4 + 2 * i}]`
-      found.push(`${where}: fades ${JSON.stringify(outputs[neighbor])} to ${JSON.stringify(outputs[i])}, which also blends the color toward black. Fade to ${JSON.stringify(fix)} instead.`)
+      found.push(`${where}: fades ${JSON.stringify(outputs[neighbor])} to ${JSON.stringify(outputs[i])}, which is transparent black, so the color darkens on the way. Fade to ${JSON.stringify(fix)} instead.`)
     })
   }
   return found

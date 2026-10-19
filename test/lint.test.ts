@@ -85,14 +85,35 @@ describe("lintStyle", () => {
         },
       }),
     ))).toEqual([
-      { rule: "transparent-fade", layer: "a", property: "circle-color", message: "[6]: fades \"#ffffff\" to \"transparent\", which also blends the color toward black. Fade to \"rgba(255,255,255,0)\" instead." },
-      { rule: "transparent-fade", layer: "a", property: "circle-stroke-color", message: ".stops[0][1]: fades \"hsl(0, 100%, 50%)\" to \"transparent\", which also blends the color toward black. Fade to \"rgba(255,0,0,0)\" instead." },
+      { rule: "transparent-fade", layer: "a", property: "circle-color", message: "[6]: fades \"#ffffff\" to \"transparent\", which is transparent black, so the color darkens on the way. Fade to \"rgba(255,255,255,0)\" instead." },
+      { rule: "transparent-fade", layer: "a", property: "circle-stroke-color", message: ".stops[0][1]: fades \"hsl(0, 100%, 50%)\" to \"transparent\", which is transparent black, so the color darkens on the way. Fade to \"rgba(255,0,0,0)\" instead." },
     ])
   })
 
   it("finds fades inside other expressions", () => {
     const fade = interpolate(linear(), get("t"), [[0, "#f00"], [1, "transparent"]])
     expect(lintStyle(style(circle("a", { paint: { "circle-color": case_([[eq(get("x"), 1), fade]], "#000") } })))[0]?.message).toMatch(/^\[2\]\[6\]: fades "#f00"/)
+  })
+
+  it("reports heatmaps that start from transparent black", () => {
+    const issues = lintStyle(style({
+      id: "heat",
+      type: "heatmap",
+      source: "s",
+      paint: { "heatmap-color": ["interpolate", ["linear"], ["heatmap-density"], 0, "rgba(0,0,0,0)", 1, "rgb(49,54,149)"] },
+    }))
+    expect(issues.map(issue => issue.message)).toEqual(["[4]: fades \"rgb(49,54,149)\" to \"rgba(0,0,0,0)\", which is transparent black, so the color darkens on the way. Fade to \"rgba(49,54,149,0)\" instead."])
+    expect(evaluate(["interpolate", ["linear"], ["heatmap-density"], 0, "rgba(0,0,0,0)", 1, "rgb(49,54,149)"] as never, { heatmapDensity: 0.5, type: "color" })).toBe("rgba(25,27,75,0.5)")
+  })
+
+  it("leaves colored transparent stops alone, which blend hues on purpose", () => {
+    // Mapbox's heatmap example
+    expect(lintStyle(style({
+      id: "heat",
+      type: "heatmap",
+      source: "s",
+      paint: { "heatmap-color": ["interpolate", ["linear"], ["heatmap-density"], 0, "rgba(33,102,172,0)", 0.2, "rgb(103,169,207)", 1, "rgb(178,24,43)"] },
+    }))).toEqual([])
   })
 
   it("leaves fades alone that keep the color, start from black, or don't blend", () => {
