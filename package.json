@@ -1,7 +1,7 @@
 {
   "name": "@builtbyfield/maplibre-expr",
   "type": "module",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "packageManager": "pnpm@10.34.7",
   "description": "Type-safe MapLibre style expressions for TypeScript, so a broken expression shows up in your editor or your tests, not as a missing layer on the map.",
   "author": {
