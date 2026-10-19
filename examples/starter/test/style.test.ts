@@ -1,7 +1,7 @@
 import type { StylePropertyName } from "@builtbyfield/maplibre-expr/testing"
 import type { LayerSpecification } from "maplibre-gl"
 
-import { validate } from "@builtbyfield/maplibre-expr/testing"
+import { lintStyle, validate } from "@builtbyfield/maplibre-expr/testing"
 import { describe, expect, it } from "vitest"
 
 import { DARK, LIGHT } from "../src/palette"
@@ -19,6 +19,10 @@ function expressions(layer: LayerSpecification): [StylePropertyName | "filter", 
 
 describe.each([["light", LIGHT], ["dark", DARK]] as const)("%s style", (_, palette) => {
   const style = buildStyle(palette, "quakes.geojson", 0)
+
+  it("passes lintStyle: MapLibre's style validator plus the checks it misses", () => {
+    expect(lintStyle(style)).toEqual([])
+  })
 
   it.each(style.layers.flatMap(layer => expressions(layer).map(([property, value]) => [`${layer.id} ${property}`, property, value] as const)))(
     "%s is valid where it's used",
