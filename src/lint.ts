@@ -56,17 +56,26 @@ export function lintStyle(style: object): LintIssue[] {
     issues.push({ index, issue: { rule, ...(typeof id === "string" && { layer: id }), ...(property !== undefined && { property }), message } })
   }
 
+  // The validator crashes on a layer that isn't an object, so report those here and validate the rest
+  const objects = layers.map((layer, index) => ({ layer, index })).filter(({ layer }) => typeof layer === "object" && layer !== null && !Array.isArray(layer))
+  layers.forEach((layer, index) => {
+    if (!objects.some(entry => entry.index === index))
+      add(index, "spec", undefined, `layer must be an object, got ${layer === null ? "null" : Array.isArray(layer) ? "an array" : typeof layer}`)
+  })
+  const validated = objects.length === layers.length ? style : { ...style, layers: objects.map(({ layer }) => layer) }
+
   const invalidFilters = new Set<number>()
-  for (const { message } of validateStyleMin(style as StyleSpecification)) {
+  for (const { message } of validateStyleMin(validated as StyleSpecification)) {
     const match = /^layers\[(\d+)\](?:\.(?:paint|layout))?(?:\.([\w-]+))?((?:[.[][^:]*)?): ([\s\S]*)$/.exec(message)
     if (match === null) {
       issues.push({ index: -1, issue: { rule: "spec", message } })
       continue
     }
-    const [, index, property, path, text] = match as unknown as [string, string, string | undefined, string, string]
+    const [, position, property, path, text] = match as unknown as [string, string, string | undefined, string, string]
+    const index = objects[Number(position)]?.index ?? Number(position)
     if (property === "filter")
-      invalidFilters.add(Number(index))
-    add(Number(index), "spec", property, path ? `${path}: ${text}` : text)
+      invalidFilters.add(index)
+    add(index, "spec", property, path ? `${path}: ${text}` : text)
   }
 
   layers.forEach((layer, index) => {

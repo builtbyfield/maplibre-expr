@@ -139,6 +139,20 @@ describe("lintStyle", () => {
     expect(halfway("rgba(255,255,255,0)")).toBe("rgba(255,255,255,0.5)")
   })
 
+  it("doesn't trip over layers that aren't objects", () => {
+    // MapLibre's validator throws on these; lintStyle reports them and checks the other layers
+    expect(lintStyle(style(null, circle("bad", { paint: { "circle-radius": "big" } }), 5))).toEqual([
+      { rule: "spec", message: "layer must be an object, got null" },
+      { rule: "spec", layer: "bad", property: "circle-radius", message: "number expected, string found" },
+      { rule: "spec", message: "layer must be an object, got number" },
+    ])
+  })
+
+  it("suggests id() for a constant comparison on $id", () => {
+    const [issue] = lintStyle(style(circle("a", { paint: { "circle-radius": ["case", ["==", "$id", "home"], 2, 1] } })))
+    expect(issue?.message).toMatch(/use \["id"\]\.$/)
+  })
+
   it("lists problems in layer order", () => {
     const issues = lintStyle(style(
       circle("first", { paint: { "circle-color": ["case", ["==", "a", "b"], "#fff", "#000"] } }),
