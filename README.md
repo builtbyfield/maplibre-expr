@@ -2,7 +2,9 @@
 
 [![npm](https://img.shields.io/npm/v/@builtbyfield/maplibre-expr)](https://www.npmjs.com/package/@builtbyfield/maplibre-expr) [![CI](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml/badge.svg)](https://github.com/builtbyfield/maplibre-expr/actions/workflows/ci.yml) [![coverage](https://codecov.io/gh/builtbyfield/maplibre-expr/graph/badge.svg)](https://codecov.io/gh/builtbyfield/maplibre-expr) [![bundle size](https://deno.bundlejs.com/badge?q=@builtbyfield/maplibre-expr)](https://bundlejs.com/?q=@builtbyfield/maplibre-expr) [![style spec](https://img.shields.io/badge/style%20spec-v26-blue)](https://github.com/builtbyfield/maplibre-expr/actions/workflows/spec-drift.yml) [![license](https://img.shields.io/npm/l/@builtbyfield/maplibre-expr)](LICENSE)
 
-Type-safe [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/) for TypeScript. A broken expression doesn't throw: features quietly disappear, or a paint property falls back to its default. With this package, typos and type mismatches fail to compile, and a test harness runs your expressions on MapLibre's own engine. The output is plain style JSON.
+Type-safe [MapLibre style expressions](https://maplibre.org/maplibre-style-spec/expressions/) for TypeScript.
+
+MapLibre doesn't complain about a broken expression. Features just don't show up, or a paint property falls back to its default, and nothing says why. So we wrote builders that turn typos and type mismatches into compile errors, and a test harness that runs expressions on MapLibre's own engine. What comes out is the same style JSON you'd write by hand.
 
 **[Live demo](https://builtbyfield.github.io/maplibre-expr/)** | **[Open in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter)** | [Example source](examples/starter)
 
@@ -21,23 +23,17 @@ isOneOf(road.get("class"), ["motorway", "primray"])
 evaluate(isMajor, { properties: { class: "minor" } }) // false
 ```
 
-MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, so raw arrays get no help from the compiler. This package attacks that from two sides:
+MapLibre's own `ExpressionSpecification` type accepts `["+", ["upcase", "x"], 1]`, so the compiler can't help with raw arrays. Every builder here records what its expression evaluates to (`Expr<number>`, `Expr<Color>` and so on), so a string where a number belongs won't compile. With [typed feature data](#typed-feature-data), neither will a misspelled property name or value.
 
-- **Types.** Every builder records what its expression evaluates to (`Expr<number>`, `Expr<string>`, `Expr<Color>`, and so on), so wrong compositions are compile errors. With [typed feature data](#typed-feature-data), so are misspelled property names and values.
-- **Tests.** `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would fail silently, so you can unit-test a filter against sample features, [check that a rewrite behaves the same](#checking-a-rewrite), and [lint a whole style](#linting-a-whole-style).
+Types only catch so much. `@builtbyfield/maplibre-expr/testing` evaluates expressions with MapLibre's real engine and throws where the renderer would carry on silently. You can unit-test a filter against sample features, [check that a rewrite behaves the same](#checking-a-rewrite), or [lint a style you already have](#linting-a-whole-style) before writing a single builder.
 
-Also:
-
-- **All 88 operators** of the style spec (v26), each with JSDoc, a link to its spec entry, and platform notes where a renderer lacks it.
-- **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts, and mix freely with existing hand-written expressions. Importing one function adds about 170 bytes.
-- **[Recipes](#recipes)** for jobs that are fiddly to get right by hand: per-category zoom ramps, choropleth classes, labels in the reader's language, compact numbers in any locale, readable text colors, hover and selection states, global state.
-- **The [gotchas](#gotchas), written down:** MapLibre behaviors that surprise people, with builders that throw for the ones they can detect.
+The builders cover all 88 operators in the style spec (v26), each documented and linked to its spec entry. They return plain arrays, so they go straight into `paint`, `layout`, `filter` and `setPaintProperty` without casts, next to expressions you've already written. Importing one adds about 170 bytes. There are also [recipes](#recipes) for jobs that are easy to get wrong by hand, like a road width that depends on both zoom and class, and the [gotchas](#gotchas) we've hit, with builders that throw for the ones they can detect.
 
 ## Example
 
 [![A globe of the Pacific dotted with a month of earthquakes, with a time slider and a depth legend](https://builtbyfield.github.io/maplibre-expr/og.png)](https://builtbyfield.github.io/maplibre-expr/)
 
-A small, complete app: a typed basemap on OpenFreeMap tiles and a month of real earthquakes with a time slider, plus tests that check every expression with MapLibre's engine. [Try the live demo](https://builtbyfield.github.io/maplibre-expr/), or [open it in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter) and misspell a road class to see the compile error, or break the time filter and run `npm test`. To start a project from it: `npx degit builtbyfield/maplibre-expr/examples/starter my-map`.
+The example is a small, complete app: a typed basemap on OpenFreeMap tiles and a month of real earthquakes with a time slider, with tests that check every expression on MapLibre's engine. [Try the live demo](https://builtbyfield.github.io/maplibre-expr/), or [open it in StackBlitz](https://stackblitz.com/github/builtbyfield/maplibre-expr/tree/main/examples/starter), misspell a road class and watch the editor catch it. Break the time filter and `npm test` catches that. To start your own project from it, run `npx degit builtbyfield/maplibre-expr/examples/starter my-map`.
 
 ## Install
 
@@ -45,7 +41,7 @@ A small, complete app: a typed basemap on OpenFreeMap tiles and a month of real 
 npm install @builtbyfield/maplibre-expr
 ```
 
-No runtime dependencies, and it works with any maplibre-gl version, since the builders just emit style-spec JSON. TypeScript 5.4+ if you use TypeScript. Ships ESM and CommonJS builds, so it also works in Jest without extra configuration.
+It has no runtime dependencies and works with any maplibre-gl version, since the builders only emit style-spec JSON. With TypeScript, you need 5.4 or later. It ships ESM and CommonJS builds, so Jest works without extra configuration.
 
 ## Usage
 
@@ -111,7 +107,7 @@ validate(["+", 1, ["upcase", "x"]]) // { valid: false, errors: ["[2]: Expected n
 validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
 ```
 
-`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
+`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. It also means expressions are evaluated with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
 
 `evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
 
@@ -162,8 +158,8 @@ Each recipe handles something that's easy to get wrong by hand. The JSDoc of eac
 | Recipe                                                                                          | What it does                                                                                                                                                         |
 | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `byZoom(stops, curve?)`                                                                         | A value that changes with zoom: `exponential(1.5)` for sizes, `linear()` for colors.                                                                                 |
-| `byZoomMatch(input, branches, fallback, curve?)`                                                | A different zoom ramp per category, e.g. road width by class. The obvious `match` of zoom ramps is rejected by MapLibre.                                             |
-| `metersToPixels(meters, latitude)`                                                              | A size in pixels that stays a fixed real-world distance at every zoom, e.g. a 500 m `circle-radius`.                                                                 |
+| `byZoomMatch(input, branches, fallback, curve?)`                                                | A different zoom ramp per category, like road width by class. The obvious `match` of zoom ramps is rejected by MapLibre.                                             |
+| `metersToPixels(meters, latitude)`                                                              | A size in pixels that stays a fixed real-world distance at every zoom, like a 500 m `circle-radius`.                                                                 |
 | `classify(input, breaks, outputs, noData)`                                                      | Choropleth classes. Missing and non-numeric values get `noData` instead of the property's default.                                                                   |
 | `ifFeatureState(state, whenTrue, whenFalse)`, `ifFeatureState([[state, value], ...], fallback)` | Hover/selected styling via feature state; an unset state counts as false. Takes a priority list too.                                                                 |
 | `getOr(property, fallback)`                                                                     | A property, or the fallback if it's missing _or has the wrong type_.                                                                                                 |
@@ -214,13 +210,13 @@ const layer = { filter: gt(get("ends_at"), globalState("now")) }
 const stop = syncGlobalState(map, "now", Date.now())
 ```
 
-The same goes for selections and sliders: instead of rebuilding a filter on every click or slider input, compare against global state, e.g. `eq(get("route_id"), globalState("route"))` or `in_(get("id"), globalState("selected"))` with an array. An unset value makes `eq` and `in_` false, but makes number comparisons like `lte(get("start"), globalState("time"))` fail, which hides every feature until the value is set; `syncGlobalState` sets it as soon as the style loads.
+The same goes for selections and sliders: instead of rebuilding a filter on every click or slider input, compare against global state, like `eq(get("route_id"), globalState("route"))` or `in_(get("id"), globalState("selected"))` with an array. An unset value makes `eq` and `in_` false, but makes number comparisons like `lte(get("start"), globalState("time"))` fail, which hides every feature until the value is set; `syncGlobalState` sets it as soon as the style loads.
 
 Setting it by hand with `map.setGlobalStateProperty` has three pitfalls, which `syncGlobalState` handles:
 
-- **It throws before the style loads** ("Style is not done loading"), e.g. in a React effect on first mount. `syncGlobalState` applies it on the first `styledata` event instead.
+- **It throws before the style loads** ("Style is not done loading"), like in a React effect on first mount. `syncGlobalState` applies it on the first `styledata` event instead.
 - **A full style reload clears global state.** `setStyle(..., { diff: true })` keeps it; a reload without `diff` starts empty. `syncGlobalState` re-applies after every `styledata`.
-- **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (e.g. from devtools) is put back on the next `styledata`. Stop the sync first.
+- **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (from devtools, say) is put back on the next `styledata`. Stop the sync first.
 
 To change the value, stop and sync again. In React: `useEffect(() => syncGlobalState(map, "now", now), [map, now])`.
 
@@ -256,7 +252,7 @@ place.getOr("rank", 0) // the property, or 0 if missing or not a number
 gt(get("ends_at"), app.get("nwo")) // compile error
 ```
 
-The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", ...]` and `["global-state", ...]` arrays as the untyped functions. Values are typed as the property's type _when present_: `null` and `undefined` in the declared type are dropped, so a schema type where every field is nullable (e.g. inferred from zod) works as is. A missing property is still `null` at runtime; use `getOr` or `coalesce` for that.
+The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", ...]` and `["global-state", ...]` arrays as the untyped functions. Values are typed as the property's type _when present_: `null` and `undefined` in the declared type are dropped, so a schema type where every field is nullable (like one inferred from zod) works as is. A missing property is still `null` at runtime; use `getOr` or `coalesce` for that.
 
 ### What they don't check
 
@@ -340,7 +336,7 @@ A broken expression produces no error at render time, only missing features, so 
 - Declare the properties of each source layer once with `typedProperties<...>()` and read them through it.
 - For every filter and data-driven property, write a test that calls `evaluate()` from `@builtbyfield/maplibre-expr/testing` on sample features, including ones that should be excluded and ones with missing properties.
 - Check each expression where it's used with `validate(expr, { property })`.
-- Break an expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
+- Break an expression on purpose (`gt` to `gte`, say) and confirm a test fails.
 - When rewriting an existing expression, show the behavior is unchanged with `assertEquivalent(before, after)`.
 - Test the finished style with `expect(lintStyle(style)).toEqual([])`.
 ```
@@ -364,7 +360,7 @@ A broken expression produces no error at render time, only missing features, so 
 
 ## Compared to other tools
 
-The other tools we know of are small languages that compile to expressions, like [Expressive](https://github.com/falseinput/expressive) and Mapbox's [expression-jamsession](https://github.com/mapbox/expression-jamsession). This package is plain TypeScript instead: there's no new syntax to learn, autocomplete and the type checker work as usual, builders mix with hand-written arrays, and the output is the same style JSON you'd write by hand.
+The other tools we know of are small languages that compile to expressions: [Expressive](https://github.com/falseinput/expressive), and Mapbox's [expression-jamsession](https://github.com/mapbox/expression-jamsession). If you'd rather write expressions in a friendlier syntax, they're worth a look. We went with plain TypeScript, so there's nothing new to learn, autocomplete and the type checker work as usual, and builders sit next to arrays you've written by hand.
 
 ## Contributing
 
@@ -372,7 +368,7 @@ Every operator is tested by evaluating it with MapLibre's engine, not by compari
 
 ## About
 
-Built and maintained by [Built by Field](https://www.builtbyfield.com), a design and technology studio. We use it in the map-heavy apps we build, and fix what we find along the way. Need help with a MapLibre project? [Get in touch](https://www.builtbyfield.com/contact).
+[Built by Field](https://www.builtbyfield.com) is a design and technology studio in Calgary. We build interactive maps on vector tiles and MapLibre, like the [Calgary Public Art Guide](https://www.calgarypublicartguide.com/) for Calgary Arts Development and the [C+E Access Map](https://map.cedistrict.com/) for Calgary Municipal Land Corporation, and we maintain this library. If you're working on a MapLibre project and want help, [get in touch](https://www.builtbyfield.com/contact).
 
 ## License
 

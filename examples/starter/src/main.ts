@@ -40,7 +40,7 @@ const map = new MapLibreMap({
 
 // The quake layer reads the time from global state, so moving the slider
 // never rebuilds the style or calls setFilter. syncGlobalState also re-applies
-// it if the style reloads (e.g. the theme toggle below).
+// it if the style reloads (like the theme toggle below).
 let stopSync = syncGlobalState(map, "now", now)
 
 const slider = document.querySelector<HTMLInputElement>("#time")!

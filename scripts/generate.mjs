@@ -26,7 +26,7 @@ const NAMES = [
 ${operators.map(name => `  ${JSON.stringify(name)},`).join("\n")}
 ] as const
 
-/** The name of a MapLibre expression operator, e.g. \`"get"\` or \`"+"\`. */
+/** The name of a MapLibre expression operator, like \`"get"\` or \`"+"\`. */
 export type OperatorName = (typeof NAMES)[number]
 
 /** @internal */

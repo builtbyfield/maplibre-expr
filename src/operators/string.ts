@@ -30,7 +30,7 @@ export function downcase(input: StringInput): Expr<string> {
 }
 
 /**
- * `true` if the device can render the string's script (e.g. to hide labels
+ * `true` if the device can render the string's script (for example, to hide labels
  * in unsupported writing systems). MapLibre `is-supported-script`.
  * @see https://maplibre.org/maplibre-style-spec/expressions/#is-supported-script
  */

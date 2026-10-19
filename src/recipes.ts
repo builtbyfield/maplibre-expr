@@ -48,12 +48,12 @@ const METERS_PER_PIXEL_Z0 = 40_075_016.686 / 512
 
 /**
  * A size in pixels that matches a real-world distance in meters at every
- * zoom, e.g. for `circle-radius` showing a 500 m buffer. Uses an
+ * zoom, such as a `circle-radius` showing a 500 m buffer. Uses an
  * exponential (base 2) zoom ramp, so it must be the whole property value.
  *
  * @param meters - Distance in meters. May be data-driven.
  * @param latitude - Latitude the size is accurate at (Web Mercator stretches
- *   with latitude). May be data-driven, e.g. a property holding the
+ *   with latitude). May be data-driven, like a property holding the
  *   feature's latitude; expressions can't read a feature's coordinates. For
  *   a city-scale map, the map's center latitude from global state is close
  *   enough.
@@ -73,7 +73,7 @@ export function metersToPixels(meters: NumberInput, latitude: NumberInput): Expr
  * Picks a value by a boolean feature state, treating an unset state as
  * `false`. The usual hover/selected pattern. (A raw `feature-state` in a
  * `case` fails while the state is unset, and MapLibre falls back to the
- * property's default, e.g. black.)
+ * property's default, usually black.)
  *
  * Pass a list of `[state, value]` pairs to check several states in order of
  * priority: the first one that's set wins.
@@ -179,7 +179,7 @@ export function withAlpha(color: ColorInput, alpha: NumberInput): Expr<Color> {
 }
 
 /**
- * A different zoom ramp for each category, e.g. road widths by class. Writing
+ * A different zoom ramp for each category, like road widths by class. Writing
  * it the obvious way, a `match` of zoom ramps, is rejected by MapLibre (only
  * one zoom ramp is allowed per property). This builds the form it accepts:
  * one zoom ramp whose stops `match` on the category, with every category's
@@ -236,14 +236,14 @@ function rampAt(stops: Stops<number>, z: number, base: number): number {
 }
 
 /**
- * Sorts a number into classes, e.g. a choropleth's colors: `outputs[0]`
+ * Sorts a number into classes, like a choropleth's colors: `outputs[0]`
  * below `breaks[0]`, `outputs[i]` from `breaks[i - 1]` up to (not
  * including) `breaks[i]`, and the last output from the last break up. A
  * value equal to a break goes in the class above it.
  *
  * Values that aren't numbers (missing, `null`, strings, `NaN`) get
  * `noData`. A plain `step` puts them nowhere: it fails, and MapLibre falls
- * back to the property's default, e.g. black. Numbers stored as strings
+ * back to the property's default, usually black. Numbers stored as strings
  * need `toNumber` first.
  *
  * For a diverging scale, give the neutral band its own class.
@@ -283,7 +283,7 @@ export interface ContrastTextOptions {
 
 /**
  * `light` or `dark`, whichever has more contrast with `background` by the
- * WCAG 2 contrast ratio. For text on data-colored shapes, e.g. labels on
+ * WCAG 2 contrast ratio. For text on data-colored shapes, like labels on
  * category-colored badges or cluster bubbles. The background's alpha is
  * ignored.
  *

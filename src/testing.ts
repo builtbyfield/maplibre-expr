@@ -72,7 +72,7 @@ export interface EvaluateOptions {
   availableImages?: string[]
   /**
    * Parse the expression as producing this type, the way a style property
-   * of that type would. Needed when the type is ambiguous, e.g. `"#f00"` is
+   * of that type would. Needed when the type is ambiguous, like `"#f00"` is
    * a string unless parsed as a `"color"`. If omitted and the expression
    * fails to parse, `"color"`, `"projectionDefinition"` and `"colorArray"`
    * are tried in turn before giving up, since ramps of those are the common
@@ -185,7 +185,7 @@ export function validate(expression: Input<unknown>, options: ValidateOptions = 
  *
  * Unlike MapLibre at render time, which logs a warning and falls back to the
  * property's default, this throws an {@link ExpressionError} if the
- * expression is invalid or fails at runtime, e.g. a type assertion on a
+ * expression is invalid or fails at runtime, like a type assertion on a
  * missing property.
  *
  * @example

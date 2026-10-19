@@ -47,12 +47,12 @@ export function cubicBezier(x1: number, y1: number, x2: number, y2: number): Int
  *
  * Throws if stop inputs aren't in strictly ascending order.
  *
- * Stops whose outputs are all untyped (e.g. `get("color")`) are typed as
+ * Stops whose outputs are all untyped (like `get("color")`) are typed as
  * numbers; for a color ramp from data, use `toColor(get("color"))`.
  *
  * Colors blend without premultiplying alpha, so fading to `"transparent"`
  * (transparent *black*) darkens on the way. Fade to the same color at
- * alpha 0 instead, e.g. `"rgba(255, 0, 0, 0)"`, or ramp the layer's opacity.
+ * alpha 0 instead, like `"rgba(255, 0, 0, 0)"`, or ramp the layer's opacity.
  *
  * @example
  * // Line width that grows with zoom

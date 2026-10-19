@@ -34,7 +34,7 @@ export interface Quake {
   depth: number
   /** When it happened, in ms since the epoch. */
   time: number
-  /** USGS description, e.g. "12 km SW of Ojai, CA". */
+  /** USGS description, like "12 km SW of Ojai, CA". */
   place: string
 }
 

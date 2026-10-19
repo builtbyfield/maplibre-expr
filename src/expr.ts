@@ -42,7 +42,7 @@ export interface Projection { readonly [kind]: "projection" }
 export type ProjectionName = "mercator" | "vertical-perspective"
 /** A projection name, or an expression producing a projection. */
 export type ProjectionInput = ProjectionName | ExprLike<Projection>
-/** An expression producing an array of colors, e.g. `literal(["#000", "#fff"])`. */
+/** An expression producing an array of colors, like `literal(["#000", "#fff"])`. */
 export type ColorArrayInput = ExprLike<readonly (Color | string)[]>
 
 /** A number or numeric expression. */
@@ -68,7 +68,7 @@ export type AnyInput = unknown
 export type JsonValue = string | number | boolean | null | readonly JsonValue[] | { readonly [key: string]: JsonValue }
 
 /**
- * Views an expression as a plain array, e.g. to inspect its operator and
+ * Views an expression as a plain array, for example to inspect its operator and
  * arguments.
  *
  * @example toSpec(add(1, 2))[0] // "+"
