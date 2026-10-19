@@ -24,7 +24,7 @@ src/style.ts            assembles the style
 src/main.ts             the map, the time slider (syncGlobalState), theme toggle, hover
 public/quakes.geojson   the earthquake data
 test/quakes.test.ts     evaluate(): the time filter over every quake, sizes, colors
-test/style.test.ts      validate(): every expression, checked against the property it's used in
+test/style.test.ts      lintStyle() on the whole style, and validate() on every expression where it's used
 test/migration.test.ts  assertEquivalent(): a hand-written JSON "before" vs the typed rewrite
 ```
 

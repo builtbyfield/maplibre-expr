@@ -7,3 +7,4 @@ coverage/
 .eslintcache
 
 .claude/settings.local.json
+.playwright-mcp/
