@@ -69,7 +69,7 @@ export function array(...args: unknown[]): Expr<readonly unknown[]> {
 
 /**
  * What {@link typeof_} can return. Arrays include their item type and
- * length, e.g. `"array<number, 3>"` or `"array<value, 0>"`.
+ * length, like `"array<number, 3>"` or `"array<value, 0>"`.
  */
 export type TypeName
   = | "null"
@@ -89,7 +89,7 @@ export type TypeName
     | `array<${string}>`
 
 /**
- * The type of `value` as a string, e.g. `"number"`, `"null"` or
+ * The type of `value` as a string, like `"number"`, `"null"` or
  * `"array<number, 3>"`; see {@link TypeName}. Comparing against a misspelled
  * name is a type error. MapLibre `typeof`.
  *
@@ -151,7 +151,7 @@ export interface CollatorOptions {
   "case-sensitive"?: BooleanInput
   /** Treat characters with different diacritics as different. Default `false`. */
   "diacritic-sensitive"?: BooleanInput
-  /** IETF language tag, e.g. `"en"`. Defaults to the system locale. */
+  /** IETF language tag, like `"en"`. Defaults to the system locale. */
   "locale"?: StringInput
 }
 
@@ -186,7 +186,7 @@ export type FormatSection = StringInput | ExprLike<ResolvedImage> | readonly [St
  * with optional style overrides. MapLibre `format`.
  *
  * A section with overrides is a `[content, options]` pair. A two-element
- * array whose first element is an operator name (e.g. `["get", "name"]`) is
+ * array whose first element is an operator name (like `["get", "name"]`) is
  * read as a raw expression instead, so for literal text equal to an operator
  * name, wrap it: `[toString("get"), options]`.
  *
@@ -228,17 +228,17 @@ export function image(name: StringInput): Expr<ResolvedImage> {
 
 /** Options of {@link numberFormat}. `currency` and `unit` are mutually exclusive. */
 export type NumberFormatOptions = {
-  /** BCP 47 language tag, e.g. `"de-DE"`. */
+  /** BCP 47 language tag, like `"de-DE"`. */
   "locale"?: StringInput
   /** Minimum number of fraction digits. */
   "min-fraction-digits"?: NumberInput
   /** Maximum number of fraction digits. */
   "max-fraction-digits"?: NumberInput
 } & (
-  | { /** ISO 4217 currency code, e.g. `"EUR"`. */ currency?: StringInput, unit?: never }
+  | { /** ISO 4217 currency code, like `"EUR"`. */ currency?: StringInput, unit?: never }
   | {
     /**
-     * CLDR/ECMA-402 unit, e.g. `"kilometer"`. Requires MapLibre GL JS 5.20+;
+     * CLDR/ECMA-402 unit, like `"kilometer"`. Requires MapLibre GL JS 5.20+;
      * not yet in MapLibre Native (https://github.com/maplibre/maplibre-native/issues/4071).
      */
     unit?: StringInput

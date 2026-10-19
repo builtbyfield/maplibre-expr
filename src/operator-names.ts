@@ -93,7 +93,7 @@ const NAMES = [
   "join",
 ] as const
 
-/** The name of a MapLibre expression operator, e.g. `"get"` or `"+"`. */
+/** The name of a MapLibre expression operator, like `"get"` or `"+"`. */
 export type OperatorName = (typeof NAMES)[number]
 
 /** @internal */

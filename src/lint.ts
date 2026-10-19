@@ -22,7 +22,7 @@ export interface LintIssue {
   layer?: string
   /** The paint or layout property, `"filter"`, or another layer key such as `"source"`. Absent for problems with the layer as a whole. */
   property?: string
-  /** What's wrong, prefixed with the path into the value when there is one, e.g. `"[2]: Expected number..."`. */
+  /** What's wrong, prefixed with the path into the value when there is one, like `"[2]: Expected number..."`. */
   message: string
 }
 
@@ -30,7 +30,7 @@ export interface LintIssue {
  * Checks a whole style: runs MapLibre's style validator (the one maplibre-gl
  * runs when it loads a style), plus checks for mistakes it lets through:
  *
- * - `"filter-type"`: an expression filter that isn't a boolean, e.g.
+ * - `"filter-type"`: an expression filter that isn't a boolean, like
  *   `["get", "visible"]` is fine but `["+", 1, 2]` passes the validator and
  *   then makes maplibre-gl throw.
  * - `"constant-comparison"`: `["==", "class", "park"]` in a paint or layout
@@ -116,7 +116,7 @@ const FILTER_SPEC = {
  * but maplibre-gl does when it creates the layer, and throws. Compile the
  * filter the way maplibre-gl does to catch that. Legacy filters are fully
  * checked by the validator. Messages are prefixed with the path into the
- * filter, e.g. `"[1]: ..."`, or have no prefix for the filter as a whole.
+ * filter, like `"[1]: ..."`, or have no prefix for the filter as a whole.
  */
 export function filterTypeErrors(filter: unknown): string[] {
   if (!expressionApi.isExpressionFilter(filter))
@@ -127,7 +127,7 @@ export function filterTypeErrors(filter: unknown): string[] {
 
 const COMPARISONS = new Set(["==", "!=", "<", "<=", ">", ">=", "in"])
 
-/** Comparisons of two literals in an expression, e.g. `["==", "class", "park"]`, with their paths. */
+/** Comparisons of two literals in an expression, like `["==", "class", "park"]`, with their paths. */
 function constantComparisons(value: unknown, path: string): string[] {
   if (!Array.isArray(value) || typeof value[0] !== "string" || value[0] === "literal")
     return []
@@ -167,7 +167,7 @@ function transparentFades(value: unknown): string[] {
     const colors = outputs.map(output => (typeof output === "string" ? Color.parse(output) : undefined))
     colors.forEach((color, i) => {
       // Only transparent *black* ("transparent", rgba(0,0,0,0)) is a mistake; a colored transparent stop,
-      // e.g. a heatmap starting at rgba(33,102,172,0), blends hues on purpose
+      // like a heatmap starting at rgba(33,102,172,0), blends hues on purpose
       if (color === undefined || color.a !== 0 || color.rgb.slice(0, 3).some(channel => channel > 0))
         return
       const neighbor = [i - 1, i + 1].find(j => colors[j] !== undefined && colors[j]!.a > 0 && !sameRgb(colors[j]!, color))

@@ -18,7 +18,7 @@ export interface CompactNumberOptions {
   locale?: string
   /** ISO 4217 currency code, placed as the locale places it: `"$1.2M"`, `"1,2 Mio. €"`. */
   currency?: string
-  /** ECMA-402 unit, e.g. `"kilometer"`, placed as the locale places it: `"1.2K km"`. */
+  /** ECMA-402 unit, like `"kilometer"`, placed as the locale places it: `"1.2K km"`. */
   unit?: string
   /**
    * Fraction digits on abbreviated values. By default, like
@@ -29,7 +29,7 @@ export interface CompactNumberOptions {
   /** Numbers below this (in absolute value) aren't abbreviated. */
   minimum?: number
   /**
-   * Your own divisors and suffixes instead of the locale's, ascending, e.g.
+   * Your own divisors and suffixes instead of the locale's, ascending, like
    * `[[1024, " KB"], [1024 ** 2, " MB"]]`. Can't be combined with
    * `currency` or `unit`.
    */
@@ -93,7 +93,7 @@ function customScales(locale: string, scales: NonNullable<CompactNumberOptions["
 }
 
 /**
- * Formats a number compactly, e.g. `1234` becomes `"1.2K"`, for cluster
+ * Formats a number compactly: `1234` becomes `"1.2K"`, for cluster
  * counts and other labels where space is tight. MapLibre's `number-format`
  * has no compact notation, so this reads the locale's abbreviations from
  * `Intl.NumberFormat` when it builds the expression, and the result matches
@@ -118,7 +118,7 @@ export function compactNumber(input: NumberInput, options: CompactNumberOptions 
   // Fraction digits near the top of scale i, where values reach `top`
   const digitsBelow = (i: number, top: number): number =>
     maxFractionDigits === undefined ? (top <= 10 ? 1 : 0) : i === 0 ? 0 : maxFractionDigits
-  // Scale i takes over where the previous one would round up to it, e.g. from 999.5
+  // Scale i takes over where the previous one would round up to it, for example from 999.5
   // (which shows as "1K", not "1,000"); and not before `minimum`.
   const starts = scales.map((scale, i) => {
     if (i === 0)
@@ -175,12 +175,12 @@ export interface LocalizedNameOptions {
   /** Properties to try after the languages. Default `["name"]`. */
   fallback?: readonly string[]
   /**
-   * Properties for a second line, e.g. `"name"` for the local name under a
+   * Properties for a second line, like `"name"` for the local name under a
    * translated one (`"Munich"` / `"München"`), or `"name:nonlatin"` with
    * OpenMapTiles. The first non-empty one is shown when it differs from the
    * first line and `is-supported-script` accepts it. maplibre-gl before 6.9
    * rejects right-to-left text without the RTL text plugin and scripts that
-   * need complex shaping (e.g. Devanagari), which it would draw wrongly;
+   * need complex shaping (like Devanagari), which it would draw wrongly;
    * 6.9 and later accept everything.
    */
   secondLine?: string | readonly string[]
@@ -189,7 +189,7 @@ export interface LocalizedNameOptions {
 /**
  * A feature's name in the first of `languages` it has, falling back to
  * `name`. Missing *and empty* names are skipped. A language can be an
- * expression, e.g. `globalState("lang")`, so one style can switch language
+ * expression, like `globalState("lang")`, so one style can switch language
  * at runtime: set it with `syncGlobalState(map, "lang", "fr")`. Changing it
  * reloads the tiles of the layers that use it.
  *
