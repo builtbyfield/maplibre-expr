@@ -143,8 +143,8 @@ export function isNoneOf<L extends string | number>(input: Input<L>, values: rea
   return op("match", input, unique, false, true)
 }
 
-/** Options of {@link colorOr}. */
-export interface ColorOrOptions {
+/** Options of {@link toColorOr}. */
+export interface ToColorOrOptions {
   /**
    * Also read hex colors written without `#`, like GTFS `route_color`
    * (`"FF0000"`). Off by default, because it turns some words into colors:
@@ -159,10 +159,10 @@ export interface ColorOrOptions {
  * values: for `""`, `"FF0000"` or `"nope"` it fails, and MapLibre draws the
  * property's default, usually black.
  *
- * @example "line-color": colorOr(get("route_color"), "#3388ff", { hashlessHex: true }) // GTFS colors
- * @example "fill-color": colorOr(get("color"), "#ccc")
+ * @example "line-color": toColorOr(get("route_color"), "#3388ff", { hashlessHex: true }) // GTFS colors
+ * @example "fill-color": toColorOr(get("color"), "#ccc")
  */
-export function colorOr(value: AnyInput, fallback: ColorInput, options: ColorOrOptions = {}): Expr<Color> {
+export function toColorOr(value: AnyInput, fallback: ColorInput, options: ToColorOrOptions = {}): Expr<Color> {
   return let_({ value }, ({ value }) => case_([
     [eq(typeof_(value), "string"), op<Color>("to-color", value, ...(options.hashlessHex ? [concat("#", value)] : []), fallback)],
   ], fallback))

@@ -4,7 +4,6 @@ import {
   byZoom,
   byZoomMatch,
   classify,
-  colorOr,
   contrastText,
   geometryType,
   get,
@@ -17,6 +16,7 @@ import {
   linear,
   match,
   metersToPixels,
+  toColorOr,
   typedFeatureState,
   typedGlobalState,
   typedProperties,
@@ -255,9 +255,9 @@ describe("isNoneOf", () => {
   })
 })
 
-describe("colorOr", () => {
+describe("toColorOr", () => {
   const color = (c: unknown, hashlessHex?: boolean): unknown =>
-    evaluate(colorOr(get("c"), "#3388ff", hashlessHex ? { hashlessHex } : {}), { properties: c === undefined ? {} : { c }, type: "color" })
+    evaluate(toColorOr(get("c"), "#3388ff", hashlessHex ? { hashlessHex } : {}), { properties: c === undefined ? {} : { c }, type: "color" })
   const fallback = "rgba(51,136,255,1)"
 
   it("falls back for values coalesce passes through, which MapLibre draws black", () => {
@@ -279,6 +279,6 @@ describe("colorOr", () => {
   })
 
   it("is valid as a line-color", () => {
-    expect(validate(colorOr(get("route_color"), "#38f", { hashlessHex: true }), { property: "line-color" })).toEqual({ valid: true, errors: [] })
+    expect(validate(toColorOr(get("route_color"), "#38f", { hashlessHex: true }), { property: "line-color" })).toEqual({ valid: true, errors: [] })
   })
 })

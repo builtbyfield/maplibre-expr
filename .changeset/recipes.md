@@ -9,7 +9,7 @@ New recipes, each checked against MapLibre's engine and patterns in 39 real styl
 - `localizedName(languages, options?)`: the name in the first available language, falling back to `name`. A language can be `globalState("lang")` to switch language at runtime, and `secondLine` adds the local name under a translation when it differs.
 - `firstNonEmpty(...values)`: like `coalesce`, but also skips `""`.
 - `contrastText(background, options?)`: black or white text, whichever has more contrast with a data-driven background (WCAG 2).
-- `colorOr(value, fallback, options?)`: a color from feature data with a fallback for missing, empty and invalid values, which `coalesce` draws black; `hashlessHex` reads GTFS-style `"FF0000"`.
+- `toColorOr(value, fallback, options?)`: a color from feature data with a fallback for missing, empty and invalid values, which `coalesce` draws black; `hashlessHex` reads GTFS-style `"FF0000"`.
 - `isNoneOf(input, values)`: the negation of `isOneOf`, true for missing values like legacy `!in`.
 - `ifFeatureState([[state, value], ...], fallback)`: several states in priority order.
 

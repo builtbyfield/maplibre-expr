@@ -30,7 +30,7 @@ Also:
 
 - **All 88 operators** of the style spec (v26), each with JSDoc, a link to its spec entry, and platform notes where a renderer lacks it.
 - **Zero-cost output.** Builders return the same arrays you'd write by hand. They drop straight into layer `paint`/`layout`/`filter` and `map.setPaintProperty`, no casts, and mix freely with existing hand-written expressions. Importing one function adds about 170 bytes.
-- **A few recipes** for jobs that are fiddly to get right by hand: zoom ramps, meters-to-pixels radii, compact number labels, hover states, global state.
+- **[Recipes](#recipes)** for jobs that are fiddly to get right by hand: per-category zoom ramps, choropleth classes, labels in the reader's language, compact numbers in any locale, readable text colors, hover and selection states, global state.
 - **The [gotchas](#gotchas), written down:** MapLibre behaviors that surprise people, with builders that throw for the ones they can detect.
 
 ## Example
@@ -111,6 +111,12 @@ validate(["+", 1, ["upcase", "x"]]) // { valid: false, errors: ["[2]: Expected n
 validate(get("weight"), { property: "heatmap-intensity" }) // { valid: false, errors: ["heatmap-intensity: data expressions not supported"] }
 ```
 
+`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
+
+`evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
+
+`evaluate` and `validate` accept plain values as well as expressions, so helpers typed to return `BooleanInput` or `NumberInput` can be tested directly.
+
 ### Checking a rewrite
 
 When refactoring or migrating a style, the JSON can change while the behavior should stay the same. `assertEquivalent` evaluates two expressions on hundreds of generated cases and throws with a counterexample if they ever differ:
@@ -131,12 +137,6 @@ Cases are generated from the expressions themselves: every property and state th
 
 Pass `property` (any layer property name, or `"filter"`) to check an expression where it will be used. That runs MapLibre's own style validator, which also catches data expressions in properties that don't support them, `zoom` outside a top-level ramp, and `feature-state` in filters and layout properties. For a filter it also checks that the result is a boolean: the validator misses that, but maplibre-gl throws when it creates the layer.
 
-`/testing` bundles its own copy of MapLibre's expression engine (style-spec v26), so it never conflicts with the style-spec or maplibre-gl version your app uses. The flip side: it evaluates with v26 semantics. If your map runs an older maplibre-gl, check the [platform notes](#platform-support) for operators it may not have.
-
-`evaluate` accepts the feature and map state an expression can read: `properties`, `id`, `geometry` (GeoJSON, used by `geometry-type`, `within` and `distance`), `zoom`, `featureState`, `globalState`, `heatmapDensity`, `lineProgress`, `elevation`, `accumulated`, `availableImages`, and the expected `type`.
-
-`evaluate` and `validate` accept plain values as well as expressions, so helpers typed to return `BooleanInput` or `NumberInput` can be tested directly.
-
 ### Linting a whole style
 
 `lintStyle` checks a complete style, such as a `style.json` you already have, so you can start using it before you write a single builder:
@@ -155,21 +155,76 @@ It runs MapLibre's style validator over the whole style (the `"spec"` rule; mapl
 - `"constant-comparison"`: `["==", "class", "park"]` in a paint or layout property compares two strings, so it's always `false`. In a filter it's valid legacy syntax, and the validator already catches it mixed into an expression filter. The comparison builders refuse to build it.
 - `"transparent-fade"`: a ramp from `"#fff"` to `"transparent"` is grey halfway, because `"transparent"` is transparent _black_ and MapLibre blends the color channels too. It suggests the same color at alpha 0. Transparent stops with a color, like a heatmap starting at `rgba(33,102,172,0)`, blend hues on purpose and aren't reported.
 
-## For AI coding agents
+## Recipes
 
-A broken expression produces no error at render time, only missing features, so an agent can't see its own mistakes by looking at the map. Paste this into your project's `AGENTS.md` or `CLAUDE.md`:
+Each recipe handles something that's easy to get wrong by hand. The JSDoc of each one says what.
 
-```md
-## MapLibre expressions
+| Recipe                                                                                          | What it does                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `byZoom(stops, curve?)`                                                                         | A value that changes with zoom: `exponential(1.5)` for sizes, `linear()` for colors.                                                                                 |
+| `byZoomMatch(input, branches, fallback, curve?)`                                                | A different zoom ramp per category, e.g. road width by class. The obvious `match` of zoom ramps is rejected by MapLibre.                                             |
+| `metersToPixels(meters, latitude)`                                                              | A size in pixels that stays a fixed real-world distance at every zoom, e.g. a 500 m `circle-radius`.                                                                 |
+| `classify(input, breaks, outputs, noData)`                                                      | Choropleth classes. Missing and non-numeric values get `noData` instead of the property's default.                                                                   |
+| `ifFeatureState(state, whenTrue, whenFalse)`, `ifFeatureState([[state, value], ...], fallback)` | Hover/selected styling via feature state; an unset state counts as false. Takes a priority list too.                                                                 |
+| `getOr(property, fallback)`                                                                     | A property, or the fallback if it's missing _or has the wrong type_.                                                                                                 |
+| `isOneOf(input, values)`, `isNoneOf(input, values)`                                             | Membership tests that compile to a fast `match`; no `literal` to forget.                                                                                             |
+| `localizedName(languages, options?)`                                                            | The name in the first available language, optionally with the local name on a second line.                                                                           |
+| `firstNonEmpty(...values)`                                                                      | Like `coalesce`, but also skips `""`.                                                                                                                                |
+| `compactNumber(input, options?)`                                                                | `1234` becomes `"1.2K"`, in any locale: `"1,2 Mio."`, `"12L"`, `"123万"`, with currencies and units.                                                                 |
+| `contrastText(background, options?)`                                                            | Black or white text, whichever reads better on a data-driven background (WCAG 2).                                                                                    |
+| `toColorOr(value, fallback, options?)`                                                          | A color from feature data, with a fallback for missing, empty and invalid values (`coalesce` only covers missing ones). Reads GTFS-style hex without `#` on request. |
+| `withAlpha(color, alpha)`                                                                       | The same color with a different opacity.                                                                                                                             |
 
-- Build style expressions with `@builtbyfield/maplibre-expr`, not raw arrays, and run the type checker.
-- Declare the properties of each source layer once with `typedProperties<...>()` and read them through it.
-- For every filter and data-driven property, write a test that calls `evaluate()` from `@builtbyfield/maplibre-expr/testing` on sample features, including ones that should be excluded and ones with missing properties.
-- Check each expression where it's used with `validate(expr, { property })`.
-- Break an expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
-- When rewriting an existing expression, show the behavior is unchanged with `assertEquivalent(before, after)`.
-- Test the finished style with `expect(lintStyle(style)).toEqual([])`.
+### Labels in the reader's language
+
+`localizedName` tries each language in order and falls back to `name`, skipping missing and empty names (`coalesce` stops at `""`). A language can come from global state, so one style can switch language at runtime:
+
+```ts
+const layout = {
+  "text-field": localizedName([globalState("lang"), "en"], { secondLine: "name" }), // "Munich\nMünchen"
+}
+
+// keep "lang" set on the map
+const stop = syncGlobalState(map, "lang", navigator.language.slice(0, 2))
 ```
+
+The second line shows the local name only when it's there and differs from the first line. maplibre-gl before 6.9 also leaves it out for scripts it would draw wrongly (right-to-left text without the RTL plugin, and scripts like Devanagari). Field names default to `name:fr` (OpenMapTiles, Protomaps, MapTiler); pass `field: "name_{lang}"` for Shortbread. Changing the language reloads the tiles of the layers that use it.
+
+### Compact numbers in any locale
+
+MapLibre's `number-format` has no compact notation. `compactNumber` reads the locale's abbreviations from `Intl.NumberFormat` when it builds the expression, and its output matches `Intl` (the tests check this in 12 locales), including the non-breaking spaces `Intl` uses in `"1,2 Mio."`. Use it for cluster labels instead of `point_count_abbreviated`, which is English only. `currency` and `unit` don't use `number-format`'s options, so they work in every renderer:
+
+```ts
+compactNumber(get("point_count")) // 1234 → "1.2K", 56789 → "57K"
+compactNumber(get("population"), { locale: "de" }) // 1234567 → "1,2 Mio." (thousands aren't abbreviated in German)
+compactNumber(get("sales"), { locale: "en-IN", currency: "INR" }) // 1234567 → "₹12L"
+compactNumber(get("count"), { minimum: 10_000 }) // 9876 → "9,876"
+compactNumber(get("bytes"), { scales: [[1024, " KB"], [1024 ** 2, " MB"]] }) // your own units
+```
+
+## Global state
+
+Expressions can't read the clock or your app's state, and baking a value like `Date.now()` into a style freezes it, so every change means rebuilding the filter and calling `setFilter` on each layer. Instead, read the value with `globalState(name)` and set it on the map. The filter then never changes identity:
+
+```ts
+// layer filter: events that haven't ended
+const layer = { filter: gt(get("ends_at"), globalState("now")) }
+
+// keep "now" set on the map
+const stop = syncGlobalState(map, "now", Date.now())
+```
+
+The same goes for selections and sliders: instead of rebuilding a filter on every click or slider input, compare against global state, e.g. `eq(get("route_id"), globalState("route"))` or `in_(get("id"), globalState("selected"))` with an array. An unset value makes `eq` and `in_` false, but makes number comparisons like `lte(get("start"), globalState("time"))` fail, which hides every feature until the value is set; `syncGlobalState` sets it as soon as the style loads.
+
+Setting it by hand with `map.setGlobalStateProperty` has three pitfalls, which `syncGlobalState` handles:
+
+- **It throws before the style loads** ("Style is not done loading"), e.g. in a React effect on first mount. `syncGlobalState` applies it on the first `styledata` event instead.
+- **A full style reload clears global state.** `setStyle(..., { diff: true })` keeps it; a reload without `diff` starts empty. `syncGlobalState` re-applies after every `styledata`.
+- **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (e.g. from devtools) is put back on the next `styledata`. Stop the sync first.
+
+To change the value, stop and sync again. In React: `useEffect(() => syncGlobalState(map, "now", now), [map, now])`.
+
+Global state doesn't make re-filtering free: when the value changes, MapLibre still re-evaluates the layers that read it. What you save is rebuilding and re-applying filters. Global state needs maplibre-gl 5.6+ (see [platform support](#platform-support)).
 
 ## What the types check
 
@@ -203,11 +258,6 @@ gt(get("ends_at"), app.get("nwo")) // compile error
 
 The accessors emit the same `["get", ...]`, `["has", ...]`, `["feature-state", ...]` and `["global-state", ...]` arrays as the untyped functions. Values are typed as the property's type _when present_: `null` and `undefined` in the declared type are dropped, so a schema type where every field is nullable (e.g. inferred from zod) works as is. A missing property is still `null` at runtime; use `getOr` or `coalesce` for that.
 
-Some mistakes are caught when the expression is built:
-
-- `interpolate` and `step` throw if stops aren't in ascending order.
-- `let_` and `isOneOf` throw when given nothing to work with.
-
 ### What they don't check
 
 - **Untyped feature data.** Plain `get`, `featureState`, `globalState` and `var_` accept any name and produce values accepted anywhere; MapLibre checks them at runtime. Use [typed feature data](#typed-feature-data), or pin one value's type with `get<number>("population")`.
@@ -216,6 +266,34 @@ Some mistakes are caught when the expression is built:
 - **Whether an expression fits its property.** Layer properties accept any `Expr`, so `"fill-opacity": upcase("x")`, `"fill-color": gt(get("n"), 1)` and `filter: add(1, 2)` compile (see the note on `Expr` below). [`validate(expr, { property })`](#validating-against-a-property) catches these too.
 
 The `Expr` type is deliberately opaque: statically it presents as a single member of the spec union, which keeps type-checking fast. Use `toSpec(expr)` if you need to inspect the array.
+
+### What's caught when an expression is built
+
+Builders throw for inputs MapLibre would reject or misread:
+
+- Comparisons of two literals, like `eq("class", "park")` (see [Gotchas](#gotchas)).
+- Stops out of ascending order in `interpolate`, `step`, `byZoomMatch` and `classify`'s breaks.
+- Duplicate, non-integer or empty `match` labels, in `match`, `isOneOf`, `isNoneOf` and `byZoomMatch`.
+- `classify` with the wrong number of outputs, `byZoomMatch` with non-numeric stops or a `cubicBezier` curve, `localizedName` with a `field` that has no `{lang}`, and `compactNumber` with unsorted `scales`.
+- `let_`, `isOneOf` and `ifFeatureState` given nothing to work with.
+
+## Gotchas
+
+MapLibre behaviors that surprise people. The builders throw for the ones they can detect; the rest are noted in the docs of the functions involved.
+
+- **Missing properties break math.** `get` returns `null` for a missing property, most operators fail on `null`, and MapLibre then uses the property's default, with only a console warning. Use `getOr("height", 0)` or `coalesce`.
+- **No type coercion.** A property holding `"1"` doesn't equal or match `1`, and `lt(get("n"), 5)` fails at runtime if `n` is a string; vector tiles often store numbers as strings. Convert with `toNumber`.
+- **Comparing two literals in a filter.** `eq("class", "park")` reads as old-style filter syntax (property `class` is `"park"`) in a filter, and as a constant `false` anywhere else. The comparison builders throw for it; write `eq(get("class"), "park")`.
+- **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0; [`lintStyle`](#linting-a-whole-style) flags this.
+- **Odd conversions.** `toNumber("")` is `0`, `toBoolean("false")` is `true`, and `sqrt(-1)` and `0 / 0` give `NaN`, which MapLibre replaces with the property's default.
+- **Icons missing from the sprite.** `"icon-image": get("subclass")` shows nothing when the sprite has no image of that name. `coalesce(image(get("subclass")), image(get("class")))` falls back to the next image that exists (if none does, it returns the first name, so `styleimagemissing` still fires for it). That beats keeping a list of the names your sprite has, which goes stale.
+- **Numbers in text.** `concat(toString(get("height")), " m")` shows float noise (`"7.000000000000001 m"`) and `" m"` when the value is missing. `numberFormat(get("height"), { "unit": "meter", "max-fraction-digits": 1 })` gives `"7 m"`, and no label when the value is missing (`unit` needs maplibre-gl 5.20+ and isn't in MapLibre Native yet).
+- **Names aren't paths.** `get("a.b")` reads a property literally named `"a.b"`; use `get("b", object(get("a")))`.
+- **Colors.** `oklch()`, `lab()` and `color()` aren't supported; hex, `rgb()`, `hsl()` and named colors are.
+- **Upstream bugs this library works around or documents:**
+  - `number-format` ignores a fraction-digit setting of `0`; `numberFormat` works around it.
+  - `distance` measures MultiLineString features as one connected line.
+  - `toColor` reads `[r, g, b, a]` arrays as premultiplied.
 
 ## Platform support
 
@@ -226,98 +304,11 @@ The builders emit standard style-spec JSON, so they work wherever MapLibre style
   - `split`, `join` and the `unit` option of `numberFormat` need 5.20+;
   - `globalState` and `elevation` need 5.6+;
   - `distance` needs 4.2+.
-- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe. Several of the linked tracking issues are closed, so check your Native version.
+- **MapLibre Native (iOS/Android):** the style spec lists `featureState`, `globalState`, `semiliteral`, `interpolateHcl`, `interpolateLab` and `numberFormat`'s `unit` option as not yet supported. That includes the `ifFeatureState` recipe (both forms) and `localizedName` with a language from `globalState`. Several of the linked tracking issues are closed, so check your Native version.
 
 Each of these functions' docs carries the same note, with a link to the tracking issue.
 
-## Gotchas
-
-MapLibre behaviors that surprise people. The builders throw for the ones they can detect; the rest are noted in the docs of the functions involved.
-
-- **Missing properties break math.** `get` returns `null` for a missing property, most operators fail on `null`, and MapLibre then silently uses the property's default. Use `getOr("height", 0)` or `coalesce`.
-- **No type coercion.** A property holding `"1"` doesn't equal or match `1`, and `lt(get("n"), 5)` fails at runtime if `n` is a string; vector tiles often store numbers as strings. Convert with `toNumber`.
-- **Comparing two literals in a filter.** `eq("class", "park")` reads as old-style filter syntax (property `class` is `"park"`) in a filter, and as a constant `false` anywhere else. The comparison builders throw for it; write `eq(get("class"), "park")`.
-- **Fading to `"transparent"` darkens.** Colors blend without premultiplied alpha, so "transparent" (transparent black) drags colors toward black. Fade to the same color at alpha 0; [`lintStyle`](#linting-a-whole-style) flags this.
-- **Odd conversions.** `toNumber("")` is `0`, `toBoolean("false")` is `true`, and `sqrt(-1)` and `0 / 0` give `NaN`, which MapLibre replaces with the property's default.
-- **Icons missing from the sprite.** `"icon-image": get("subclass")` shows nothing when the sprite has no image of that name. `coalesce(image(get("subclass")), image(get("class")))` falls back to the next image that exists (if none does, it returns the first name, so `styleimagemissing` still fires for it). That beats keeping a list of the names your sprite has, which goes stale.
-- **Numbers in text.** `concat(toString(get("height")), " m")` shows float noise (`"7.000000000000001 m"`) and `" m"` when the value is missing. `numberFormat(get("height"), { "unit": "meter", "max-fraction-digits": 1 })` gives `"7 m"`, and no label when the value is missing.
-- **Names aren't paths.** `get("a.b")` reads a property literally named `"a.b"`; use `get("b", object(get("a")))`.
-- **Colors.** `oklch()`, `lab()` and `color()` aren't supported; hex, `rgb()`, `hsl()` and named colors are.
-- **Upstream bugs this library works around or documents:**
-  - `number-format` ignores a fraction-digit setting of `0`; `numberFormat` works around it.
-  - `distance` measures MultiLineString features as one connected line.
-  - `toColor` reads `[r, g, b, a]` arrays as premultiplied.
-
-## Recipes
-
-Each recipe handles something that's easy to get wrong by hand. The JSDoc of each one says what.
-
-| Recipe                                              | What it does                                                                                                                                                         |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `byZoom(stops, curve?)`                             | A value that changes with zoom: `exponential(1.5)` for sizes, `linear()` for colors.                                                                                 |
-| `byZoomMatch(input, branches, fallback, curve?)`    | A different zoom ramp per category, e.g. road width by class. The obvious `match` of zoom ramps is rejected by MapLibre.                                             |
-| `metersToPixels(meters, latitude)`                  | A size in pixels that stays a fixed real-world distance at every zoom, e.g. a 500 m `circle-radius`.                                                                 |
-| `classify(input, breaks, outputs, noData)`          | Choropleth classes. Missing and non-numeric values get `noData` instead of the property's default.                                                                   |
-| `ifFeatureState(state, whenTrue, whenFalse)`        | Hover/selected styling via feature state; an unset state counts as false. Takes a priority list too.                                                                 |
-| `getOr(property, fallback)`                         | A property, or the fallback if it's missing _or has the wrong type_.                                                                                                 |
-| `isOneOf(input, values)`, `isNoneOf(input, values)` | Membership tests that compile to a fast `match`; no `literal` to forget.                                                                                             |
-| `localizedName(languages, options?)`                | The name in the first available language, optionally with the local name on a second line.                                                                           |
-| `firstNonEmpty(...values)`                          | Like `coalesce`, but also skips `""`.                                                                                                                                |
-| `compactNumber(input, options?)`                    | `1234` becomes `"1.2K"`, in any locale: `"1,2 Mio."`, `"12L"`, `"123万"`, with currencies and units.                                                                 |
-| `contrastText(background, options?)`                | Black or white text, whichever reads better on a data-driven background (WCAG 2).                                                                                    |
-| `colorOr(value, fallback, options?)`                | A color from feature data, with a fallback for missing, empty and invalid values (`coalesce` only covers missing ones). Reads GTFS-style hex without `#` on request. |
-| `withAlpha(color, alpha)`                           | The same color with a different opacity.                                                                                                                             |
-
-### Labels in the reader's language
-
-`localizedName` tries each language in order and falls back to `name`, skipping missing and empty names (`coalesce` stops at `""`). A language can come from global state, so one style can switch language at runtime:
-
-```ts
-const layout = {
-  "text-field": localizedName([globalState("lang"), "en"], { secondLine: "name" }), // "Munich\nMünchen"
-}
-
-// keep "lang" set on the map
-const stop = syncGlobalState(map, "lang", navigator.language.slice(0, 2))
-```
-
-The second line shows the local name only when it's there and differs from the first line. maplibre-gl 5 and earlier also leave it out for scripts they'd draw wrongly (right-to-left text without the RTL plugin, and scripts like Devanagari). Field names default to `name:fr` (OpenMapTiles, Protomaps, MapTiler); pass `field: "name_{lang}"` for Shortbread. Changing the language reloads the tiles of the layers that use it.
-
-### Compact numbers in any locale
-
-MapLibre's `number-format` has no compact notation. `compactNumber` reads the locale's abbreviations from `Intl.NumberFormat` when it builds the expression, and its output matches `Intl` (the tests check this in 12 locales):
-
-```ts
-compactNumber(get("point_count")) // 1234 → "1.2K", 56789 → "57K"; point_count_abbreviated is English only
-compactNumber(get("population"), { locale: "de" }) // 1234567 → "1,2 Mio." (thousands aren't abbreviated in German)
-compactNumber(get("sales"), { locale: "en-IN", currency: "INR" }) // 1234567 → "₹12L"
-compactNumber(get("count"), { minimum: 10_000 }) // 9876 → "9,876"
-compactNumber(get("bytes"), { scales: [[1024, " KB"], [1024 ** 2, " MB"]] }) // your own units
-```
-
-## Global state
-
-Expressions can't read the clock or your app's state, and baking a value like `Date.now()` into a style freezes it, so every change means rebuilding the filter and calling `setFilter` on each layer. Instead, read the value with `globalState(name)` and set it on the map. The filter then never changes identity:
-
-```ts
-// layer filter: events that haven't ended
-filter: gt(get("ends_at"), globalState("now"))
-
-// keep "now" set on the map
-const stop = syncGlobalState(map, "now", Date.now())
-```
-
-Setting it by hand with `map.setGlobalStateProperty` has three pitfalls, which `syncGlobalState` handles:
-
-- **It throws before the style loads** ("Style is not done loading"), e.g. in a React effect on first mount. `syncGlobalState` applies it on the first `styledata` event instead.
-- **A full style reload clears global state.** `setStyle(..., { diff: true })` keeps it; a reload without `diff` starts empty. `syncGlobalState` re-applies after every `styledata`.
-- **Re-applying fights manual changes.** Because it keeps the value set, a value changed by hand (e.g. from devtools) is put back on the next `styledata`. Stop the sync first.
-
-To change the value, stop and sync again. In React: `useEffect(() => syncGlobalState(map, "now", now), [map, now])`.
-
-The same goes for selections and sliders: instead of rebuilding a filter on every click or slider input, compare against global state, e.g. `eq(get("route_id"), globalState("route"))` or `in_(get("id"), globalState("selected"))` with an array. An unset value makes `eq` and `in_` false, but makes number comparisons like `lte(get("start"), globalState("time"))` fail, which hides every feature until the value is set; `syncGlobalState` sets it as soon as the style loads.
-
-Global state doesn't make re-filtering free: when the value changes, MapLibre still re-evaluates the layers that read it. What you save is rebuilding and re-applying filters. Global state needs maplibre-gl 5.6+ (see [platform support](#platform-support)).
+The other recipes only use long-standing operators. `compactNumber`'s `currency` and `unit` options don't need `number-format`'s: their text comes from `Intl` when the expression is built.
 
 ## Writing your own helpers
 
@@ -337,6 +328,22 @@ function widthRamp(stops: Stops<NumberInput>): Expr<number> {
 ```
 
 `Input<T>` (`T` or an expression producing `T`) has shorthands: `NumberInput`, `StringInput`, `BooleanInput`, `ColorInput`, `ArrayInput<T>`.
+
+## For AI coding agents
+
+A broken expression produces no error at render time, only missing features, so an agent can't see its own mistakes by looking at the map. Paste this into your project's `AGENTS.md` or `CLAUDE.md`:
+
+```md
+## MapLibre expressions
+
+- Build style expressions with `@builtbyfield/maplibre-expr`, not raw arrays, and run the type checker.
+- Declare the properties of each source layer once with `typedProperties<...>()` and read them through it.
+- For every filter and data-driven property, write a test that calls `evaluate()` from `@builtbyfield/maplibre-expr/testing` on sample features, including ones that should be excluded and ones with missing properties.
+- Check each expression where it's used with `validate(expr, { property })`.
+- Break an expression on purpose (e.g. `gt` to `gte`) and confirm a test fails.
+- When rewriting an existing expression, show the behavior is unchanged with `assertEquivalent(before, after)`.
+- Test the finished style with `expect(lintStyle(style)).toEqual([])`.
+```
 
 ## Operators
 
