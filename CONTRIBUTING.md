@@ -32,7 +32,7 @@ These keep type-checking fast and the types honest. Breaking them tends to look 
 - **Every exported function has an explicit return type** (`isolatedDeclarations`), JSDoc that names its operator ("MapLibre \`op\`.") and an `@see` link to the operator's heading in the spec docs.
 - **Reserved words get a trailing underscore**: `case_`, `in_`, `let_`, `var_`, `typeof_`.
 - CI fails the typecheck if it takes over 60 seconds; it normally takes under one.
-- **Don't nest a `let_` per item of a list.** MapLibre's parser (which maplibre-gl runs when a style loads) takes time exponential in the depth of nested `let`s: 18 levels take about 0.1 s, 20 levels seconds. Repeat the cheap sub-expression instead, as `firstNonEmpty` does.
+- **Don't nest a `let_` or `coalesce` per item of a list.** When maplibre-gl loads a style, `findZoomCurve` in the style spec takes time exponential in how deeply `let`s and `coalesce`s nest: about 70 ms at 18 levels, 300 ms at 20 and a second at 22 ([maplibre/maplibre-style-spec#1933](https://github.com/maplibre/maplibre-style-spec/issues/1933), fixed by [#1934](https://github.com/maplibre/maplibre-style-spec/pull/1934) once it's merged and released). Repeat the cheap sub-expression instead, as `firstNonEmpty` does.
 
 ## Tests
 

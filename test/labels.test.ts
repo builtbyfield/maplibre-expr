@@ -149,7 +149,7 @@ describe("localizedName", () => {
   })
 
   it("is valid as a text-field, even with many languages", () => {
-    // 40 languages: with a `let` per value (as before), MapLibre's parser would take time exponential in that
+    // 40 languages: with a `let` per value (as before), maplibre-gl's style loading would take time exponential in that (maplibre/maplibre-style-spec#1933)
     const many = Array.from({ length: 40 }, (_, i) => `l${i}`)
     expect(validate(localizedName(many, { secondLine: ["name:nonlatin", "name"] }), { property: "text-field" })).toEqual({ valid: true, errors: [] })
     expect(validate(localizedName([globalState("lang"), "en"], { secondLine: "name" }), { property: "text-field" })).toEqual({ valid: true, errors: [] })
